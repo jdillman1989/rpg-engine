@@ -1,29 +1,65 @@
 function animateMove(){
 
   if(keys.up){
-    speedY = -1;
+
+    var topLeft = {x: player.x, y: player.y};
+    var topRight = {x: player.x + player.width - 1, y: player.y};
+
+    if(!map[coordsToTile(topLeft.x, topLeft.y)].state.passable || !map[coordsToTile(topRight.x, topRight.y)].state.passable){
+      speedY = 0;
+    }
+    else{
+      speedY = -1;
+    }
   }
   else if(keys.down){
-    speedY = 1;
+
+    var bottomLeft = {x: player.x, y: player.y + player.width - 1};
+    var bottomRight = {x: player.x + player.width - 1, y: player.y + player.width - 1};
+
+    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y)].state.passable || !map[coordsToTile(bottomRight.x, bottomRight.y)].state.passable){
+      speedY = 0;
+    }
+    else{
+      speedY = 1;
+    }
   }
   else{
     speedY = 0;
   }
 
   if(keys.left){
-    speedX = -1;
+
+    var bottomLeft = {x: player.x, y: player.y + player.width - 1};
+    var topLeft = {x: player.x, y: player.y};
+
+    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y)].state.passable || !map[coordsToTile(topLeft.x, topLeft.y)].state.passable){
+      speedX = 0;
+    }
+    else{
+      speedX = -1;
+    }
   }
   else if(keys.right){
-    speedX = 1;
+
+    var bottomRight = {x: player.x + player.width - 1, y: player.y + player.width - 1};
+    var topRight = {x: player.x + player.width - 1, y: player.y};
+
+    if(!map[coordsToTile(bottomRight.x, bottomRight.y)].state.passable || !map[coordsToTile(topRight.x, topRight.y)].state.passable){
+      speedX = 0;
+    }
+    else{
+      speedX = 1;
+    }
   }
   else{
     speedX = 0;
   }
 
-  var tile = coordsToTile(player.x, player.y);
-  selectedTile = tile;
+  selectedTile = coordsToTile(player.x + (player.width / 2), player.y + (tileSize / 2));
 
   drawGame(map);
+
   window.requestAnimationFrame(function(){
 
     var now = performance.now();
@@ -89,7 +125,8 @@ function tileToCoords(tile){
 }
 
 function coordsToTile(x, y){
-  var tile = ((Math.ceil(y / tileSize)) * mapW) + (Math.ceil(x / tileSize));
+
+  var tile = ((Math.floor(y / tileSize)) * mapW) + (Math.floor(x / tileSize));
   return tile;
 }
 

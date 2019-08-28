@@ -5,9 +5,7 @@ window.onload = function(){
   canvas = document.getElementById('save');
   ctx = canvas.getContext("2d");
 
-  selectedTile = coordsToTile(player.x, player.y);
-
-  console.log(selectedTile);
+  selectedTile = coordsToTile(player.x + (player.width / 2), player.y + (tileSize / 2));
 
   window.onkeydown = function(e) {
     switch(e.which) {

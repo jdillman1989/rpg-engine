@@ -6,8 +6,8 @@ var ctx = null;
 
 // Static Globals
 var tileSize = 16,
-    mapW = 15,
-    mapH = 15;
+    mapW = 10,
+    mapH = 10;
 
 var camera = {
   x: 0,
@@ -23,7 +23,13 @@ var keys = {
   right: false
 };
 
-var player = {x:1, y:1, width: 16, height: 24, sprite: playerSprite};
+var player = {
+  x:32, 
+  y:32, 
+  width: 16, 
+  height: 24, 
+  sprite: playerSprite
+};
 
 var speedX = 0,
     speedY = 0;
