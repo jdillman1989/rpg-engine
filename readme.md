@@ -1,8 +1,8 @@
 ## To Do
 
--Fix collisions (sliding past motions)
 -Looped animations
--Dynamic lighting effects
+-Camera scrolling
 -Collision interactions
 -Character data
 -UI elements
+-Dynamic lighting effects

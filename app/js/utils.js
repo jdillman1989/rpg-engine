@@ -1,78 +1,3 @@
-function animateMove(){
-
-  if(keys.up){
-
-    var topLeft = {x: player.x, y: player.y};
-    var topRight = {x: player.x + player.width - 1, y: player.y};
-
-    if(!map[coordsToTile(topLeft.x, topLeft.y)].state.passable || !map[coordsToTile(topRight.x, topRight.y)].state.passable){
-      speedY = 0;
-    }
-    else{
-      speedY = -1;
-    }
-  }
-  else if(keys.down){
-
-    var bottomLeft = {x: player.x, y: player.y + player.width - 1};
-    var bottomRight = {x: player.x + player.width - 1, y: player.y + player.width - 1};
-
-    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y)].state.passable || !map[coordsToTile(bottomRight.x, bottomRight.y)].state.passable){
-      speedY = 0;
-    }
-    else{
-      speedY = 1;
-    }
-  }
-  else{
-    speedY = 0;
-  }
-
-  if(keys.left){
-
-    var bottomLeft = {x: player.x, y: player.y + player.width - 1};
-    var topLeft = {x: player.x, y: player.y};
-
-    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y)].state.passable || !map[coordsToTile(topLeft.x, topLeft.y)].state.passable){
-      speedX = 0;
-    }
-    else{
-      speedX = -1;
-    }
-  }
-  else if(keys.right){
-
-    var bottomRight = {x: player.x + player.width - 1, y: player.y + player.width - 1};
-    var topRight = {x: player.x + player.width - 1, y: player.y};
-
-    if(!map[coordsToTile(bottomRight.x, bottomRight.y)].state.passable || !map[coordsToTile(topRight.x, topRight.y)].state.passable){
-      speedX = 0;
-    }
-    else{
-      speedX = 1;
-    }
-  }
-  else{
-    speedX = 0;
-  }
-
-  selectedTile = coordsToTile(player.x + (player.width / 2), player.y + (tileSize / 2));
-
-  drawGame(map);
-
-  window.requestAnimationFrame(function(){
-
-    var now = performance.now();
-    while (times.length > 0 && times[0] <= now - 1000) {
-      times.shift();
-    }
-    times.push(now);
-    fps = times.length;
-
-    animateMove();
-  });
-}
-
 function toColor(colorObj){
   return 'rgba(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ',' + colorObj.a + ')';
 }
@@ -199,7 +124,7 @@ function testMap(){
             id: i,
             render: {
               base: '#0C3',
-              sprite: tree
+              sprite: {data:tree, frame:1}
             },
             state: {
               passable: false

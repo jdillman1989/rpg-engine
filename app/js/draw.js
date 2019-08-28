@@ -5,7 +5,9 @@ function drawGame(map){
 
   for(var y = 0; y < mapH; ++y){
     for(var x = 0; x < mapW; ++x){
+
       var currentPos = ((y*mapW)+x);
+
       ctx.fillStyle = map[currentPos].render.base;
       if(currentPos == selectedTile){
         ctx.fillStyle = '#FF0';
@@ -20,15 +22,15 @@ function drawGame(map){
 
       if(thisSprite){
         var originX = (x*tileSize);
-        var originY = ((y*tileSize) + tileSize) - thisSprite.height;
+        var originY = ((y*tileSize) + tileSize) - thisSprite.data.height;
         spriteData.push(
           {
             player: false,
             originX: originX, 
             originY: originY, 
-            width: thisSprite.width, 
-            height: thisSprite.height, 
-            render: thisSprite.render[0]
+            width: thisSprite.data.width, 
+            height: thisSprite.data.height,
+            render: thisSprite.data.render[thisSprite.frame]
           }
         );
       }

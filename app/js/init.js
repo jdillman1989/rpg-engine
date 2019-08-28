@@ -49,6 +49,14 @@ window.onload = function(){
     };
   };
 
+  for(var i = 0; i < map.length; ++i){
+    if(map[i].render.sprite){
+      if(map[i].render.sprite.data.loop){
+        spriteLoop(i, map[i].render.sprite.data.render, map[i].render.sprite.data.loop);
+      }
+    }
+  }
+
   drawGame(map);
   window.requestAnimationFrame(function(){
     animateMove();
