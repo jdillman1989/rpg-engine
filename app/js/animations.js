@@ -84,3 +84,20 @@ function spriteLoop(spriteID, frames, rate){
     }
   }, rate);
 }
+
+function playerLoop(frames){
+
+  if(playerInterval === 0){
+    player.frame = frames[0];
+    var i = 1;
+
+    playerInterval = setInterval(function(){
+
+      player.frame = frames[i];
+      i++;
+      if(i >= frames.length){
+        i = 0;
+      }
+    }, 100);
+  }
+}

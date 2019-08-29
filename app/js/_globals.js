@@ -28,8 +28,11 @@ var player = {
   y:32, 
   width: 16, 
   height: 24, 
-  sprite: playerSprite
+  sprite: playerSprite,
+  frame: 0,
 };
+
+var playerInterval = 0;
 
 var speedX = 0,
     speedY = 0;

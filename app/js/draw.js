@@ -39,7 +39,7 @@ function drawGame(map){
 
   for(var i = 0; i < spriteData.length; ++i){
     if(spriteData[i].player){
-      drawPlayer(player.x, player.y, player.width, player.height, player.sprite.render, 0);
+      drawPlayer(player.x, player.y, player.width, player.height, player.sprite.render, player.frame);
     }
     else{
       drawSprite(spriteData[i].originX, spriteData[i].originY, spriteData[i].width, spriteData[i].height, spriteData[i].render);
