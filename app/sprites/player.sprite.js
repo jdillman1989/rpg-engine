@@ -1,5 +1,4 @@
 var playerSprite = { // 16 x 24
-  loop: 0,
   render: [
 
     //////////

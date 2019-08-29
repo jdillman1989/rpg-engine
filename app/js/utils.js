@@ -90,6 +90,9 @@ function adjacentTiles(tile){
 
 function testMap(){
   for(var i = 0; i < (mapH * mapW); ++i){
+
+    // Edges
+
     if (
       // top
       i < mapW || 
@@ -106,7 +109,7 @@ function testMap(){
           id: i,
           render: {
             base: '#D35',
-            sprite: false
+            object: false
           },
           state: {
             passable: false
@@ -117,6 +120,8 @@ function testMap(){
     }
     else{
 
+      // Tree 1
+
       if(i == (mapW * 4) + 4){
 
         map.push(
@@ -124,7 +129,14 @@ function testMap(){
             id: i,
             render: {
               base: '#0C3',
-              sprite: {data:tree, frame:1}
+              object: {
+                sprite: tree,
+                frame: 1,
+                logic: {
+                  func: 'spriteLoop',
+                  data: [i, tree.render, 1500]
+                }
+              }
             },
             state: {
               passable: false
@@ -133,6 +145,61 @@ function testMap(){
         );
 
       }
+
+      // Enemy
+
+      else if(i == (mapW * 1) + 8){
+
+        map.push(
+          {
+            id: i,
+            render: {
+              base: '#0C3',
+              object: {
+                sprite: enemy, 
+                frame: 1,
+                logic: {
+                  func: 'spritePath',
+                  data: []
+                }
+              }
+            },
+            state: {
+              passable: true
+            }
+          },
+        );
+
+      }
+
+      // Tree 2
+
+      else if(i == (mapW * 4) + 3){
+
+        map.push(
+          {
+            id: i,
+            render: {
+              base: '#0C3',
+              object: {
+                sprite: tree,
+                frame: 1,
+                logic: {
+                  func: 'spriteLoop',
+                  data: [i, tree.render, 1000]
+                }
+              }
+            },
+            state: {
+              passable: false
+            }
+          },
+        );
+
+      }
+
+      // Grass
+
       else{
 
         map.push(
@@ -140,7 +207,7 @@ function testMap(){
             id: i,
             render: {
               base: '#0C3',
-              sprite: false
+              object: false
             },
             state: {
               passable: true

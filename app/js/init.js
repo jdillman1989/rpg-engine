@@ -12,22 +12,18 @@ window.onload = function(){
 
       case 87: // W
         keys.up = true;
-        playerLoop([2,3]);
         break;
 
       case 65: // A
         keys.left = true;
-        playerLoop([4,5]);
         break;
 
       case 83: // S
         keys.down = true;
-        playerLoop([0,1]);
         break;
 
       case 68: // D
         keys.right = true;
-        playerLoop([6,7]);
         break;
     };
   };
@@ -62,9 +58,10 @@ window.onload = function(){
   };
 
   for(var i = 0; i < map.length; ++i){
-    if(map[i].render.sprite){
-      if(map[i].render.sprite.data.loop){
-        spriteLoop(i, map[i].render.sprite.data.render, map[i].render.sprite.data.loop);
+    if(map[i].render.object){
+      if(map[i].render.object.logic){
+
+        window[map[i].render.object.logic.func].apply(null, map[i].render.object.logic.data);
       }
     }
   }

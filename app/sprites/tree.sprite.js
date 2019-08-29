@@ -1,5 +1,4 @@
 var tree = { // 16 x 32
-  loop: 1500,
   width: 16,
   height: 32,
   render: [

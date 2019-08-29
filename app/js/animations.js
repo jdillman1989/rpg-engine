@@ -10,6 +10,7 @@ function animateMove(){
     }
     else{
       speedY = -1;
+      playerLoop([2,3]);
     }
   }
   else if(keys.down){
@@ -22,6 +23,7 @@ function animateMove(){
     }
     else{
       speedY = 1;
+      playerLoop([0,1]);
     }
   }
   else{
@@ -38,6 +40,7 @@ function animateMove(){
     }
     else{
       speedX = -1;
+      playerLoop([4,5]);
     }
   }
   else if(keys.right){
@@ -50,6 +53,7 @@ function animateMove(){
     }
     else{
       speedX = 1;
+      playerLoop([6,7]);
     }
   }
   else{
@@ -73,16 +77,21 @@ function animateMove(){
   });
 }
 
-function spriteLoop(spriteID, frames, rate){
+function spriteLoop(id, frames, rate){
   var i = 0;
   var thisAnim = setInterval(function(){
 
-    map[spriteID].render.sprite.frame = i;
+    map[id].render.object.frame = i;
     i++;
     if(i >= frames.length){
       i = 0;
     }
   }, rate);
+}
+
+function spritePath(){
+  // Coming soon
+  return;
 }
 
 function playerLoop(frames){
@@ -98,6 +107,6 @@ function playerLoop(frames){
       if(i >= frames.length){
         i = 0;
       }
-    }, 100);
+    }, 200);
   }
 }

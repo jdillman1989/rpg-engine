@@ -1,8 +1,8 @@
 ## To Do
 
--Looped animations
--Camera scrolling
+-NPC animations
 -Collision interactions
+-Camera scrolling
 -Character data
 -UI elements
 -Dynamic lighting effects

@@ -14,23 +14,23 @@ function drawGame(map){
       }
       ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
 
-      var thisSprite = map[currentPos].render.sprite;
+      var thisObj = map[currentPos].render.object;
 
       if(currentPos == selectedTile){
         spriteData.push({player: true});
       }
 
-      if(thisSprite){
+      if(thisObj){
         var originX = (x*tileSize);
-        var originY = ((y*tileSize) + tileSize) - thisSprite.data.height;
+        var originY = ((y*tileSize) + tileSize) - thisObj.sprite.height;
         spriteData.push(
           {
             player: false,
             originX: originX, 
             originY: originY, 
-            width: thisSprite.data.width, 
-            height: thisSprite.data.height,
-            render: thisSprite.data.render[thisSprite.frame]
+            width: thisObj.sprite.width, 
+            height: thisObj.sprite.height,
+            render: thisObj.sprite.render[thisObj.frame]
           }
         );
       }
