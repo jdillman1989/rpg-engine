@@ -1,7 +1,7 @@
 function drawGame(map){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  var spriteData = [];
+  var tileObjData = [];
 
   for(var y = 0; y < mapH; ++y){
     for(var x = 0; x < mapW; ++x){
@@ -9,23 +9,24 @@ function drawGame(map){
       var currentPos = ((y*mapW)+x);
 
       ctx.fillStyle = map[currentPos].render.base;
-      if(currentPos == selectedTile){
-        ctx.fillStyle = '#FF0';
-      }
-      ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
 
       var thisObj = map[currentPos].render.object;
 
-      if(currentPos == selectedTile){
-        spriteData.push({player: true});
-      }
+      if(thisObj !== false){
 
-      if(thisObj){
+        ctx.fillStyle = '#00F';
+
+        thisObj = entities[thisObj];
         var originX = (x*tileSize);
         var originY = ((y*tileSize) + tileSize) - thisObj.sprite.height;
-        spriteData.push(
+        if(thisObj.type == 'mobile'){
+          originX = thisObj.xy.x;
+          originY = thisObj.xy.y;
+        }
+        tileObjData.push(
           {
-            player: false,
+            id: thisObj.id,
+            type: thisObj.type,
             originX: originX, 
             originY: originY, 
             width: thisObj.sprite.width, 
@@ -34,15 +35,22 @@ function drawGame(map){
           }
         );
       }
+
+      if(currentPos == entities[0].tile){
+        ctx.fillStyle = '#FF0';
+      }
+
+      ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
+
     }
   }
 
-  for(var i = 0; i < spriteData.length; ++i){
-    if(spriteData[i].player){
-      drawPlayer(player.x, player.y, player.width, player.height, player.sprite.render, player.frame);
+  for(var i = 0; i < tileObjData.length; ++i){
+    if(tileObjData[i].type == 'mobile'){
+      drawEntity(tileObjData[i].id, tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
     }
     else{
-      drawSprite(spriteData[i].originX, spriteData[i].originY, spriteData[i].width, spriteData[i].height, spriteData[i].render);
+      drawSprite(tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
     }
   }
 }
@@ -62,13 +70,13 @@ function drawSprite(posX, posY, sizeX, sizeY, thisSprite){
   }
 }
 
-function drawPlayer(posX, posY, sizeX, sizeY, thisSprite, frame){
+function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
 
-  var offX = posX + speedX;
-  var offY = posY + speedY;
+  var offX = posX + entities[id].speedX;
+  var offY = posY + entities[id].speedY;
 
-  drawSprite(offX, offY + sizeX - sizeY, sizeX, sizeY, thisSprite[frame]);
+  drawSprite(offX, offY + sizeX - sizeY, sizeX, sizeY, thisSprite);
 
-  player.x = offX;
-  player.y = offY;
+  entities[id].xy.x = offX;
+  entities[id].xy.y = offY;
 }

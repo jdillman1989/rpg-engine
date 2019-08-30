@@ -1,4 +1,6 @@
 var playerSprite = { // 16 x 24
+  width: 16,
+  height: 24,
   render: [
 
     //////////

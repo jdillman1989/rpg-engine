@@ -262,6 +262,8 @@ var enemy = { // 16 x 24
   ]
 };
 var playerSprite = { // 16 x 24
+  width: 16,
+  height: 24,
   render: [
 
     //////////
@@ -592,92 +594,78 @@ var keys = {
   right: false
 };
 
-var player = {
-  x:32, 
-  y:32, 
-  width: 16, 
-  height: 24, 
-  sprite: playerSprite,
-  frame: 0,
-};
+var entities = [
+  {
+    id: 0,
+    type: 'mobile',
+    tile: 22,
+    xy: tileToCoords(22),
+    speedX: 0,
+    speedY: 0,
+    sprite: playerSprite,
+    frame: 0,
+    interval: 0,
+    logic: false
+  },
+  {
+    id: 1,
+    type: 'static',
+    tile: 44,
+    xy: tileToCoords(44),
+    speedX: 0,
+    speedY: 0,
+    sprite: tree,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'spriteLoop',
+      data: [1, tree.render, 1000],
+      state: {passable: false}
+    }
+  },
+  {
+    id: 2,
+    type: 'static',
+    tile: 37,
+    xy: tileToCoords(37),
+    speedX: 0,
+    speedY: 0,
+    sprite: tree,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'spriteLoop',
+      data: [2, tree.render, 1500],
+      state: {passable: false}
+    }
+  },
+  {
+    id: 3,
+    type: 'mobile',
+    tile: 28,
+    xy: tileToCoords(28),
+    speedX: 0,
+    speedY: 0,
+    sprite: enemy,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'setPath',
+      data: [3, ['down', 'down', 'left', 'left', 'up', 'up', 'right', 'right'], 2000],
+      state: false
+    }
+  }
+];
 
-var playerInterval = 0;
-
-var speedX = 0,
-    speedY = 0;
-
-var selectedTile;
+var map = [];
 
 var times = [];
 var fps;
 
-var map = [];
-
-function animateMove(){
-
-  if(keys.up){
-
-    var topLeft = {x: player.x, y: player.y};
-    var topRight = {x: player.x + player.width - 1, y: player.y};
-
-    if(!map[coordsToTile(topLeft.x, topLeft.y - 1)].state.passable || !map[coordsToTile(topRight.x, topRight.y - 1)].state.passable){
-      speedY = 0;
-    }
-    else{
-      speedY = -1;
-      playerLoop([2,3]);
-    }
-  }
-  else if(keys.down){
-
-    var bottomLeft = {x: player.x, y: player.y + player.width - 1};
-    var bottomRight = {x: player.x + player.width - 1, y: player.y + player.width - 1};
-
-    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.passable || !map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.passable){
-      speedY = 0;
-    }
-    else{
-      speedY = 1;
-      playerLoop([0,1]);
-    }
-  }
-  else{
-    speedY = 0;
-  }
-
-  if(keys.left){
-
-    var bottomLeft = {x: player.x, y: player.y + player.width - 1};
-    var topLeft = {x: player.x, y: player.y};
-
-    if(!map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.passable || !map[coordsToTile(topLeft.x - 1, topLeft.y)].state.passable){
-      speedX = 0;
-    }
-    else{
-      speedX = -1;
-      playerLoop([4,5]);
-    }
-  }
-  else if(keys.right){
-
-    var bottomRight = {x: player.x + player.width - 1, y: player.y + player.width - 1};
-    var topRight = {x: player.x + player.width - 1, y: player.y};
-
-    if(!map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.passable || !map[coordsToTile(topRight.x + 1, topRight.y)].state.passable){
-      speedX = 0;
-    }
-    else{
-      speedX = 1;
-      playerLoop([6,7]);
-    }
-  }
-  else{
-    speedX = 0;
-  }
-
-  selectedTile = coordsToTile(player.x + (player.width / 2), player.y + (tileSize / 2));
-
+function mainLoop(){
   drawGame(map);
+
+  animateMove(0, keys.up, keys.down, keys.left, keys.right);
 
   window.requestAnimationFrame(function(){
 
@@ -688,16 +676,87 @@ function animateMove(){
     times.push(now);
     fps = times.length;
 
-    animateMove();
+    mainLoop();
   });
 }
 
+function animateMove(id, up, down, left, right){
+
+  var prevTile = entities[id].tile;
+
+  if(up){
+
+    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
+
+    if(!map[coordsToTile(topLeft.x, topLeft.y - 1)].state.passable || !map[coordsToTile(topRight.x, topRight.y - 1)].state.passable){
+      entities[id].speedY = 0;
+    }
+    else{
+      entities[id].speedY = -1;
+      walkLoop(id, [2,3]);
+    }
+  }
+  else if(down){
+
+    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
+
+    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.passable || !map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.passable){
+      entities[id].speedY = 0;
+    }
+    else{
+      entities[id].speedY = 1;
+      walkLoop(id, [0,1]);
+    }
+  }
+  else{
+    entities[id].speedY = 0;
+  }
+
+  if(left){
+
+    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+
+    if(!map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.passable || !map[coordsToTile(topLeft.x - 1, topLeft.y)].state.passable){
+      entities[id].speedX = 0;
+    }
+    else{
+      entities[id].speedX = -1;
+      walkLoop(id, [4,5]);
+    }
+  }
+  else if(right){
+
+    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
+
+    if(!map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.passable || !map[coordsToTile(topRight.x + 1, topRight.y)].state.passable){
+      entities[id].speedX = 0;
+    }
+    else{
+      entities[id].speedX = 1;
+      walkLoop(id, [6,7]);
+    }
+  }
+  else{
+    entities[id].speedX = 0;
+  }
+
+  entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
+  map[entities[id].tile].render.object = id;
+
+  if(prevTile !== entities[id].tile){
+    map[prevTile].render.object = false;
+  }
+}
+
 function spriteLoop(id, frames, rate){
-  console.log('id: ' + id);
   var i = 0;
   var thisAnim = setInterval(function(){
 
-    map[id].render.object.frame = i;
+    entities[id].frame = i;
     i++;
     if(i >= frames.length){
       i = 0;
@@ -705,20 +764,20 @@ function spriteLoop(id, frames, rate){
   }, rate);
 }
 
-function spritePath(){
-  // Coming soon
+function setPath(id, path, rate){
+
   return;
 }
 
-function playerLoop(frames){
+function walkLoop(id, frames){
 
-  if(playerInterval === 0){
-    player.frame = frames[0];
-    var i = 1;
+  var i = 1;
 
-    playerInterval = setInterval(function(){
+  if(entities[id].interval == 0){
 
-      player.frame = frames[i];
+    entities[id].frame = frames[0];
+    entities[id].interval = setInterval(function(){
+      entities[id].frame = frames[i];
       i++;
       if(i >= frames.length){
         i = 0;
@@ -729,7 +788,7 @@ function playerLoop(frames){
 function drawGame(map){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  var spriteData = [];
+  var tileObjData = [];
 
   for(var y = 0; y < mapH; ++y){
     for(var x = 0; x < mapW; ++x){
@@ -737,23 +796,24 @@ function drawGame(map){
       var currentPos = ((y*mapW)+x);
 
       ctx.fillStyle = map[currentPos].render.base;
-      if(currentPos == selectedTile){
-        ctx.fillStyle = '#FF0';
-      }
-      ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
 
       var thisObj = map[currentPos].render.object;
 
-      if(currentPos == selectedTile){
-        spriteData.push({player: true});
-      }
+      if(thisObj !== false){
 
-      if(thisObj){
+        ctx.fillStyle = '#00F';
+
+        thisObj = entities[thisObj];
         var originX = (x*tileSize);
         var originY = ((y*tileSize) + tileSize) - thisObj.sprite.height;
-        spriteData.push(
+        if(thisObj.type == 'mobile'){
+          originX = thisObj.xy.x;
+          originY = thisObj.xy.y;
+        }
+        tileObjData.push(
           {
-            player: false,
+            id: thisObj.id,
+            type: thisObj.type,
             originX: originX, 
             originY: originY, 
             width: thisObj.sprite.width, 
@@ -762,15 +822,22 @@ function drawGame(map){
           }
         );
       }
+
+      if(currentPos == entities[0].tile){
+        ctx.fillStyle = '#FF0';
+      }
+
+      ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
+
     }
   }
 
-  for(var i = 0; i < spriteData.length; ++i){
-    if(spriteData[i].player){
-      drawPlayer(player.x, player.y, player.width, player.height, player.sprite.render, player.frame);
+  for(var i = 0; i < tileObjData.length; ++i){
+    if(tileObjData[i].type == 'mobile'){
+      drawEntity(tileObjData[i].id, tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
     }
     else{
-      drawSprite(spriteData[i].originX, spriteData[i].originY, spriteData[i].width, spriteData[i].height, spriteData[i].render);
+      drawSprite(tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
     }
   }
 }
@@ -790,15 +857,15 @@ function drawSprite(posX, posY, sizeX, sizeY, thisSprite){
   }
 }
 
-function drawPlayer(posX, posY, sizeX, sizeY, thisSprite, frame){
+function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
 
-  var offX = posX + speedX;
-  var offY = posY + speedY;
+  var offX = posX + entities[id].speedX;
+  var offY = posY + entities[id].speedY;
 
-  drawSprite(offX, offY + sizeX - sizeY, sizeX, sizeY, thisSprite[frame]);
+  drawSprite(offX, offY + sizeX - sizeY, sizeX, sizeY, thisSprite);
 
-  player.x = offX;
-  player.y = offY;
+  entities[id].xy.x = offX;
+  entities[id].xy.y = offY;
 }
 
 window.onload = function(){
@@ -807,8 +874,6 @@ window.onload = function(){
   
   canvas = document.getElementById('save');
   ctx = canvas.getContext("2d");
-
-  selectedTile = coordsToTile(player.x + (player.width / 2), player.y + (tileSize / 2));
 
   window.onkeydown = function(e) {
     switch(e.which) {
@@ -836,42 +901,47 @@ window.onload = function(){
 
       case 87: // W
         keys.up = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
 
       case 65: // A
         keys.left = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
 
       case 83: // S
         keys.down = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
 
       case 68: // D
         keys.right = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
     };
   };
 
-  for(var i = 0; i < map.length; ++i){
-    if(map[i].render.object){
-      if(map[i].render.object.logic){
+  for(var i = 0; i < entities.length; ++i){
 
-        window[map[i].render.object.logic.func].apply(null, map[i].render.object.logic.data);
+    map[entities[i].tile].render.object = entities[i].id;
+
+    if(entities[i].logic){        
+
+      window[entities[i].logic.func].apply(null, entities[i].logic.data);
+
+      if(entities[i].logic.state){
+        map[entities[i].tile].state = entities[i].logic.state;
       }
     }
   }
 
   drawGame(map);
   window.requestAnimationFrame(function(){
-    animateMove();
+    mainLoop();
   });
 
   var fpsMonitor = setInterval(function(){
@@ -990,7 +1060,8 @@ function testMap(){
           id: i,
           render: {
             base: '#D35',
-            object: false
+            object: false,
+            sprite: false
           },
           state: {
             passable: false
@@ -1001,102 +1072,21 @@ function testMap(){
     }
     else{
 
-      // Tree 1
-
-      if(i == (mapW * 4) + 4){
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: {
-                sprite: tree,
-                frame: 1,
-                logic: {
-                  func: 'spriteLoop',
-                  data: [i, tree.render, 1500]
-                }
-              }
-            },
-            state: {
-              passable: false
-            }
-          },
-        );
-
-      }
-
-      // Enemy
-
-      else if(i == (mapW * 1) + 8){
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: {
-                sprite: enemy, 
-                frame: 1,
-                logic: {
-                  func: 'spritePath',
-                  data: []
-                }
-              }
-            },
-            state: {
-              passable: true
-            }
-          },
-        );
-
-      }
-
-      // Tree 2
-
-      else if(i == (mapW * 4) + 3){
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: {
-                sprite: tree,
-                frame: 1,
-                logic: {
-                  func: 'spriteLoop',
-                  data: [i, tree.render, 1000]
-                }
-              }
-            },
-            state: {
-              passable: false
-            }
-          },
-        );
-
-      }
-
       // Grass
 
-      else{
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: false
-            },
-            state: {
-              passable: true
-            }
+      map.push(
+        {
+          id: i,
+          render: {
+            base: '#0C3',
+            object: false,
+            sprite: false
           },
-        );
-
-      }
+          state: {
+            passable: true
+          }
+        },
+      );
 
     }
   }

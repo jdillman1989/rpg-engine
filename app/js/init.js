@@ -5,8 +5,6 @@ window.onload = function(){
   canvas = document.getElementById('save');
   ctx = canvas.getContext("2d");
 
-  selectedTile = coordsToTile(player.x + (player.width / 2), player.y + (tileSize / 2));
-
   window.onkeydown = function(e) {
     switch(e.which) {
 
@@ -33,42 +31,47 @@ window.onload = function(){
 
       case 87: // W
         keys.up = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
 
       case 65: // A
         keys.left = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
 
       case 83: // S
         keys.down = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
 
       case 68: // D
         keys.right = false;
-        clearInterval(playerInterval);
-        playerInterval = 0;
+        clearInterval(entities[0].interval);
+        entities[0].interval = 0;
         break;
     };
   };
 
-  for(var i = 0; i < map.length; ++i){
-    if(map[i].render.object){
-      if(map[i].render.object.logic){
+  for(var i = 0; i < entities.length; ++i){
 
-        window[map[i].render.object.logic.func].apply(null, map[i].render.object.logic.data);
+    map[entities[i].tile].render.object = entities[i].id;
+
+    if(entities[i].logic){        
+
+      window[entities[i].logic.func].apply(null, entities[i].logic.data);
+
+      if(entities[i].logic.state){
+        map[entities[i].tile].state = entities[i].logic.state;
       }
     }
   }
 
   drawGame(map);
   window.requestAnimationFrame(function(){
-    animateMove();
+    mainLoop();
   });
 
   var fpsMonitor = setInterval(function(){

@@ -23,23 +23,70 @@ var keys = {
   right: false
 };
 
-var player = {
-  x:32, 
-  y:32, 
-  width: 16, 
-  height: 24, 
-  sprite: playerSprite,
-  frame: 0,
-};
+var entities = [
+  {
+    id: 0,
+    type: 'mobile',
+    tile: 22,
+    xy: tileToCoords(22),
+    speedX: 0,
+    speedY: 0,
+    sprite: playerSprite,
+    frame: 0,
+    interval: 0,
+    logic: false
+  },
+  {
+    id: 1,
+    type: 'static',
+    tile: 44,
+    xy: tileToCoords(44),
+    speedX: 0,
+    speedY: 0,
+    sprite: tree,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'spriteLoop',
+      data: [1, tree.render, 1000],
+      state: {passable: false}
+    }
+  },
+  {
+    id: 2,
+    type: 'static',
+    tile: 37,
+    xy: tileToCoords(37),
+    speedX: 0,
+    speedY: 0,
+    sprite: tree,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'spriteLoop',
+      data: [2, tree.render, 1500],
+      state: {passable: false}
+    }
+  },
+  {
+    id: 3,
+    type: 'mobile',
+    tile: 28,
+    xy: tileToCoords(28),
+    speedX: 0,
+    speedY: 0,
+    sprite: enemy,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'setPath',
+      data: [3, ['down', 'down', 'left', 'left', 'up', 'up', 'right', 'right'], 2000],
+      state: false
+    }
+  }
+];
 
-var playerInterval = 0;
-
-var speedX = 0,
-    speedY = 0;
-
-var selectedTile;
+var map = [];
 
 var times = [];
 var fps;
-
-var map = [];

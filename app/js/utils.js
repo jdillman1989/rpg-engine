@@ -109,7 +109,8 @@ function testMap(){
           id: i,
           render: {
             base: '#D35',
-            object: false
+            object: false,
+            sprite: false
           },
           state: {
             passable: false
@@ -120,102 +121,21 @@ function testMap(){
     }
     else{
 
-      // Tree 1
-
-      if(i == (mapW * 4) + 4){
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: {
-                sprite: tree,
-                frame: 1,
-                logic: {
-                  func: 'spriteLoop',
-                  data: [i, tree.render, 1500]
-                }
-              }
-            },
-            state: {
-              passable: false
-            }
-          },
-        );
-
-      }
-
-      // Enemy
-
-      else if(i == (mapW * 1) + 8){
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: {
-                sprite: enemy, 
-                frame: 1,
-                logic: {
-                  func: 'spritePath',
-                  data: []
-                }
-              }
-            },
-            state: {
-              passable: true
-            }
-          },
-        );
-
-      }
-
-      // Tree 2
-
-      else if(i == (mapW * 4) + 3){
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: {
-                sprite: tree,
-                frame: 1,
-                logic: {
-                  func: 'spriteLoop',
-                  data: [i, tree.render, 1000]
-                }
-              }
-            },
-            state: {
-              passable: false
-            }
-          },
-        );
-
-      }
-
       // Grass
 
-      else{
-
-        map.push(
-          {
-            id: i,
-            render: {
-              base: '#0C3',
-              object: false
-            },
-            state: {
-              passable: true
-            }
+      map.push(
+        {
+          id: i,
+          render: {
+            base: '#0C3',
+            object: false,
+            sprite: false
           },
-        );
-
-      }
+          state: {
+            passable: true
+          }
+        },
+      );
 
     }
   }
