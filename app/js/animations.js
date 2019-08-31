@@ -3,6 +3,12 @@ function mainLoop(){
 
   animateMove(0, keys.up, keys.down, keys.left, keys.right);
 
+  for(var i = 0; i < entities.length; ++i){
+    if(i && entities[i].type == 'mobile'){
+      animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
+    }
+  }
+
   window.requestAnimationFrame(function(){
 
     var now = performance.now();
@@ -100,9 +106,67 @@ function spriteLoop(id, frames, rate){
   }, rate);
 }
 
-function setPath(id, path, rate){
+function setPath(id, path, originPoint, originTime, step){
 
-  return;
+  if ((entities[id].dir.left  && entities[id].xy.x <= originPoint.x - tileSize) ||    
+      (entities[id].dir.right && entities[id].xy.x >= originPoint.x + tileSize) || 
+      (entities[id].dir.up    && entities[id].xy.y <= originPoint.y - tileSize) ||
+      (entities[id].dir.down  && entities[id].xy.y >= originPoint.y + tileSize)) {
+    // Go to the next step in the path array
+    step = step + 1;
+    if(step >= path.length){
+      step = 0;
+    }
+    // Reset the origin to the current tile coordinates
+    originPoint = JSON.parse(JSON.stringify(entities[id].xy));
+    clearInterval(entities[id].interval);
+    entities[id].interval = 0;
+  }
+
+  switch(path[step]) {
+
+    case 'up':
+      entities[id].dir.up = true;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break;
+
+    case 'down':
+      entities[id].dir.up = false;
+      entities[id].dir.down = true;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break;
+
+    case 'left':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = true;
+      entities[id].dir.right = false;
+      break;
+
+    case 'right':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = true;
+      break;
+
+    case 'wait':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break
+
+    case 'stop':
+      break
+  };
+
+  window.requestAnimationFrame(function(){
+    setPath(id, path, originPoint, originTime, step);
+  });
 }
 
 function walkLoop(id, frames){

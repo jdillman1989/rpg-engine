@@ -34,7 +34,8 @@ var entities = [
     sprite: playerSprite,
     frame: 0,
     interval: 0,
-    logic: false
+    logic: false,
+    dir: false
   },
   {
     id: 1,
@@ -50,7 +51,8 @@ var entities = [
       func: 'spriteLoop',
       data: [1, tree.render, 1000],
       state: {passable: false}
-    }
+    },
+    dir: false
   },
   {
     id: 2,
@@ -66,7 +68,8 @@ var entities = [
       func: 'spriteLoop',
       data: [2, tree.render, 1500],
       state: {passable: false}
-    }
+    },
+    dir: false
   },
   {
     id: 3,
@@ -80,9 +83,10 @@ var entities = [
     interval: 0,
     logic: {
       func: 'setPath',
-      data: [3, ['down', 'down', 'left', 'left', 'up', 'up', 'right', 'right'], 2000],
+      data: [3, ['down', 'down', 'left', 'left', 'up', 'up', 'right', 'right'], tileToCoords(28), 0, 0],
       state: false
-    }
+    },
+    dir: {up:false, down:false, left:false, right:false}
   }
 ];
 
