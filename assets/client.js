@@ -594,6 +594,8 @@ var keys = {
   right: false
 };
 
+var screen = 'overworld';
+
 var entities = [
   {
     id: 0,
@@ -654,8 +656,8 @@ var entities = [
     interval: 0,
     logic: {
       func: 'setPath',
-      data: [3, ['down', 'down', 'left', 'left', 'up', 'up', 'right', 'right'], tileToCoords(28), 0, 0],
-      state: false
+      data: [3, ['wait', 'down', 'wait', 'down', 'wait', 'left', 'wait', 'left', 'wait', 'up', 'wait', 'up', 'wait', 'right', 'wait', 'right'], tileToCoords(28), 0, 0],
+      state: {passable: true, battle: true}
     },
     dir: {up:false, down:false, left:false, right:false}
   }
@@ -663,18 +665,26 @@ var entities = [
 
 var map = [];
 
+var img;
+
 var times = [];
 var fps;
 
 function mainLoop(){
-  drawGame(map);
 
-  animateMove(0, keys.up, keys.down, keys.left, keys.right);
+  if (screen == 'overworld') {
+    drawGame(map);
 
-  for(var i = 0; i < entities.length; ++i){
-    if(i && entities[i].type == 'mobile'){
-      animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
+    animateMove(0, keys.up, keys.down, keys.left, keys.right);
+
+    for(var i = 0; i < entities.length; ++i){
+      if(i && entities[i].type == 'mobile'){
+        animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
+      }
     }
+  }
+  else{
+    drawBattle();
   }
 
   window.requestAnimationFrame(function(){
@@ -702,6 +712,10 @@ function animateMove(id, up, down, left, right){
     if(!map[coordsToTile(topLeft.x, topLeft.y - 1)].state.passable || !map[coordsToTile(topRight.x, topRight.y - 1)].state.passable){
       entities[id].speedY = 0;
     }
+    else if(!id && (map[coordsToTile(topLeft.x, topLeft.y - 1)].state.battle || map[coordsToTile(topRight.x, topRight.y - 1)].state.battle)){
+      entities[id].speedY = 0;
+      screen = 'battle';
+    }
     else{
       entities[id].speedY = -1;
       walkLoop(id, [2,3]);
@@ -714,6 +728,10 @@ function animateMove(id, up, down, left, right){
 
     if(!map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.passable || !map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.passable){
       entities[id].speedY = 0;
+    }
+    else if(!id && (map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.battle || map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.battle)){
+      entities[id].speedY = 0;
+      screen = 'battle';
     }
     else{
       entities[id].speedY = 1;
@@ -732,6 +750,10 @@ function animateMove(id, up, down, left, right){
     if(!map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.passable || !map[coordsToTile(topLeft.x - 1, topLeft.y)].state.passable){
       entities[id].speedX = 0;
     }
+    else if(!id && (map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.battle || map[coordsToTile(topLeft.x - 1, topLeft.y)].state.battle)){
+      entities[id].speedX = 0;
+      screen = 'battle';
+    }
     else{
       entities[id].speedX = -1;
       walkLoop(id, [4,5]);
@@ -745,6 +767,10 @@ function animateMove(id, up, down, left, right){
     if(!map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.passable || !map[coordsToTile(topRight.x + 1, topRight.y)].state.passable){
       entities[id].speedX = 0;
     }
+    else if(!id && (map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.battle || map[coordsToTile(topRight.x + 1, topRight.y)].state.battle)){
+      entities[id].speedX = 0;
+      screen = 'battle';
+    }
     else{
       entities[id].speedX = 1;
       walkLoop(id, [6,7]);
@@ -756,9 +782,13 @@ function animateMove(id, up, down, left, right){
 
   entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
   map[entities[id].tile].render.object = id;
+  if(entities[id].logic.state){
+    map[entities[id].tile].state = entities[id].logic.state;
+  }
 
   if(prevTile !== entities[id].tile){
     map[prevTile].render.object = false;
+    map[prevTile].state = {passable: true};
   }
 }
 
@@ -776,19 +806,34 @@ function spriteLoop(id, frames, rate){
 
 function setPath(id, path, originPoint, originTime, step){
 
-  if ((entities[id].dir.left  && entities[id].xy.x <= originPoint.x - tileSize) ||    
-      (entities[id].dir.right && entities[id].xy.x >= originPoint.x + tileSize) || 
-      (entities[id].dir.up    && entities[id].xy.y <= originPoint.y - tileSize) ||
-      (entities[id].dir.down  && entities[id].xy.y >= originPoint.y + tileSize)) {
-    // Go to the next step in the path array
-    step = step + 1;
-    if(step >= path.length){
-      step = 0;
+  if (path[step] != 'wait' && path[step] != 'stop') {
+
+    var destX = Math.abs(entities[id].xy.x - originPoint.x);
+    var destY = Math.abs(entities[id].xy.y - originPoint.y);
+
+    if (destX >= tileSize || destY >= tileSize) {
+      // Go to the next step in the path array
+      step = step + 1;
+      if(step >= path.length){
+        step = 0;
+      }
+      // Reset the origin to the current tile coordinates
+      originPoint = JSON.parse(JSON.stringify(entities[id].xy));
+      clearInterval(entities[id].interval);
+      entities[id].interval = 0;
     }
-    // Reset the origin to the current tile coordinates
-    originPoint = JSON.parse(JSON.stringify(entities[id].xy));
-    clearInterval(entities[id].interval);
-    entities[id].interval = 0;
+  }
+  else{
+    originTime = originTime + 1;
+    if(originTime == 60){
+      originTime = 0;
+      step = step + 1;
+      if(step >= path.length){
+        step = 0;
+      }
+      clearInterval(entities[id].interval);
+      entities[id].interval = 0;
+    }
   }
 
   switch(path[step]) {
@@ -829,10 +874,12 @@ function setPath(id, path, originPoint, originTime, step){
       break
 
     case 'stop':
+      return;
       break
   };
 
   window.requestAnimationFrame(function(){
+
     setPath(id, path, originPoint, originTime, step);
   });
 }
@@ -936,6 +983,11 @@ function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
   entities[id].xy.y = offY;
 }
 
+function drawBattle(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img,0,0);
+}
+
 window.onload = function(){
 
   testMap();
@@ -1007,13 +1059,15 @@ window.onload = function(){
     }
   }
 
-  drawGame(map);
+  img = document.createElement('img');
+  img.src = '/rpg-engine/assets/images/bg.png';
+
   window.requestAnimationFrame(function(){
     mainLoop();
   });
 
   var fpsMonitor = setInterval(function(){
-    $('.message').text(fps);
+    document.getElementById('message').innerHTML = fps;
   }, 700);
 };
 

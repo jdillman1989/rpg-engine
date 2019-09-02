@@ -12,7 +12,8 @@
       align-items: center;
       justify-content: center;
       color: #FFF;
-      font-size: 18px;
+      font-size: 9px;
+      font-family: monospace;
       padding: 0;
       margin: 0;
     }
@@ -50,15 +51,19 @@
 
   </style>
 
-  <script type="text/javascript" src="assets/client.js"></script>
+  <script type="text/javascript" src="assets/imgdata.js"></script>
 
 </head>
 <body>
   
   <main>
+    <div>
+      <input type="text" id="imgpath" placeholder="/rpg-engine/assets/images/">
+      <button id="imgdata">Get data</button>
+    </div>
 
     <div>
-      <p id="message">FPS</p>
+      <p id="result"></p>
     </div>
 
     <div class="game">

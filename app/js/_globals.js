@@ -23,6 +23,8 @@ var keys = {
   right: false
 };
 
+var screen = 'overworld';
+
 var entities = [
   {
     id: 0,
@@ -83,14 +85,16 @@ var entities = [
     interval: 0,
     logic: {
       func: 'setPath',
-      data: [3, ['down', 'down', 'left', 'left', 'up', 'up', 'right', 'right'], tileToCoords(28), 0, 0],
-      state: false
+      data: [3, ['wait', 'down', 'wait', 'down', 'wait', 'left', 'wait', 'left', 'wait', 'up', 'wait', 'up', 'wait', 'right', 'wait', 'right'], tileToCoords(28), 0, 0],
+      state: {passable: true, battle: true}
     },
     dir: {up:false, down:false, left:false, right:false}
   }
 ];
 
 var map = [];
+
+var img;
 
 var times = [];
 var fps;

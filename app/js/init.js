@@ -69,12 +69,14 @@ window.onload = function(){
     }
   }
 
-  drawGame(map);
+  img = document.createElement('img');
+  img.src = '/rpg-engine/assets/images/bg.png';
+
   window.requestAnimationFrame(function(){
     mainLoop();
   });
 
   var fpsMonitor = setInterval(function(){
-    $('.message').text(fps);
+    document.getElementById('message').innerHTML = fps;
   }, 700);
 };
