@@ -1,33 +1,3 @@
-function mainLoop(){
-
-  if (screen == 'overworld') {
-    drawGame(map);
-
-    animateMove(0, keys.up, keys.down, keys.left, keys.right);
-
-    for(var i = 0; i < entities.length; ++i){
-      if(i && entities[i].type == 'mobile'){
-        animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
-      }
-    }
-  }
-  else{
-    drawBattle();
-  }
-
-  window.requestAnimationFrame(function(){
-
-    var now = performance.now();
-    while (times.length > 0 && times[0] <= now - 1000) {
-      times.shift();
-    }
-    times.push(now);
-    fps = times.length;
-
-    mainLoop();
-  });
-}
-
 function animateMove(id, up, down, left, right){
 
   var prevTile = entities[id].tile;

@@ -73,10 +73,39 @@ window.onload = function(){
   img.src = '/rpg-engine/assets/images/bg.png';
 
   window.requestAnimationFrame(function(){
-    mainLoop();
+    overworldLoop();
   });
 
   var fpsMonitor = setInterval(function(){
     document.getElementById('message').innerHTML = fps;
   }, 700);
 };
+
+function overworldLoop(){
+
+  if (screen == 'overworld') {
+    drawGame(map);
+
+    animateMove(0, keys.up, keys.down, keys.left, keys.right);
+
+    for(var i = 0; i < entities.length; ++i){
+      if(i && entities[i].type == 'mobile'){
+        animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
+      }
+    }
+    window.requestAnimationFrame(function(){
+
+      var now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+
+      overworldLoop();
+    });
+  }
+  else{
+    battleIntro(0,0);
+  }
+}
