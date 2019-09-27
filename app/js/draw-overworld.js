@@ -80,7 +80,3 @@ function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
   entities[id].xy.x = offX;
   entities[id].xy.y = offY;
 }
-
-function drawBattle(){
-  return;
-}

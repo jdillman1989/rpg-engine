@@ -82,7 +82,7 @@ function battleSet(step){
 
 
   if(step >= displayHeight){
-    drawBattle();
+    battleLoop();
     return;
   }
   else{
@@ -90,6 +90,10 @@ function battleSet(step){
       battleSet(step);
     });
   }
+}
+
+function battleEnd(step){
+  return;
 }
 
 

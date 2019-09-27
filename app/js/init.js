@@ -106,6 +106,28 @@ function overworldLoop(){
     });
   }
   else{
-    battleIntro(0,0);
+    battleIntro(0);
+  }
+}
+
+function battleLoop(){
+
+  if (screen == 'battle') {
+    drawBattle();
+
+    window.requestAnimationFrame(function(){
+
+      var now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+
+      battleLoop();
+    });
+  }
+  else{
+    battleEnd(0);
   }
 }
