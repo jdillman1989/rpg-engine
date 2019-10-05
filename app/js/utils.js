@@ -20,7 +20,7 @@ function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
 
     var players = stats[0];
     var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
-    
+
     battleIntro(0, players, enemies);
   }
 
@@ -30,8 +30,19 @@ function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
   }
 }
 
+function canvasWrite(posX, posY, lineHeight, text){
+
+  ctx.font = "9px Courier";
+  ctx.fillStyle = "white";
+  var lines = text.split('\n');
+
+  for (var i = 0; i<lines.length; i++){
+    ctx.fillText(lines[i], posX, posY + (i*lineHeight) + lineHeight);
+  }
+}
+
 function toColor(colorObj){
-  return 'rgba(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ',' + colorObj.a + ')';
+  return 'rgb(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ')';
 }
 
 function colorValLimit(color){
@@ -51,15 +62,13 @@ function colorSet(color){
   var colorCool = {
     r:color.r - 90,
     g:color.g - 20,
-    b:color.b - 10,
-    a:color.a
+    b:color.b - 10
   };
 
   var colorWarm = {
     r:color.r - 10,
     g:color.g - 20,
-    b:color.b - 90,
-    a:color.a
+    b:color.b - 90
   };
 
   var colorObj = {

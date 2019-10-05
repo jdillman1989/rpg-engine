@@ -95,6 +95,7 @@ var entities = [
 var stats = {
   0: [
     {
+      name: 'Jadle',
       hp: 100,
       off: 10,
       def: 5
@@ -102,11 +103,13 @@ var stats = {
   ],
   3: [
     {
+      name: 'Imp',
       hp: 15,
       off: 10,
       def: 5
     },
     {
+      name: 'Imp',
       hp: 15,
       off: 10,
       def: 5

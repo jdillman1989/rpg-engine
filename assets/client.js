@@ -666,6 +666,7 @@ var entities = [
 var stats = {
   0: [
     {
+      name: 'Jadle',
       hp: 100,
       off: 10,
       def: 5
@@ -673,11 +674,13 @@ var stats = {
   ],
   3: [
     {
+      name: 'Imp',
       hp: 15,
       off: 10,
       def: 5
     },
     {
+      name: 'Imp',
       hp: 15,
       off: 10,
       def: 5
@@ -940,7 +943,6 @@ function setPath(id, path, originPoint, originTime, step){
   };
 
   window.requestAnimationFrame(function(){
-
     setPath(id, path, originPoint, originTime, step);
   });
 }
@@ -967,32 +969,43 @@ function drawBattle(players, enemies){
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  drawTopDisplay();
-  drawBottomDisplay();
+  var topText = enemies[0].name + '\n';
+      topText += 'HP: ' + enemies[0].hp + ', ATK: ' + enemies[0].off + ', DEF: ' + enemies[0].def;
+
+  var bottomText = players[0].name + '\n';
+      bottomText += 'HP: ' + players[0].hp + ', ATK: ' + players[0].off + ', DEF: ' + players[0].def;
+
+  drawTopDisplay(topText);
+  drawBottomDisplay(bottomText);
   drawPlayerBattle();
   drawEnemiesBattle();
 }
 
-function drawBottomDisplay(){
+function drawBottomDisplay(text){
 
   var displayBorders = 1;
   var displayHeight = 32;
+  var displayPadding = 2;
 
   ctx.fillStyle = '#FFF';
   ctx.fillRect(0, canvas.height - displayHeight, canvas.width, displayHeight);
   ctx.fillStyle = '#225';
   ctx.fillRect(displayBorders, canvas.height - displayHeight + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+  canvasWrite(displayBorders + displayPadding, canvas.height - displayHeight + displayBorders + displayPadding, 10, text);
 }
 
-function drawTopDisplay(){
+function drawTopDisplay(text){
 
   var displayBorders = 1;
   var displayHeight = 32;
+  var displayPadding = 2;
 
   ctx.fillStyle = '#FFF';
   ctx.fillRect(0, 0, canvas.width, displayHeight);
   ctx.fillStyle = '#225';
   ctx.fillRect(displayBorders, displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+
+  canvasWrite(displayBorders + displayPadding, displayBorders + displayPadding, 10, text);
 }
 
 function drawPlayerBattle(){
@@ -1243,7 +1256,7 @@ function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
 
     var players = stats[0];
     var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
-    
+
     battleIntro(0, players, enemies);
   }
 
@@ -1253,8 +1266,19 @@ function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
   }
 }
 
+function canvasWrite(posX, posY, lineHeight, text){
+
+  ctx.font = "9px Courier";
+  ctx.fillStyle = "white";
+  var lines = text.split('\n');
+
+  for (var i = 0; i<lines.length; i++){
+    ctx.fillText(lines[i], posX, posY + (i*lineHeight) + lineHeight);
+  }
+}
+
 function toColor(colorObj){
-  return 'rgba(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ',' + colorObj.a + ')';
+  return 'rgb(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ')';
 }
 
 function colorValLimit(color){
@@ -1274,15 +1298,13 @@ function colorSet(color){
   var colorCool = {
     r:color.r - 90,
     g:color.g - 20,
-    b:color.b - 10,
-    a:color.a
+    b:color.b - 10
   };
 
   var colorWarm = {
     r:color.r - 10,
     g:color.g - 20,
-    b:color.b - 90,
-    a:color.a
+    b:color.b - 90
   };
 
   var colorObj = {

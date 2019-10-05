@@ -3,32 +3,43 @@ function drawBattle(players, enemies){
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  drawTopDisplay();
-  drawBottomDisplay();
+  var topText = enemies[0].name + '\n';
+      topText += 'HP: ' + enemies[0].hp + ', ATK: ' + enemies[0].off + ', DEF: ' + enemies[0].def;
+
+  var bottomText = players[0].name + '\n';
+      bottomText += 'HP: ' + players[0].hp + ', ATK: ' + players[0].off + ', DEF: ' + players[0].def;
+
+  drawTopDisplay(topText);
+  drawBottomDisplay(bottomText);
   drawPlayerBattle();
   drawEnemiesBattle();
 }
 
-function drawBottomDisplay(){
+function drawBottomDisplay(text){
 
   var displayBorders = 1;
   var displayHeight = 32;
+  var displayPadding = 2;
 
   ctx.fillStyle = '#FFF';
   ctx.fillRect(0, canvas.height - displayHeight, canvas.width, displayHeight);
   ctx.fillStyle = '#225';
   ctx.fillRect(displayBorders, canvas.height - displayHeight + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+  canvasWrite(displayBorders + displayPadding, canvas.height - displayHeight + displayBorders + displayPadding, 10, text);
 }
 
-function drawTopDisplay(){
+function drawTopDisplay(text){
 
   var displayBorders = 1;
   var displayHeight = 32;
+  var displayPadding = 2;
 
   ctx.fillStyle = '#FFF';
   ctx.fillRect(0, 0, canvas.width, displayHeight);
   ctx.fillStyle = '#225';
   ctx.fillRect(displayBorders, displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+
+  canvasWrite(displayBorders + displayPadding, displayBorders + displayPadding, 10, text);
 }
 
 function drawPlayerBattle(){

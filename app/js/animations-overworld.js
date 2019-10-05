@@ -137,7 +137,6 @@ function setPath(id, path, originPoint, originTime, step){
   };
 
   window.requestAnimationFrame(function(){
-
     setPath(id, path, originPoint, originTime, step);
   });
 }
