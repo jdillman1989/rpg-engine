@@ -1,4 +1,6 @@
-function battleIntro(step){
+function battleIntro(step, players, enemies){
+
+  screen = 'battle';
 
   step = step + 4;
 
@@ -12,17 +14,17 @@ function battleIntro(step){
   ctx.fillRect(0, 0, canvas.width, step);
 
   if(step >= canvas.height){
-    battleBg(60);
+    battleBg(60, players, enemies);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleIntro(step);
+      battleIntro(step, players, enemies);
     });
   }
 }
 
-function battleBg(step){
+function battleBg(step, players, enemies){
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -37,17 +39,17 @@ function battleBg(step){
 
   if(step <= 0){
     ctx.globalAlpha = 1;
-    battleSet(0);
+    battleSet(0, players, enemies);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleBg(step);
+      battleBg(step, players, enemies);
     });
   }
 }
 
-function battleSet(step){
+function battleSet(step, players, enemies){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -82,12 +84,12 @@ function battleSet(step){
 
 
   if(step >= displayHeight){
-    battleLoop();
+    battleLoop(players, enemies);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleSet(step);
+      battleSet(step, players, enemies);
     });
   }
 }

@@ -1,4 +1,4 @@
-function drawBattle(){
+function drawBattle(players, enemies){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);

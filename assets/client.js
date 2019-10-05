@@ -663,6 +663,28 @@ var entities = [
   }
 ];
 
+var stats = {
+  0: [
+    {
+      hp: 100,
+      off: 10,
+      def: 5
+    }
+  ],
+  3: [
+    {
+      hp: 15,
+      off: 10,
+      def: 5
+    },
+    {
+      hp: 15,
+      off: 10,
+      def: 5
+    }
+  ]
+}
+
 var map = [];
 
 var img;
@@ -670,7 +692,9 @@ var img;
 var times = [];
 var fps;
 
-function battleIntro(step){
+function battleIntro(step, players, enemies){
+
+  screen = 'battle';
 
   step = step + 4;
 
@@ -684,17 +708,17 @@ function battleIntro(step){
   ctx.fillRect(0, 0, canvas.width, step);
 
   if(step >= canvas.height){
-    battleBg(60);
+    battleBg(60, players, enemies);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleIntro(step);
+      battleIntro(step, players, enemies);
     });
   }
 }
 
-function battleBg(step){
+function battleBg(step, players, enemies){
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -709,17 +733,17 @@ function battleBg(step){
 
   if(step <= 0){
     ctx.globalAlpha = 1;
-    battleSet(0);
+    battleSet(0, players, enemies);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleBg(step);
+      battleBg(step, players, enemies);
     });
   }
 }
 
-function battleSet(step){
+function battleSet(step, players, enemies){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -754,14 +778,18 @@ function battleSet(step){
 
 
   if(step >= displayHeight){
-    drawBattle();
+    battleLoop(players, enemies);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleSet(step);
+      battleSet(step, players, enemies);
     });
   }
+}
+
+function battleEnd(step){
+  return;
 }
 
 
@@ -782,34 +810,14 @@ function animateMove(id, up, down, left, right){
     var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
     var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
 
-    if(!map[coordsToTile(topLeft.x, topLeft.y - 1)].state.passable || !map[coordsToTile(topRight.x, topRight.y - 1)].state.passable){
-      entities[id].speedY = 0;
-    }
-    else if(!id && (map[coordsToTile(topLeft.x, topLeft.y - 1)].state.battle || map[coordsToTile(topRight.x, topRight.y - 1)].state.battle)){
-      entities[id].speedY = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedY = -1;
-      walkLoop(id, [2,3]);
-    }
+    checkBounding(id, topLeft, topRight, -1, 'speedY', [2,3]);
   }
   else if(down){
 
     var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
 
-    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.passable || !map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.passable){
-      entities[id].speedY = 0;
-    }
-    else if(!id && (map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.battle || map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.battle)){
-      entities[id].speedY = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedY = 1;
-      walkLoop(id, [0,1]);
-    }
+    checkBounding(id, bottomLeft, bottomRight, 1, 'speedY', [0,1]);
   }
   else{
     entities[id].speedY = 0;
@@ -820,34 +828,14 @@ function animateMove(id, up, down, left, right){
     var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
 
-    if(!map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.passable || !map[coordsToTile(topLeft.x - 1, topLeft.y)].state.passable){
-      entities[id].speedX = 0;
-    }
-    else if(!id && (map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.battle || map[coordsToTile(topLeft.x - 1, topLeft.y)].state.battle)){
-      entities[id].speedX = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedX = -1;
-      walkLoop(id, [4,5]);
-    }
+    checkBounding(id, bottomLeft, topLeft, -1, 'speedX', [4,5]);
   }
   else if(right){
 
     var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
 
-    if(!map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.passable || !map[coordsToTile(topRight.x + 1, topRight.y)].state.passable){
-      entities[id].speedX = 0;
-    }
-    else if(!id && (map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.battle || map[coordsToTile(topRight.x + 1, topRight.y)].state.battle)){
-      entities[id].speedX = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedX = 1;
-      walkLoop(id, [6,7]);
-    }
+    checkBounding(id, bottomRight, topRight, 1, 'speedX', [6,7]);
   }
   else{
     entities[id].speedX = 0;
@@ -885,12 +873,12 @@ function setPath(id, path, originPoint, originTime, step){
     var destY = Math.abs(entities[id].xy.y - originPoint.y);
 
     if (destX >= tileSize || destY >= tileSize) {
-      // Go to the next step in the path array
+
       step = step + 1;
       if(step >= path.length){
         step = 0;
       }
-      // Reset the origin to the current tile coordinates
+
       originPoint = JSON.parse(JSON.stringify(entities[id].xy));
       clearInterval(entities[id].interval);
       entities[id].interval = 0;
@@ -972,6 +960,51 @@ function walkLoop(id, frames){
       }
     }, 200);
   }
+}
+
+function drawBattle(players, enemies){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  drawTopDisplay();
+  drawBottomDisplay();
+  drawPlayerBattle();
+  drawEnemiesBattle();
+}
+
+function drawBottomDisplay(){
+
+  var displayBorders = 1;
+  var displayHeight = 32;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(0, canvas.height - displayHeight, canvas.width, displayHeight);
+  ctx.fillStyle = '#225';
+  ctx.fillRect(displayBorders, canvas.height - displayHeight + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+}
+
+function drawTopDisplay(){
+
+  var displayBorders = 1;
+  var displayHeight = 32;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(0, 0, canvas.width, displayHeight);
+  ctx.fillStyle = '#225';
+  ctx.fillRect(displayBorders, displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+}
+
+function drawPlayerBattle(){
+  var playerWidth = 20;
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(-(playerWidth) + 48, canvas.height / 2, playerWidth, 30);
+}
+
+function drawEnemiesBattle(){
+  var enemyWidth = 20;
+  ctx.fillStyle = '#000';
+  ctx.fillRect(canvas.width - 48, canvas.height / 2, enemyWidth, 30);
 }
 
 function drawGame(map){
@@ -1057,10 +1090,6 @@ function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
   entities[id].xy.y = offY;
 }
 
-function drawBattle(){
-  return;
-}
-
 window.onload = function(){
 
   testMap();
@@ -1122,7 +1151,7 @@ window.onload = function(){
 
     map[entities[i].tile].render.object = entities[i].id;
 
-    if(entities[i].logic){        
+    if(entities[i].logic){
 
       window[entities[i].logic.func].apply(null, entities[i].logic.data);
 
@@ -1168,8 +1197,59 @@ function overworldLoop(){
       overworldLoop();
     });
   }
+}
+
+function battleLoop(players, enemies){
+
+  if (screen == 'battle') {
+    drawBattle(players, enemies);
+
+    window.requestAnimationFrame(function(){
+
+      var now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+
+      battleLoop(players, enemies);
+    });
+  }
   else{
-    battleIntro(0,0);
+    battleEnd(0);
+  }
+}
+
+function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
+
+  var tileA = map[coordsToTile(cornerA.x, cornerA.y + polarity)];
+  var tileB = map[coordsToTile(cornerB.x, cornerB.y + polarity)];
+
+  if(
+    !tileA.state.passable || 
+    !tileB.state.passable
+  ){
+    entities[id][axis] = 0;
+  }
+
+  else if(
+    !id && (
+      tileA.state.battle || 
+      tileB.state.battle
+    )
+  ){
+    entities[id][axis] = 0;
+
+    var players = stats[0];
+    var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
+    
+    battleIntro(0, players, enemies);
+  }
+
+  else{
+    entities[id][axis] = polarity;
+    walkLoop(id, loop);
   }
 }
 

@@ -93,16 +93,25 @@ var entities = [
 ];
 
 var stats = {
-  0: {
-    hp: 100,
-    off: 10,
-    def: 5
-  },
-  3: {
-    hp: 15
-    off: 10,
-    def: 5
-  }
+  0: [
+    {
+      hp: 100,
+      off: 10,
+      def: 5
+    }
+  ],
+  3: [
+    {
+      hp: 15,
+      off: 10,
+      def: 5
+    },
+    {
+      hp: 15,
+      off: 10,
+      def: 5
+    }
+  ]
 }
 
 var map = [];

@@ -1,3 +1,35 @@
+function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
+
+  var tileA = map[coordsToTile(cornerA.x, cornerA.y + polarity)];
+  var tileB = map[coordsToTile(cornerB.x, cornerB.y + polarity)];
+
+  if(
+    !tileA.state.passable || 
+    !tileB.state.passable
+  ){
+    entities[id][axis] = 0;
+  }
+
+  else if(
+    !id && (
+      tileA.state.battle || 
+      tileB.state.battle
+    )
+  ){
+    entities[id][axis] = 0;
+
+    var players = stats[0];
+    var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
+    
+    battleIntro(0, players, enemies);
+  }
+
+  else{
+    entities[id][axis] = polarity;
+    walkLoop(id, loop);
+  }
+}
+
 function toColor(colorObj){
   return 'rgba(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ',' + colorObj.a + ')';
 }

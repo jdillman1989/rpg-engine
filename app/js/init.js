@@ -59,7 +59,7 @@ window.onload = function(){
 
     map[entities[i].tile].render.object = entities[i].id;
 
-    if(entities[i].logic){        
+    if(entities[i].logic){
 
       window[entities[i].logic.func].apply(null, entities[i].logic.data);
 
@@ -105,15 +105,12 @@ function overworldLoop(){
       overworldLoop();
     });
   }
-  else{
-    battleIntro(0);
-  }
 }
 
-function battleLoop(){
+function battleLoop(players, enemies){
 
   if (screen == 'battle') {
-    drawBattle();
+    drawBattle(players, enemies);
 
     window.requestAnimationFrame(function(){
 
@@ -124,7 +121,7 @@ function battleLoop(){
       times.push(now);
       fps = times.length;
 
-      battleLoop();
+      battleLoop(players, enemies);
     });
   }
   else{

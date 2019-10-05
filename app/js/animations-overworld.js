@@ -7,34 +7,14 @@ function animateMove(id, up, down, left, right){
     var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
     var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
 
-    if(!map[coordsToTile(topLeft.x, topLeft.y - 1)].state.passable || !map[coordsToTile(topRight.x, topRight.y - 1)].state.passable){
-      entities[id].speedY = 0;
-    }
-    else if(!id && (map[coordsToTile(topLeft.x, topLeft.y - 1)].state.battle || map[coordsToTile(topRight.x, topRight.y - 1)].state.battle)){
-      entities[id].speedY = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedY = -1;
-      walkLoop(id, [2,3]);
-    }
+    checkBounding(id, topLeft, topRight, -1, 'speedY', [2,3]);
   }
   else if(down){
 
     var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
 
-    if(!map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.passable || !map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.passable){
-      entities[id].speedY = 0;
-    }
-    else if(!id && (map[coordsToTile(bottomLeft.x, bottomLeft.y + 1)].state.battle || map[coordsToTile(bottomRight.x, bottomRight.y + 1)].state.battle)){
-      entities[id].speedY = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedY = 1;
-      walkLoop(id, [0,1]);
-    }
+    checkBounding(id, bottomLeft, bottomRight, 1, 'speedY', [0,1]);
   }
   else{
     entities[id].speedY = 0;
@@ -45,34 +25,14 @@ function animateMove(id, up, down, left, right){
     var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
 
-    if(!map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.passable || !map[coordsToTile(topLeft.x - 1, topLeft.y)].state.passable){
-      entities[id].speedX = 0;
-    }
-    else if(!id && (map[coordsToTile(bottomLeft.x - 1, bottomLeft.y)].state.battle || map[coordsToTile(topLeft.x - 1, topLeft.y)].state.battle)){
-      entities[id].speedX = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedX = -1;
-      walkLoop(id, [4,5]);
-    }
+    checkBounding(id, bottomLeft, topLeft, -1, 'speedX', [4,5]);
   }
   else if(right){
 
     var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
 
-    if(!map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.passable || !map[coordsToTile(topRight.x + 1, topRight.y)].state.passable){
-      entities[id].speedX = 0;
-    }
-    else if(!id && (map[coordsToTile(bottomRight.x + 1, bottomRight.y)].state.battle || map[coordsToTile(topRight.x + 1, topRight.y)].state.battle)){
-      entities[id].speedX = 0;
-      screen = 'battle';
-    }
-    else{
-      entities[id].speedX = 1;
-      walkLoop(id, [6,7]);
-    }
+    checkBounding(id, bottomRight, topRight, 1, 'speedX', [6,7]);
   }
   else{
     entities[id].speedX = 0;
@@ -110,12 +70,12 @@ function setPath(id, path, originPoint, originTime, step){
     var destY = Math.abs(entities[id].xy.y - originPoint.y);
 
     if (destX >= tileSize || destY >= tileSize) {
-      // Go to the next step in the path array
+
       step = step + 1;
       if(step >= path.length){
         step = 0;
       }
-      // Reset the origin to the current tile coordinates
+
       originPoint = JSON.parse(JSON.stringify(entities[id].xy));
       clearInterval(entities[id].interval);
       entities[id].interval = 0;
