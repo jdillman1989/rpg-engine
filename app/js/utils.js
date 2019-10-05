@@ -1,7 +1,7 @@
-function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
+function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
 
-  var tileA = map[coordsToTile(cornerA.x, cornerA.y + polarity)];
-  var tileB = map[coordsToTile(cornerB.x, cornerB.y + polarity)];
+  var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
+  var tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
 
   if(
     !tileA.state.passable || 
@@ -25,7 +25,7 @@ function checkBounding(id, cornerA, cornerB, polarity, axis, loop){
   }
 
   else{
-    entities[id][axis] = polarity;
+    entities[id][axis] = xPolarity ? xPolarity : yPolarity;
     walkLoop(id, loop);
   }
 }

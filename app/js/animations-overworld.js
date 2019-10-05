@@ -7,14 +7,14 @@ function animateMove(id, up, down, left, right){
     var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
     var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
 
-    checkBounding(id, topLeft, topRight, -1, 'speedY', [2,3]);
+    checkBounding(id, topLeft, topRight, 0, -1, 'speedY', [2,3]);
   }
   else if(down){
 
     var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
 
-    checkBounding(id, bottomLeft, bottomRight, 1, 'speedY', [0,1]);
+    checkBounding(id, bottomLeft, bottomRight, 0, 1, 'speedY', [0,1]);
   }
   else{
     entities[id].speedY = 0;
@@ -25,14 +25,14 @@ function animateMove(id, up, down, left, right){
     var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
 
-    checkBounding(id, bottomLeft, topLeft, -1, 'speedX', [4,5]);
+    checkBounding(id, bottomLeft, topLeft, -1, 0, 'speedX', [4,5]);
   }
   else if(right){
 
     var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
     var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
 
-    checkBounding(id, bottomRight, topRight, 1, 'speedX', [6,7]);
+    checkBounding(id, bottomRight, topRight, 1, 0, 'speedX', [6,7]);
   }
   else{
     entities[id].speedX = 0;
