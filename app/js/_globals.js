@@ -114,6 +114,25 @@ var stats = {
           targets: 'player'
         }
       ]
+    },
+    {
+      name: 'Idle',
+      maxHP: 100,
+      currentHP: 100,
+      off: 10,
+      def: 5,
+      abilities: [
+        {
+          name: 'fire', 
+          desc: 'strike an enemy with a stream of flames.',
+          targets: 'enemy'
+        },
+        {
+          name: 'heal',
+          desc: 'restore an ally\'s health.',
+          targets: 'player'
+        }
+      ]
     }
   ],
   3: [

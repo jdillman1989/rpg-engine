@@ -12,8 +12,8 @@ function drawBattle(players, enemies){
 
   drawTopDisplay(charText, descriptionText);
   drawBottomDisplay(playersText, actionText, optionsText, targetText);
-  drawPlayerBattle();
-  drawEnemiesBattle();
+  drawPlayerBattle(players);
+  drawEnemiesBattle(enemies);
 }
 
 function drawTopDisplay(charText, descriptionText){
@@ -52,14 +52,18 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
   canvasWrite(displayBorders + displayPadding + ((canvas.width / 4) * 3), canvas.height - displayHeight + displayBorders, targetText);
 }
 
-function drawPlayerBattle(){
+function drawPlayerBattle(players){
   var playerWidth = 20;
   ctx.fillStyle = '#FFF';
-  ctx.fillRect(-(playerWidth) + 48, canvas.height / 2, playerWidth, 30);
+  for(var i = 0; i < players.length; ++i){
+    ctx.fillRect(-(playerWidth) + 48, (canvas.height / (players.length + 1)) * (i + 1), playerWidth, 30);
+  }
 }
 
-function drawEnemiesBattle(){
+function drawEnemiesBattle(enemies){
   var enemyWidth = 20;
   ctx.fillStyle = '#000';
-  ctx.fillRect(canvas.width - 48, canvas.height / 2, enemyWidth, 30);
+  for(var i = 0; i < enemies.length; ++i){
+    ctx.fillRect(canvas.width - 48, (canvas.height / (enemies.length + 1)) * (i + 1), enemyWidth, 30);
+  }
 }

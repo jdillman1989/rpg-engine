@@ -74,13 +74,17 @@ function battleSet(step, players, enemies){
   // Draw player
   var playerWidth = 20;
   ctx.fillStyle = '#FFF';
-  ctx.fillRect(-(playerWidth) + (step * 1.5), canvas.height / 2, playerWidth, 30);
+  for(var i = 0; i < players.length; ++i){
+    ctx.fillRect(-(playerWidth) + (step * 1.5), (canvas.height / (players.length + 1)) * (i + 1), playerWidth, 30);
+  }
 
 
   // Draw enemies
   var enemyWidth = 20;
   ctx.fillStyle = '#000';
-  ctx.fillRect(canvas.width - (step * 1.5), canvas.height / 2, enemyWidth, 30);
+  for(var i = 0; i < enemies.length; ++i){
+    ctx.fillRect(canvas.width - (step * 1.5), (canvas.height / (enemies.length + 1)) * (i + 1), enemyWidth, 30);
+  }
 
 
   if(step >= displayHeight){
