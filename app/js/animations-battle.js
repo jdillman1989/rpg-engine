@@ -53,23 +53,21 @@ function battleSet(step, players, enemies){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
-  var displayBorders = 1;
-  var displayHeight = 32;
 
   // Draw BG
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   // Draw top display
   ctx.fillStyle = '#FFF';
-  ctx.fillRect(0, -(displayHeight) + step, canvas.width, displayHeight);
+  ctx.fillRect(0, -(UISpacing.displayHeight) + step, canvas.width, UISpacing.displayHeight);
   ctx.fillStyle = '#225';
-  ctx.fillRect(displayBorders, (-(displayHeight) + step) + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+  ctx.fillRect(UISpacing.displayBorders, (-(UISpacing.displayHeight) + step) + UISpacing.displayBorders, canvas.width - (UISpacing.displayBorders * 2), UISpacing.displayHeight - (UISpacing.displayBorders * 2));
 
   // Draw bottom display
   ctx.fillStyle = '#FFF';
-  ctx.fillRect(0, canvas.height - step, canvas.width, displayHeight);
+  ctx.fillRect(0, canvas.height - step, canvas.width, UISpacing.displayHeight);
   ctx.fillStyle = '#225';
-  ctx.fillRect(displayBorders, canvas.height - step + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+  ctx.fillRect(UISpacing.displayBorders, canvas.height - step + UISpacing.displayBorders, canvas.width - (UISpacing.displayBorders * 2), UISpacing.displayHeight - (UISpacing.displayBorders * 2));
 
   // Draw player
   var playerWidth = 20;
@@ -87,19 +85,25 @@ function battleSet(step, players, enemies){
   }
 
 
-  if(step >= displayHeight){
+  if(step >= UISpacing.displayHeight){
     // setUIData(players, enemies);
     var thesePlayers = [];
     for(var i = 0; i < players.length; ++i){
       thesePlayers.push(players[i].name);
     }
     battleUI = {
-      char: players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
-      desc: '',
-      players: thesePlayers,
-      actions: ['ACT','DEF','RUN'],
-      options: [],
-      targets: []
+      top: [
+        players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
+        ''
+      ],
+      bottom: [
+        thesePlayers,
+        ['ACT','DEF','RUN'],
+        [],
+        [],
+      ],
+      selStage: 0,
+      selSlot: 0
     };
     battleLoop(players, enemies);
     return;
@@ -113,6 +117,22 @@ function battleSet(step, players, enemies){
 
 function battleEnd(step){
   return;
+}
+
+function battleSelect(){
+
+  if(keys.up){
+    battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
+  }
+  else if(keys.down){
+    battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
+  }
+  else if(keys.enter){
+    battleUI.selStage = battleUI.selStage + 1;
+  }
+  else if(keys.shift){
+    battleUI.selStage = battleUI.selStage - 1;
+  }
 }
 
 

@@ -82,13 +82,12 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
 
 function canvasWrite(posX, posY, text){
 
-  ctx.font = "9px Courier";
+  ctx.font = fontSize + "px Courier";
   ctx.fillStyle = "white";
   var lines = text.split('\n');
-  var lineHeight = 9;
 
   for (var i = 0; i<lines.length; i++){
-    ctx.fillText(lines[i], posX, posY + (i*lineHeight) + lineHeight);
+    ctx.fillText(lines[i], posX, posY + (i*fontSize) + fontSize);
   }
 }
 

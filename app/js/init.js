@@ -23,6 +23,14 @@ window.onload = function(){
       case 68: // D
         keysState('right', true);
         break;
+
+      case 13: // Enter
+        keysState('enter', true);
+        break;
+
+      case 16: // Shift
+        keysState('shift', true);
+        break;
     };
   };
 
@@ -43,6 +51,14 @@ window.onload = function(){
 
       case 68: // D
         keysState('right', false);
+        break;
+
+      case 13: // Enter
+        keysState('enter', false);
+        break;
+
+      case 16: // Shift
+        keysState('shift', false);
         break;
     };
   };
@@ -117,6 +133,8 @@ function battleLoop(players, enemies){
 
   if (screen == 'battle') {
     drawBattle(players, enemies);
+
+    battleSelect();
 
     window.requestAnimationFrame(function(){
 

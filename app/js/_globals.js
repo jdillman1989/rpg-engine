@@ -161,3 +161,9 @@ var times = [];
 var fps;
 
 var battleUI = {};
+var UISpacing = {
+  displayBorders: 1,
+  displayHeight: 32,
+  displayPadding: 3
+};
+var fontSize = 9;
