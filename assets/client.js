@@ -591,7 +591,9 @@ var keys = {
   up: false,
   down: false,
   left: false,
-  right: false
+  right: false,
+  enter: false,
+  shift: false
 };
 
 var screen = 'overworld';
@@ -667,21 +669,36 @@ var stats = {
   0: [
     {
       name: 'Jadle',
-      hp: 100,
+      maxHP: 100,
+      currentHP: 100,
       off: 10,
-      def: 5
+      def: 5,
+      abilities: [
+        {
+          name: 'fire', 
+          desc: 'strike an enemy with a stream of flames.',
+          targets: 'enemy'
+        },
+        {
+          name: 'heal',
+          desc: 'restore an ally\'s health.',
+          targets: 'player'
+        }
+      ]
     }
   ],
   3: [
     {
-      name: 'Imp',
-      hp: 15,
+      name: 'Imp 1',
+      maxHP: 15,
+      currentHP: 15,
       off: 10,
       def: 5
     },
     {
-      name: 'Imp',
-      hp: 15,
+      name: 'Imp 2',
+      maxHP: 15,
+      currentHP: 15,
       off: 10,
       def: 5
     }
@@ -694,6 +711,8 @@ var img;
 
 var times = [];
 var fps;
+
+var battleUI = {};
 
 function battleIntro(step, players, enemies){
 
@@ -781,6 +800,19 @@ function battleSet(step, players, enemies){
 
 
   if(step >= displayHeight){
+    // setUIData(players, enemies);
+    var thesePlayers = [];
+    for(var i = 0; i < players.length; ++i){
+      thesePlayers.push(players[i].name);
+    }
+    battleUI = {
+      char: players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
+      desc: '',
+      players: thesePlayers,
+      actions: ['ACT','DEF','RUN'],
+      options: [],
+      targets: []
+    };
     battleLoop(players, enemies);
     return;
   }
@@ -969,32 +1001,22 @@ function drawBattle(players, enemies){
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  var topText = enemies[0].name + '\n';
-      topText += 'HP: ' + enemies[0].hp + ', ATK: ' + enemies[0].off + ', DEF: ' + enemies[0].def;
+  var charText = battleUI.char,
+      descriptionText = battleUI.desc,
+      playersText = battleUI.players.join('\n'),
+      actionText = battleUI.actions.join('\n'), 
+      optionsText = battleUI.options.join('\n'), 
+      targetText = battleUI.targets.join('\n');
 
-  var bottomText = players[0].name + '\n';
-      bottomText += 'HP: ' + players[0].hp + ', ATK: ' + players[0].off + ', DEF: ' + players[0].def;
-
-  drawTopDisplay(topText);
-  drawBottomDisplay(bottomText);
+  drawTopDisplay(charText, descriptionText);
+  drawBottomDisplay(playersText, actionText, optionsText, targetText);
   drawPlayerBattle();
   drawEnemiesBattle();
 }
 
-function drawBottomDisplay(text){
+function drawTopDisplay(charText, descriptionText){
 
-  var displayBorders = 1;
-  var displayHeight = 32;
-  var displayPadding = 2;
-
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(0, canvas.height - displayHeight, canvas.width, displayHeight);
-  ctx.fillStyle = '#225';
-  ctx.fillRect(displayBorders, canvas.height - displayHeight + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
-  canvasWrite(displayBorders + displayPadding, canvas.height - displayHeight + displayBorders + displayPadding, 10, text);
-}
-
-function drawTopDisplay(text){
+  // [Jadle 100/100] -> [ATK or target desc]
 
   var displayBorders = 1;
   var displayHeight = 32;
@@ -1005,7 +1027,27 @@ function drawTopDisplay(text){
   ctx.fillStyle = '#225';
   ctx.fillRect(displayBorders, displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
 
-  canvasWrite(displayBorders + displayPadding, displayBorders + displayPadding, 10, text);
+  canvasWrite(displayBorders + displayPadding, displayBorders, charText);
+  canvasWrite(displayBorders + displayPadding + (canvas.width / 3), displayBorders, descriptionText);
+}
+
+function drawBottomDisplay(playersText, actionText, optionsText, targetText){
+
+  // [ATK DEF RUN] -> [Fire Heal] -> [Imp 1 Imp 2]
+
+  var displayBorders = 1;
+  var displayHeight = 32;
+  var displayPadding = 2;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(0, canvas.height - displayHeight, canvas.width, displayHeight);
+  ctx.fillStyle = '#225';
+  ctx.fillRect(displayBorders, canvas.height - displayHeight + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+
+  canvasWrite(displayBorders + displayPadding, canvas.height - displayHeight + displayBorders, playersText);
+  canvasWrite(displayBorders + displayPadding + ((canvas.width / 4) * 1), canvas.height - displayHeight + displayBorders, actionText);
+  canvasWrite(displayBorders + displayPadding + ((canvas.width / 4) * 2), canvas.height - displayHeight + displayBorders, optionsText);
+  canvasWrite(displayBorders + displayPadding + ((canvas.width / 4) * 3), canvas.height - displayHeight + displayBorders, targetText);
 }
 
 function drawPlayerBattle(){
@@ -1114,19 +1156,19 @@ window.onload = function(){
     switch(e.which) {
 
       case 87: // W
-        keys.up = true;
+        keysState('up', true);
         break;
 
       case 65: // A
-        keys.left = true;
+        keysState('left', true);
         break;
 
       case 83: // S
-        keys.down = true;
+        keysState('down', true);
         break;
 
       case 68: // D
-        keys.right = true;
+        keysState('right', true);
         break;
     };
   };
@@ -1135,27 +1177,19 @@ window.onload = function(){
     switch(e.which) {
 
       case 87: // W
-        keys.up = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('up', false);
         break;
 
       case 65: // A
-        keys.left = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('left', false);
         break;
 
       case 83: // S
-        keys.down = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('down', false);
         break;
 
       case 68: // D
-        keys.right = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('right', false);
         break;
     };
   };
@@ -1185,6 +1219,20 @@ window.onload = function(){
     document.getElementById('message').innerHTML = fps;
   }, 700);
 };
+
+function keysState(key, down){
+  if(down){
+    keys[key] = true;
+  }
+  else{
+    keys[key] = false;
+
+    if(screen == 'overworld'){
+      clearInterval(entities[0].interval);
+      entities[0].interval = 0;
+    }
+  }
+}
 
 function overworldLoop(){
 
@@ -1234,6 +1282,56 @@ function battleLoop(players, enemies){
   }
 }
 
+function setUIData(players, enemies){
+  for(var i = 0; i < players.length; ++i){
+
+    var selected = i ? false : true;
+
+    var act = [];
+    for(var j = 0; j < players[i].abilities.length; ++j){
+
+      var thistargets = [];
+
+      switch(players[i].abilities[j].targets) {
+
+        case 'player':
+          for(var k = 0; k < players.length; ++k){
+            thistargets.push(players[k].name);
+          }
+          break;
+
+        case 'players':
+          // All players
+          break;
+
+        case 'enemy':
+          for(var k = 0; k < enemies.length; ++k){
+            thistargets.push(enemies[k].name);
+          }
+          break;
+
+        case 'enemies':
+          // All enemies
+          break;
+      };
+
+      var abilityData = {};
+      abilityData[players[i].abilities[j].name] = thistargets;
+      act.push(abilityData);
+    }
+
+    battleUI.push(
+      {
+        sel: selected,
+        name: players[i].name,
+        act: act,
+        def: false,
+        run: false
+      }
+    );
+  }
+}
+
 function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
 
   var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
@@ -1266,11 +1364,12 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
   }
 }
 
-function canvasWrite(posX, posY, lineHeight, text){
+function canvasWrite(posX, posY, text){
 
   ctx.font = "9px Courier";
   ctx.fillStyle = "white";
   var lines = text.split('\n');
+  var lineHeight = 9;
 
   for (var i = 0; i<lines.length; i++){
     ctx.fillText(lines[i], posX, posY + (i*lineHeight) + lineHeight);

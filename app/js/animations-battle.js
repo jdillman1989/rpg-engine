@@ -84,6 +84,19 @@ function battleSet(step, players, enemies){
 
 
   if(step >= displayHeight){
+    // setUIData(players, enemies);
+    var thesePlayers = [];
+    for(var i = 0; i < players.length; ++i){
+      thesePlayers.push(players[i].name);
+    }
+    battleUI = {
+      char: players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
+      desc: '',
+      players: thesePlayers,
+      actions: ['ACT','DEF','RUN'],
+      options: [],
+      targets: []
+    };
     battleLoop(players, enemies);
     return;
   }

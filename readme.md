@@ -1,7 +1,8 @@
 ## To Do
 
+-Battle UI
 -Collision interactions
--Camera scrolling
 -Character data
 -UI elements
 -Dynamic lighting effects
+-Camera scrolling

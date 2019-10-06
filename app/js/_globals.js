@@ -20,7 +20,9 @@ var keys = {
   up: false,
   down: false,
   left: false,
-  right: false
+  right: false,
+  enter: false,
+  shift: false
 };
 
 var screen = 'overworld';
@@ -96,21 +98,36 @@ var stats = {
   0: [
     {
       name: 'Jadle',
-      hp: 100,
+      maxHP: 100,
+      currentHP: 100,
       off: 10,
-      def: 5
+      def: 5,
+      abilities: [
+        {
+          name: 'fire', 
+          desc: 'strike an enemy with a stream of flames.',
+          targets: 'enemy'
+        },
+        {
+          name: 'heal',
+          desc: 'restore an ally\'s health.',
+          targets: 'player'
+        }
+      ]
     }
   ],
   3: [
     {
-      name: 'Imp',
-      hp: 15,
+      name: 'Imp 1',
+      maxHP: 15,
+      currentHP: 15,
       off: 10,
       def: 5
     },
     {
-      name: 'Imp',
-      hp: 15,
+      name: 'Imp 2',
+      maxHP: 15,
+      currentHP: 15,
       off: 10,
       def: 5
     }
@@ -123,3 +140,5 @@ var img;
 
 var times = [];
 var fps;
+
+var battleUI = {};

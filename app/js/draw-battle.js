@@ -3,32 +3,22 @@ function drawBattle(players, enemies){
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  var topText = enemies[0].name + '\n';
-      topText += 'HP: ' + enemies[0].hp + ', ATK: ' + enemies[0].off + ', DEF: ' + enemies[0].def;
+  var charText = battleUI.char,
+      descriptionText = battleUI.desc,
+      playersText = battleUI.players.join('\n'),
+      actionText = battleUI.actions.join('\n'), 
+      optionsText = battleUI.options.join('\n'), 
+      targetText = battleUI.targets.join('\n');
 
-  var bottomText = players[0].name + '\n';
-      bottomText += 'HP: ' + players[0].hp + ', ATK: ' + players[0].off + ', DEF: ' + players[0].def;
-
-  drawTopDisplay(topText);
-  drawBottomDisplay(bottomText);
+  drawTopDisplay(charText, descriptionText);
+  drawBottomDisplay(playersText, actionText, optionsText, targetText);
   drawPlayerBattle();
   drawEnemiesBattle();
 }
 
-function drawBottomDisplay(text){
+function drawTopDisplay(charText, descriptionText){
 
-  var displayBorders = 1;
-  var displayHeight = 32;
-  var displayPadding = 2;
-
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(0, canvas.height - displayHeight, canvas.width, displayHeight);
-  ctx.fillStyle = '#225';
-  ctx.fillRect(displayBorders, canvas.height - displayHeight + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
-  canvasWrite(displayBorders + displayPadding, canvas.height - displayHeight + displayBorders + displayPadding, 10, text);
-}
-
-function drawTopDisplay(text){
+  // [Jadle 100/100] -> [ATK or target desc]
 
   var displayBorders = 1;
   var displayHeight = 32;
@@ -39,7 +29,27 @@ function drawTopDisplay(text){
   ctx.fillStyle = '#225';
   ctx.fillRect(displayBorders, displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
 
-  canvasWrite(displayBorders + displayPadding, displayBorders + displayPadding, 10, text);
+  canvasWrite(displayBorders + displayPadding, displayBorders, charText);
+  canvasWrite(displayBorders + displayPadding + (canvas.width / 3), displayBorders, descriptionText);
+}
+
+function drawBottomDisplay(playersText, actionText, optionsText, targetText){
+
+  // [ATK DEF RUN] -> [Fire Heal] -> [Imp 1 Imp 2]
+
+  var displayBorders = 1;
+  var displayHeight = 32;
+  var displayPadding = 2;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(0, canvas.height - displayHeight, canvas.width, displayHeight);
+  ctx.fillStyle = '#225';
+  ctx.fillRect(displayBorders, canvas.height - displayHeight + displayBorders, canvas.width - (displayBorders * 2), displayHeight - (displayBorders * 2));
+
+  canvasWrite(displayBorders + displayPadding, canvas.height - displayHeight + displayBorders, playersText);
+  canvasWrite(displayBorders + displayPadding + ((canvas.width / 4) * 1), canvas.height - displayHeight + displayBorders, actionText);
+  canvasWrite(displayBorders + displayPadding + ((canvas.width / 4) * 2), canvas.height - displayHeight + displayBorders, optionsText);
+  canvasWrite(displayBorders + displayPadding + ((canvas.width / 4) * 3), canvas.height - displayHeight + displayBorders, targetText);
 }
 
 function drawPlayerBattle(){

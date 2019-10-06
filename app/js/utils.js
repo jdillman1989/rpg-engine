@@ -1,3 +1,53 @@
+function setUIData(players, enemies){
+  for(var i = 0; i < players.length; ++i){
+
+    var selected = i ? false : true;
+
+    var act = [];
+    for(var j = 0; j < players[i].abilities.length; ++j){
+
+      var thistargets = [];
+
+      switch(players[i].abilities[j].targets) {
+
+        case 'player':
+          for(var k = 0; k < players.length; ++k){
+            thistargets.push(players[k].name);
+          }
+          break;
+
+        case 'players':
+          // All players
+          break;
+
+        case 'enemy':
+          for(var k = 0; k < enemies.length; ++k){
+            thistargets.push(enemies[k].name);
+          }
+          break;
+
+        case 'enemies':
+          // All enemies
+          break;
+      };
+
+      var abilityData = {};
+      abilityData[players[i].abilities[j].name] = thistargets;
+      act.push(abilityData);
+    }
+
+    battleUI.push(
+      {
+        sel: selected,
+        name: players[i].name,
+        act: act,
+        def: false,
+        run: false
+      }
+    );
+  }
+}
+
 function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
 
   var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
@@ -30,11 +80,12 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
   }
 }
 
-function canvasWrite(posX, posY, lineHeight, text){
+function canvasWrite(posX, posY, text){
 
   ctx.font = "9px Courier";
   ctx.fillStyle = "white";
   var lines = text.split('\n');
+  var lineHeight = 9;
 
   for (var i = 0; i<lines.length; i++){
     ctx.fillText(lines[i], posX, posY + (i*lineHeight) + lineHeight);

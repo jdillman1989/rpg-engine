@@ -9,19 +9,19 @@ window.onload = function(){
     switch(e.which) {
 
       case 87: // W
-        keys.up = true;
+        keysState('up', true);
         break;
 
       case 65: // A
-        keys.left = true;
+        keysState('left', true);
         break;
 
       case 83: // S
-        keys.down = true;
+        keysState('down', true);
         break;
 
       case 68: // D
-        keys.right = true;
+        keysState('right', true);
         break;
     };
   };
@@ -30,27 +30,19 @@ window.onload = function(){
     switch(e.which) {
 
       case 87: // W
-        keys.up = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('up', false);
         break;
 
       case 65: // A
-        keys.left = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('left', false);
         break;
 
       case 83: // S
-        keys.down = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('down', false);
         break;
 
       case 68: // D
-        keys.right = false;
-        clearInterval(entities[0].interval);
-        entities[0].interval = 0;
+        keysState('right', false);
         break;
     };
   };
@@ -80,6 +72,20 @@ window.onload = function(){
     document.getElementById('message').innerHTML = fps;
   }, 700);
 };
+
+function keysState(key, down){
+  if(down){
+    keys[key] = true;
+  }
+  else{
+    keys[key] = false;
+
+    if(screen == 'overworld'){
+      clearInterval(entities[0].interval);
+      entities[0].interval = 0;
+    }
+  }
+}
 
 function overworldLoop(){
 
