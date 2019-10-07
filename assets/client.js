@@ -846,7 +846,8 @@ function battleSet(step, players, enemies){
       selStage: 0,
       selSlot: 0
     };
-    battleLoop(players, enemies);
+    var keyState = JSON.parse(JSON.stringify(keys));
+    battleLoop(players, enemies, keyState);
     return;
   }
   else{
@@ -860,18 +861,20 @@ function battleEnd(step){
   return;
 }
 
-function battleSelect(){
+function battleSelect(prevKeyState){
 
-  if(keys.up){
+  console.log(prevKeyState);
+
+  if(keys.up && !prevKeyState.up){
     battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
   }
-  else if(keys.down){
+  else if(keys.down && !prevKeyState.down){
     battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
   }
-  else if(keys.enter){
+  else if(keys.enter && !prevKeyState.enter){
     battleUI.selStage = battleUI.selStage + 1;
   }
-  else if(keys.shift){
+  else if(keys.shift && !prevKeyState.shift){
     battleUI.selStage = battleUI.selStage - 1;
   }
 }
@@ -1390,12 +1393,14 @@ function overworldLoop(){
   }
 }
 
-function battleLoop(players, enemies){
+function battleLoop(players, enemies, prevKeyState){
 
   if (screen == 'battle') {
     drawBattle(players, enemies);
 
-    battleSelect();
+    battleSelect(prevKeyState);
+
+    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
     window.requestAnimationFrame(function(){
 
@@ -1406,7 +1411,7 @@ function battleLoop(players, enemies){
       times.push(now);
       fps = times.length;
 
-      battleLoop(players, enemies);
+      battleLoop(players, enemies, thisPrevKeyState);
     });
   }
   else{

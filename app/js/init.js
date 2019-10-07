@@ -129,12 +129,14 @@ function overworldLoop(){
   }
 }
 
-function battleLoop(players, enemies){
+function battleLoop(players, enemies, prevKeyState){
 
   if (screen == 'battle') {
     drawBattle(players, enemies);
 
-    battleSelect();
+    battleSelect(prevKeyState);
+
+    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
     window.requestAnimationFrame(function(){
 
@@ -145,7 +147,7 @@ function battleLoop(players, enemies){
       times.push(now);
       fps = times.length;
 
-      battleLoop(players, enemies);
+      battleLoop(players, enemies, thisPrevKeyState);
     });
   }
   else{
