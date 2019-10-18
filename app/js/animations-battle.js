@@ -86,25 +86,7 @@ function battleSet(step, players, enemies){
 
 
   if(step >= UISpacing.displayHeight){
-    // setUIData(players, enemies);
-    var thesePlayers = [];
-    for(var i = 0; i < players.length; ++i){
-      thesePlayers.push(players[i].name);
-    }
-    battleUI = {
-      top: [
-        players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
-        ''
-      ],
-      bottom: [
-        thesePlayers,
-        ['ACT','DEF','RUN'],
-        [],
-        [],
-      ],
-      selStage: 0,
-      selSlot: 0
-    };
+    battleDataInit(players);
     var keyState = JSON.parse(JSON.stringify(keys));
     battleLoop(players, enemies, keyState);
     return;

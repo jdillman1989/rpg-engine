@@ -1,3 +1,26 @@
+function battleDataInit(players){
+  // setUIData(players, enemies);
+  var thesePlayers = [];
+  for(var i = 0; i < players.length; ++i){
+    thesePlayers.push(players[i].name);
+  }
+  battleUI = {
+    top: [
+      players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
+      ''
+    ],
+    bottom: [
+      thesePlayers,
+      ['ACT','DEF','RUN'],
+      [],
+      [],
+    ],
+    selStage: 0,
+    selSlot: 0,
+    stack: []
+  };
+}
+
 function drawBattle(players, enemies){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -127,4 +150,13 @@ function drawCursor(selStage, selSlot){
       thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * selSlot) + (fontSize / 2);
 
   ctx.fillRect(thisX, thisY, 2, 2);
+}
+
+function battleTurnStack(stage, slot, advance){
+  if(advance){
+    battleUI.stack.push();
+  }
+  else{
+
+  }
 }
