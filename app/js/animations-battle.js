@@ -112,9 +112,11 @@ function battleSelect(prevKeyState){
   }
   else if(keys.enter && !prevKeyState.enter){
     battleUI.selStage = battleUI.selStage + 1;
+    battleTurnStack(battleUI.selStage, battleUI.selSlot, true);
   }
   else if(keys.shift && !prevKeyState.shift){
     battleUI.selStage = battleUI.selStage - 1;
+    battleTurnStack(battleUI.selStage, battleUI.selSlot, false);
   }
 }
 
