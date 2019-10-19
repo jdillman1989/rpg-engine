@@ -15,8 +15,9 @@ function battleDataInit(players){
       [],
       [],
     ],
-    selStage: 0,
-    selSlot: 0,
+    selStage: 1,
+    selSlot: 1,
+    currentSel: [],
     stack: []
   };
 }
@@ -70,7 +71,9 @@ function drawTopDisplay(charText, descriptionText){
 
 function drawBottomDisplay(playersText, actionText, optionsText, targetText){
 
-  // [ATK DEF RUN] -> [Fire Heal] -> [Imp 1 Imp 2]
+  // [Characters] -> [ATK, MAG, DEF, RUN] -> [Menu] -> [Targets]
+
+  var currentPlayer = battleUI.stack.length;
 
   ctx.fillStyle = '#FFF';
   ctx.fillRect(
@@ -88,6 +91,15 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
     UISpacing.displayHeight - (UISpacing.displayBorders * 2)
   );
 
+  // Highlight current player selection
+  ctx.fillStyle = '#F00';
+  ctx.fillRect(
+    UISpacing.displayBorders + UISpacing.displayPadding, 
+    (canvas.height - UISpacing.displayHeight + UISpacing.displayBorders) * (currentPlayer + 1), 
+    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4)), 
+    fontSize
+  );
+
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
@@ -95,7 +107,7 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
   );
 
   canvasWrite(
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1), 
+    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1),
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     actionText
   );
@@ -154,7 +166,7 @@ function drawCursor(selStage, selSlot){
 
 function battleTurnStack(stage, slot, advance){
   if(advance){
-    battleUI.stack.push();
+    // battleUI.currentSel[stage] = ;
   }
   else{
 

@@ -673,6 +673,7 @@ var stats = {
       currentHP: 100,
       off: 10,
       def: 5,
+      spd: 10,
       abilities: [
         {
           name: 'fire', 
@@ -692,6 +693,7 @@ var stats = {
       currentHP: 100,
       off: 10,
       def: 5,
+      spd: 9,
       abilities: [
         {
           name: 'fire', 
@@ -712,14 +714,16 @@ var stats = {
       maxHP: 15,
       currentHP: 15,
       off: 10,
-      def: 5
+      def: 5,
+      spd: 8
     },
     {
       name: 'Imp 2',
       maxHP: 15,
       currentHP: 15,
       off: 10,
-      def: 5
+      def: 5,
+      spd: 7
     }
   ]
 }
@@ -827,25 +831,7 @@ function battleSet(step, players, enemies){
 
 
   if(step >= UISpacing.displayHeight){
-    // setUIData(players, enemies);
-    var thesePlayers = [];
-    for(var i = 0; i < players.length; ++i){
-      thesePlayers.push(players[i].name);
-    }
-    battleUI = {
-      top: [
-        players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
-        ''
-      ],
-      bottom: [
-        thesePlayers,
-        ['ACT','DEF','RUN'],
-        [],
-        [],
-      ],
-      selStage: 0,
-      selSlot: 0
-    };
+    battleDataInit(players);
     var keyState = JSON.parse(JSON.stringify(keys));
     battleLoop(players, enemies, keyState);
     return;
@@ -861,21 +847,50 @@ function battleEnd(step){
   return;
 }
 
-function battleSelect(prevKeyState){
+function battleSelect(players, enemies, prevKeyState){
 
-  console.log(prevKeyState);
+  var currentPlayer = battleUI.stack.length;
 
+  // Cursor up
   if(keys.up && !prevKeyState.up){
     battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
   }
+
+  // Cursor down
   else if(keys.down && !prevKeyState.down){
     battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
   }
+
+  // Next selection
   else if(keys.enter && !prevKeyState.enter){
     battleUI.selStage = battleUI.selStage + 1;
+
+    var optionsStage = [];
+
+    if(battleUI.selStage == 2){
+      optionsStage = players[currentPlayer].abilities;
+    } else if(battleUI.selStage == 3){
+      optionsStage = enemies;
+    }
+
+    // console.log("stage: " + battleUI.selStage);
+    // console.log("options: " + optionsStage);
+
+    var options = [];
+    for(var i = 0; i < optionsStage.length; ++i){
+      options.push(optionsStage[i].name);
+    }
+    battleUI.bottom[battleUI.selStage] = options;
+    battleTurnStack(battleUI.selStage, battleUI.selSlot, true);
   }
+
+  // Go back a selection
   else if(keys.shift && !prevKeyState.shift){
-    battleUI.selStage = battleUI.selStage - 1;
+    if(battleUI.selStage - 1 >= 1){
+      battleUI.bottom[battleUI.selStage] = [];
+      battleUI.selStage = battleUI.selStage - 1;
+      battleTurnStack(battleUI.selStage, battleUI.selSlot, false);
+    }
   }
 }
 
@@ -1048,6 +1063,30 @@ function walkLoop(id, frames){
   }
 }
 
+function battleDataInit(players){
+  // setUIData(players, enemies);
+  var thesePlayers = [];
+  for(var i = 0; i < players.length; ++i){
+    thesePlayers.push(players[i].name);
+  }
+  battleUI = {
+    top: [
+      players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
+      ''
+    ],
+    bottom: [
+      thesePlayers,
+      ['ACT','DEF','RUN'],
+      [],
+      [],
+    ],
+    selStage: 1,
+    selSlot: 1,
+    currentSel: [],
+    stack: []
+  };
+}
+
 function drawBattle(players, enemies){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1097,7 +1136,9 @@ function drawTopDisplay(charText, descriptionText){
 
 function drawBottomDisplay(playersText, actionText, optionsText, targetText){
 
-  // [ATK DEF RUN] -> [Fire Heal] -> [Imp 1 Imp 2]
+  // [Characters] -> [ATK, MAG, DEF, RUN] -> [Menu] -> [Targets]
+
+  var currentPlayer = battleUI.stack.length;
 
   ctx.fillStyle = '#FFF';
   ctx.fillRect(
@@ -1115,6 +1156,15 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
     UISpacing.displayHeight - (UISpacing.displayBorders * 2)
   );
 
+  // Highlight current player selection
+  ctx.fillStyle = '#F00';
+  ctx.fillRect(
+    UISpacing.displayBorders + UISpacing.displayPadding, 
+    (canvas.height - UISpacing.displayHeight + UISpacing.displayBorders) * (currentPlayer + 1), 
+    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4)), 
+    fontSize
+  );
+
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
@@ -1122,7 +1172,7 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
   );
 
   canvasWrite(
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1), 
+    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1),
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     actionText
   );
@@ -1177,6 +1227,15 @@ function drawCursor(selStage, selSlot){
       thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * selSlot) + (fontSize / 2);
 
   ctx.fillRect(thisX, thisY, 2, 2);
+}
+
+function battleTurnStack(stage, slot, advance){
+  if(advance){
+    // battleUI.currentSel[stage] = ;
+  }
+  else{
+
+  }
 }
 
 function drawGame(map){
@@ -1398,7 +1457,7 @@ function battleLoop(players, enemies, prevKeyState){
   if (screen == 'battle') {
     drawBattle(players, enemies);
 
-    battleSelect(prevKeyState);
+    battleSelect(players, enemies, prevKeyState);
 
     var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 

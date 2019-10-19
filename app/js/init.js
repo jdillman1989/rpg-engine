@@ -134,7 +134,7 @@ function battleLoop(players, enemies, prevKeyState){
   if (screen == 'battle') {
     drawBattle(players, enemies);
 
-    battleSelect(prevKeyState);
+    battleSelect(players, enemies, prevKeyState);
 
     var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 

@@ -102,21 +102,50 @@ function battleEnd(step){
   return;
 }
 
-function battleSelect(prevKeyState){
+function battleSelect(players, enemies, prevKeyState){
 
+  var currentPlayer = battleUI.stack.length;
+
+  // Cursor up
   if(keys.up && !prevKeyState.up){
     battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
   }
+
+  // Cursor down
   else if(keys.down && !prevKeyState.down){
     battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
   }
+
+  // Next selection
   else if(keys.enter && !prevKeyState.enter){
     battleUI.selStage = battleUI.selStage + 1;
+
+    var optionsStage = [];
+
+    if(battleUI.selStage == 2){
+      optionsStage = players[currentPlayer].abilities;
+    } else if(battleUI.selStage == 3){
+      optionsStage = enemies;
+    }
+
+    // console.log("stage: " + battleUI.selStage);
+    // console.log("options: " + optionsStage);
+
+    var options = [];
+    for(var i = 0; i < optionsStage.length; ++i){
+      options.push(optionsStage[i].name);
+    }
+    battleUI.bottom[battleUI.selStage] = options;
     battleTurnStack(battleUI.selStage, battleUI.selSlot, true);
   }
+
+  // Go back a selection
   else if(keys.shift && !prevKeyState.shift){
-    battleUI.selStage = battleUI.selStage - 1;
-    battleTurnStack(battleUI.selStage, battleUI.selSlot, false);
+    if(battleUI.selStage - 1 >= 1){
+      battleUI.bottom[battleUI.selStage] = [];
+      battleUI.selStage = battleUI.selStage - 1;
+      battleTurnStack(battleUI.selStage, battleUI.selSlot, false);
+    }
   }
 }
 

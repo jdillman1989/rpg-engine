@@ -102,6 +102,7 @@ var stats = {
       currentHP: 100,
       off: 10,
       def: 5,
+      spd: 10,
       abilities: [
         {
           name: 'fire', 
@@ -121,6 +122,7 @@ var stats = {
       currentHP: 100,
       off: 10,
       def: 5,
+      spd: 9,
       abilities: [
         {
           name: 'fire', 
@@ -141,14 +143,16 @@ var stats = {
       maxHP: 15,
       currentHP: 15,
       off: 10,
-      def: 5
+      def: 5,
+      spd: 8
     },
     {
       name: 'Imp 2',
       maxHP: 15,
       currentHP: 15,
       off: 10,
-      def: 5
+      def: 5,
+      spd: 7
     }
   ]
 }
