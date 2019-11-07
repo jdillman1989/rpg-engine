@@ -671,41 +671,19 @@ var stats = {
       name: 'Jadle',
       maxHP: 100,
       currentHP: 100,
-      off: 10,
-      def: 5,
-      spd: 10,
-      abilities: [
-        {
-          name: 'fire', 
-          desc: 'strike an enemy with a stream of flames.',
-          targets: 'enemy'
-        },
-        {
-          name: 'heal',
-          desc: 'restore an ally\'s health.',
-          targets: 'player'
-        }
-      ]
+      strength: 20,
+      agility: 80,
+      intuition: 50,
+      focus: 30
     },
     {
       name: 'Idle',
       maxHP: 100,
       currentHP: 100,
-      off: 10,
-      def: 5,
-      spd: 9,
-      abilities: [
-        {
-          name: 'fire', 
-          desc: 'strike an enemy with a stream of flames.',
-          targets: 'enemy'
-        },
-        {
-          name: 'heal',
-          desc: 'restore an ally\'s health.',
-          targets: 'player'
-        }
-      ]
+      strength: 20,
+      agility: 70,
+      intuition: 50,
+      focus: 30
     }
   ],
   3: [
@@ -713,17 +691,19 @@ var stats = {
       name: 'Imp 1',
       maxHP: 15,
       currentHP: 15,
-      off: 10,
-      def: 5,
-      spd: 8
+      strength: 20,
+      agility: 60,
+      intuition: 50,
+      focus: 30
     },
     {
       name: 'Imp 2',
       maxHP: 15,
       currentHP: 15,
-      off: 10,
-      def: 5,
-      spd: 7
+      strength: 20,
+      agility: 50,
+      intuition: 50,
+      focus: 30
     }
   ]
 }
@@ -862,35 +842,46 @@ function battleSelect(players, enemies, prevKeyState){
   }
 
   // Next selection
-  else if(keys.enter && !prevKeyState.enter){
+  else if(keys.enter && !prevKeyState.enter && battleUI.selStage <= 4){
     battleUI.selStage = battleUI.selStage + 1;
 
-    var optionsStage = [];
+    var options = [];
 
     if(battleUI.selStage == 2){
-      optionsStage = players[currentPlayer].abilities;
+
+      switch(battleUI.selSlot) {
+
+        case 0:
+          options = ['Aggressive', 'Precise', 'Fancy'];
+          break;
+
+        case 1:
+          options = ['Fire', 'Heal'];
+          break;
+
+        case 2:
+          options = ['Defend'];
+          break;
+
+        case 3:
+          options = ['Escape'];
+          break;
+      };
     } else if(battleUI.selStage == 3){
-      optionsStage = enemies;
+      for(var i = 0; i < enemies.length; ++i){
+        options.push(enemies[i].name);
+      }
     }
 
-    // console.log("stage: " + battleUI.selStage);
-    // console.log("options: " + optionsStage);
-
-    var options = [];
-    for(var i = 0; i < optionsStage.length; ++i){
-      options.push(optionsStage[i].name);
-    }
     battleUI.bottom[battleUI.selStage] = options;
-    battleTurnStack(battleUI.selStage, battleUI.selSlot, true);
+    battleTurnStack(players, battleUI.selStage, battleUI.selSlot, true);
   }
 
   // Go back a selection
-  else if(keys.shift && !prevKeyState.shift){
-    if(battleUI.selStage - 1 >= 1){
-      battleUI.bottom[battleUI.selStage] = [];
-      battleUI.selStage = battleUI.selStage - 1;
-      battleTurnStack(battleUI.selStage, battleUI.selSlot, false);
-    }
+  else if(keys.shift && !prevKeyState.shift && battleUI.selStage - 1 >= 1){
+    battleUI.bottom[battleUI.selStage] = [];
+    battleUI.selStage = battleUI.selStage - 1;
+    battleTurnStack(players, battleUI.selStage, battleUI.selSlot, false);
   }
 }
 
@@ -1076,7 +1067,7 @@ function battleDataInit(players){
     ],
     bottom: [
       thesePlayers,
-      ['ACT','DEF','RUN'],
+      ['ATK','MAG','DEF','RUN'],
       [],
       [],
     ],
@@ -1110,9 +1101,11 @@ function drawTopDisplay(charText, descriptionText){
 
   // [Jadle 100/100] -> [ATK or target desc]
 
+  // Borders
   ctx.fillStyle = '#FFF';
   ctx.fillRect(0, 0, canvas.width, UISpacing.displayHeight);
 
+  // Box
   ctx.fillStyle = '#225';
   ctx.fillRect(
     UISpacing.displayBorders, 
@@ -1121,12 +1114,14 @@ function drawTopDisplay(charText, descriptionText){
     UISpacing.displayHeight - (UISpacing.displayBorders * 2)
   );
 
+  // Left Text
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     UISpacing.displayBorders, 
     charText
   );
 
+  // Right Text
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding + (canvas.width / 3), 
     UISpacing.displayBorders, 
@@ -1140,6 +1135,7 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
 
   var currentPlayer = battleUI.stack.length;
 
+  // Borders
   ctx.fillStyle = '#FFF';
   ctx.fillRect(
     0, 
@@ -1148,6 +1144,7 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
     UISpacing.displayHeight
   );
 
+  // Box
   ctx.fillStyle = '#225';
   ctx.fillRect(
     UISpacing.displayBorders, 
@@ -1160,29 +1157,33 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
   ctx.fillStyle = '#F00';
   ctx.fillRect(
     UISpacing.displayBorders + UISpacing.displayPadding, 
-    (canvas.height - UISpacing.displayHeight + UISpacing.displayBorders) * (currentPlayer + 1), 
+    (canvas.height - UISpacing.displayHeight + UISpacing.displayBorders) + (currentPlayer * fontSize), 
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4)), 
     fontSize
   );
 
+  // Player names
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     playersText
   );
 
+  // Player actions
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1),
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     actionText
   );
 
+  // Contextual options
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 2), 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     optionsText
   );
 
+  // Contextual targets
   canvasWrite(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 3), 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
@@ -1229,13 +1230,45 @@ function drawCursor(selStage, selSlot){
   ctx.fillRect(thisX, thisY, 2, 2);
 }
 
-function battleTurnStack(stage, slot, advance){
+function battleTurnStack(players, stage, slot, advance){
+
+  var currentPlayer = battleUI.stack.length;
+
   if(advance){
-    // battleUI.currentSel[stage] = ;
+    if(battleUI.currentSel.length < 2){
+      battleUI.currentSel.push(
+        battleUI.bottom[stage - 1][slot]
+      );
+    }
+    else{
+      battleUI.currentSel.push(
+        battleUI.bottom[stage - 1][slot]
+      );
+
+      battleUI.currentSel.unshift(players[currentPlayer].name);
+      battleUI.stack.push(
+        battleUI.currentSel
+      );
+      battleUI.currentSel = [];
+
+      if(battleUI.stack.length >= players.length){
+        initiateTurn();
+      }
+      else {
+        battleUI.bottom[2] = [];
+        battleUI.bottom[3] = [];
+        battleUI.selStage = 1;
+        battleUI.selSlot = 1;
+      }
+    }
   }
   else{
-
+    battleUI.currentSel.pop();
   }
+}
+
+function initiateTurn(){
+  console.log(battleUI.stack);
 }
 
 function drawGame(map){

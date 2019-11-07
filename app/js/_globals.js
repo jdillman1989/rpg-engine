@@ -100,41 +100,19 @@ var stats = {
       name: 'Jadle',
       maxHP: 100,
       currentHP: 100,
-      off: 10,
-      def: 5,
-      spd: 10,
-      abilities: [
-        {
-          name: 'fire', 
-          desc: 'strike an enemy with a stream of flames.',
-          targets: 'enemy'
-        },
-        {
-          name: 'heal',
-          desc: 'restore an ally\'s health.',
-          targets: 'player'
-        }
-      ]
+      strength: 20,
+      agility: 80,
+      intuition: 50,
+      focus: 30
     },
     {
       name: 'Idle',
       maxHP: 100,
       currentHP: 100,
-      off: 10,
-      def: 5,
-      spd: 9,
-      abilities: [
-        {
-          name: 'fire', 
-          desc: 'strike an enemy with a stream of flames.',
-          targets: 'enemy'
-        },
-        {
-          name: 'heal',
-          desc: 'restore an ally\'s health.',
-          targets: 'player'
-        }
-      ]
+      strength: 20,
+      agility: 70,
+      intuition: 50,
+      focus: 30
     }
   ],
   3: [
@@ -142,17 +120,19 @@ var stats = {
       name: 'Imp 1',
       maxHP: 15,
       currentHP: 15,
-      off: 10,
-      def: 5,
-      spd: 8
+      strength: 20,
+      agility: 60,
+      intuition: 50,
+      focus: 30
     },
     {
       name: 'Imp 2',
       maxHP: 15,
       currentHP: 15,
-      off: 10,
-      def: 5,
-      spd: 7
+      strength: 20,
+      agility: 50,
+      intuition: 50,
+      focus: 30
     }
   ]
 }

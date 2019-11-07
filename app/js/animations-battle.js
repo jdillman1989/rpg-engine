@@ -117,35 +117,46 @@ function battleSelect(players, enemies, prevKeyState){
   }
 
   // Next selection
-  else if(keys.enter && !prevKeyState.enter){
+  else if(keys.enter && !prevKeyState.enter && battleUI.selStage <= 4){
     battleUI.selStage = battleUI.selStage + 1;
 
-    var optionsStage = [];
+    var options = [];
 
     if(battleUI.selStage == 2){
-      optionsStage = players[currentPlayer].abilities;
+
+      switch(battleUI.selSlot) {
+
+        case 0:
+          options = ['Aggressive', 'Precise', 'Fancy'];
+          break;
+
+        case 1:
+          options = ['Fire', 'Heal'];
+          break;
+
+        case 2:
+          options = ['Defend'];
+          break;
+
+        case 3:
+          options = ['Escape'];
+          break;
+      };
     } else if(battleUI.selStage == 3){
-      optionsStage = enemies;
+      for(var i = 0; i < enemies.length; ++i){
+        options.push(enemies[i].name);
+      }
     }
 
-    // console.log("stage: " + battleUI.selStage);
-    // console.log("options: " + optionsStage);
-
-    var options = [];
-    for(var i = 0; i < optionsStage.length; ++i){
-      options.push(optionsStage[i].name);
-    }
     battleUI.bottom[battleUI.selStage] = options;
-    battleTurnStack(battleUI.selStage, battleUI.selSlot, true);
+    battleTurnStack(players, battleUI.selStage, battleUI.selSlot, true);
   }
 
   // Go back a selection
-  else if(keys.shift && !prevKeyState.shift){
-    if(battleUI.selStage - 1 >= 1){
-      battleUI.bottom[battleUI.selStage] = [];
-      battleUI.selStage = battleUI.selStage - 1;
-      battleTurnStack(battleUI.selStage, battleUI.selSlot, false);
-    }
+  else if(keys.shift && !prevKeyState.shift && battleUI.selStage - 1 >= 1){
+    battleUI.bottom[battleUI.selStage] = [];
+    battleUI.selStage = battleUI.selStage - 1;
+    battleTurnStack(players, battleUI.selStage, battleUI.selSlot, false);
   }
 }
 
