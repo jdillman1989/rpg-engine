@@ -22,6 +22,7 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
     var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
 
     battleIntro(0, players, enemies);
+    battleDataInit(players, enemies);
   }
 
   else{

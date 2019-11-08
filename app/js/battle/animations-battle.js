@@ -1,4 +1,4 @@
-function battleIntro(step, players, enemies){
+function battleIntro(step){
 
   screen = 'battle';
 
@@ -8,17 +8,17 @@ function battleIntro(step, players, enemies){
   ctx.fillRect(0, 0, canvas.width, step);
 
   if(step >= canvas.height){
-    battleBg(60, players, enemies);
+    battleBg(60);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleIntro(step, players, enemies);
+      battleIntro(step);
     });
   }
 }
 
-function battleBg(step, players, enemies){
+function battleBg(step){
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -33,17 +33,17 @@ function battleBg(step, players, enemies){
 
   if(step <= 0){
     ctx.globalAlpha = 1;
-    battleSet(0, players, enemies);
+    battleSet(0);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleBg(step, players, enemies);
+      battleBg(step);
     });
   }
 }
 
-function battleSet(step, players, enemies){
+function battleSet(step){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -66,28 +66,27 @@ function battleSet(step, players, enemies){
   // Draw player
   var playerWidth = 20;
   ctx.fillStyle = '#FFF';
-  for(var i = 0; i < players.length; ++i){
-    ctx.fillRect(-(playerWidth) + (step * 1.5), (canvas.height / (players.length + 1)) * (i + 1), playerWidth, 30);
+  for(var i = 0; i < battleData.players.length; ++i){
+    ctx.fillRect(-(playerWidth) + (step * 1.5), (canvas.height / (battleData.players.length + 1)) * (i + 1), playerWidth, 30);
   }
 
 
   // Draw enemies
   var enemyWidth = 20;
   ctx.fillStyle = '#000';
-  for(var i = 0; i < enemies.length; ++i){
-    ctx.fillRect(canvas.width - (step * 1.5), (canvas.height / (enemies.length + 1)) * (i + 1), enemyWidth, 30);
+  for(var i = 0; i < battleData.enemies.length; ++i){
+    ctx.fillRect(canvas.width - (step * 1.5), (canvas.height / (battleData.enemies.length + 1)) * (i + 1), enemyWidth, 30);
   }
 
 
   if(step >= UISpacing.displayHeight){
-    battleDataInit(players);
     var keyState = JSON.parse(JSON.stringify(keys));
-    battleLoop(players, enemies, keyState);
+    battleLoop(keyState);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleSet(step, players, enemies);
+      battleSet(step);
     });
   }
 }

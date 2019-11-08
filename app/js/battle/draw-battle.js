@@ -1,49 +1,20 @@
-function battleDataInit(players){
-  // setUIData(players, enemies);
-  var thesePlayers = [];
-  for(var i = 0; i < players.length; ++i){
-    thesePlayers.push(players[i].name);
-  }
-  battleUI = {
-    top: [
-      players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
-      ''
-    ],
-    bottom: [
-      thesePlayers,
-      ['Attack','Magic','Defense'],
-      [],
-      [],
-    ],
-    selStage: 1,
-    selSlot: 1,
-    currentSel: [],
-    stack: {}
-  };
-}
-
-function drawBattle(players, enemies){
+function drawBattle(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  var charText = battleUI.top[0],
-      descriptionText = battleUI.top[1],
-      playersText = battleUI.bottom[0].join('\n'),
-      actionText = battleUI.bottom[1].join('\n'), 
-      optionsText = battleUI.bottom[2].join('\n'), 
-      targetText = battleUI.bottom[3].join('\n');
-
-  drawTopDisplay(charText, descriptionText);
-  drawBottomDisplay(playersText, actionText, optionsText, targetText);
-  drawPlayerBattle(players);
-  drawEnemiesBattle(enemies);
-  drawCursor(battleUI.selStage, battleUI.selSlot);
+  drawTopDisplay();
+  drawBottomDisplay();
+  drawPlayerBattle();
+  drawEnemiesBattle();
+  drawCursor();
 }
 
-function drawTopDisplay(charText, descriptionText){
+function drawTopDisplay(){
 
   // [Jadle 100/100] -> [ATK or target desc]
+  var charText = battleData.UI.top.left;
+  var descriptionText = battleData.UI.top.right;
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -73,9 +44,14 @@ function drawTopDisplay(charText, descriptionText){
   );
 }
 
-function drawBottomDisplay(playersText, actionText, optionsText, targetText){
+function drawBottomDisplay(){
 
-  var currentPlayer = Object.keys(battleUI.stack).length;
+  var currentPlayer = Object.keys(battleData.stack).length;
+
+  var playersText = battleData.UI.bottom[0].join('\n');
+  var actionText = battleData.UI.bottom[1].join('\n');
+  var optionsText = battleData.UI.bottom[2].join('\n');
+  var targetText = battleData.UI.bottom[3].join('\n');
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -133,41 +109,41 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
   );
 }
 
-function drawPlayerBattle(players){
+function drawPlayerBattle(){
 
   var playerWidth = 20;
   ctx.fillStyle = '#FFF';
 
-  for(var i = 0; i < players.length; ++i){
+  for(var i = 0; i < battleData.players.length; ++i){
     ctx.fillRect(
       -(playerWidth) + 48, 
-      (canvas.height / (players.length + 1)) * (i + 1), 
+      (canvas.height / (battleData.players.length + 1)) * (i + 1), 
       playerWidth, 
       30
     );
   }
 }
 
-function drawEnemiesBattle(enemies){
+function drawEnemiesBattle(){
 
   var enemyWidth = 20;
   ctx.fillStyle = '#000';
 
-  for(var i = 0; i < enemies.length; ++i){
+  for(var i = 0; i < battleData.enemies.length; ++i){
     ctx.fillRect(
       canvas.width - 48, 
-      (canvas.height / (enemies.length + 1)) * (i + 1), 
+      (canvas.height / (battleData.enemies.length + 1)) * (i + 1), 
       enemyWidth, 
       30
     );
   }
 }
 
-function drawCursor(selStage, selSlot){
+function drawCursor(){
   ctx.fillStyle = '#F00';
 
-  var thisX = UISpacing.displayBorders + ((canvas.width / 4) * selStage),
-      thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * selSlot) + (fontSize / 2);
+  var thisX = UISpacing.displayBorders + ((canvas.width / 4) * battleData.selStage),
+      thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * battleData.selSlot) + (fontSize / 2);
 
   ctx.fillRect(thisX, thisY, 2, 2);
 }

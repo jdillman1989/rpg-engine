@@ -148,7 +148,7 @@ var img;
 var times = [];
 var fps;
 
-var battleUI = {};
+var battleData = {};
 var UISpacing = {
   displayBorders: 1,
   displayHeight: 32,

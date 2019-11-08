@@ -719,7 +719,7 @@ var img;
 var times = [];
 var fps;
 
-var battleUI = {};
+var battleData = {};
 var UISpacing = {
   displayBorders: 1,
   displayHeight: 32,
@@ -858,12 +858,12 @@ function overworldLoop(){
   }
 }
 
-function battleLoop(players, enemies, prevKeyState){
+function battleLoop(prevKeyState){
 
   if (screen == 'battle') {
-    drawBattle(players, enemies);
+    drawBattle();
 
-    battleSelect(players, enemies, prevKeyState);
+    battleSelect(prevKeyState);
 
     var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
@@ -876,7 +876,7 @@ function battleLoop(players, enemies, prevKeyState){
       times.push(now);
       fps = times.length;
 
-      battleLoop(players, enemies, thisPrevKeyState);
+      battleLoop(thisPrevKeyState);
     });
   }
   else{
@@ -933,7 +933,7 @@ function colorSet(color){
 
   return colorObj;
 }
-function battleIntro(step, players, enemies){
+function battleIntro(step){
 
   screen = 'battle';
 
@@ -943,17 +943,17 @@ function battleIntro(step, players, enemies){
   ctx.fillRect(0, 0, canvas.width, step);
 
   if(step >= canvas.height){
-    battleBg(60, players, enemies);
+    battleBg(60);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleIntro(step, players, enemies);
+      battleIntro(step);
     });
   }
 }
 
-function battleBg(step, players, enemies){
+function battleBg(step){
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -968,17 +968,17 @@ function battleBg(step, players, enemies){
 
   if(step <= 0){
     ctx.globalAlpha = 1;
-    battleSet(0, players, enemies);
+    battleSet(0);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleBg(step, players, enemies);
+      battleBg(step);
     });
   }
 }
 
-function battleSet(step, players, enemies){
+function battleSet(step){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -1001,28 +1001,27 @@ function battleSet(step, players, enemies){
   // Draw player
   var playerWidth = 20;
   ctx.fillStyle = '#FFF';
-  for(var i = 0; i < players.length; ++i){
-    ctx.fillRect(-(playerWidth) + (step * 1.5), (canvas.height / (players.length + 1)) * (i + 1), playerWidth, 30);
+  for(var i = 0; i < battleData.players.length; ++i){
+    ctx.fillRect(-(playerWidth) + (step * 1.5), (canvas.height / (battleData.players.length + 1)) * (i + 1), playerWidth, 30);
   }
 
 
   // Draw enemies
   var enemyWidth = 20;
   ctx.fillStyle = '#000';
-  for(var i = 0; i < enemies.length; ++i){
-    ctx.fillRect(canvas.width - (step * 1.5), (canvas.height / (enemies.length + 1)) * (i + 1), enemyWidth, 30);
+  for(var i = 0; i < battleData.enemies.length; ++i){
+    ctx.fillRect(canvas.width - (step * 1.5), (canvas.height / (battleData.enemies.length + 1)) * (i + 1), enemyWidth, 30);
   }
 
 
   if(step >= UISpacing.displayHeight){
-    battleDataInit(players);
     var keyState = JSON.parse(JSON.stringify(keys));
-    battleLoop(players, enemies, keyState);
+    battleLoop(keyState);
     return;
   }
   else{
     window.requestAnimationFrame(function(){
-      battleSet(step, players, enemies);
+      battleSet(step);
     });
   }
 }
@@ -1031,52 +1030,23 @@ function battleEnd(step){
   return;
 }
 
-function battleDataInit(players){
-  // setUIData(players, enemies);
-  var thesePlayers = [];
-  for(var i = 0; i < players.length; ++i){
-    thesePlayers.push(players[i].name);
-  }
-  battleUI = {
-    top: [
-      players[0].name + '\n' + players[0].currentHP + '/' + players[0].maxHP,
-      ''
-    ],
-    bottom: [
-      thesePlayers,
-      ['Attack','Magic','Defense'],
-      [],
-      [],
-    ],
-    selStage: 1,
-    selSlot: 1,
-    currentSel: [],
-    stack: {}
-  };
-}
-
-function drawBattle(players, enemies){
+function drawBattle(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-  var charText = battleUI.top[0],
-      descriptionText = battleUI.top[1],
-      playersText = battleUI.bottom[0].join('\n'),
-      actionText = battleUI.bottom[1].join('\n'), 
-      optionsText = battleUI.bottom[2].join('\n'), 
-      targetText = battleUI.bottom[3].join('\n');
-
-  drawTopDisplay(charText, descriptionText);
-  drawBottomDisplay(playersText, actionText, optionsText, targetText);
-  drawPlayerBattle(players);
-  drawEnemiesBattle(enemies);
-  drawCursor(battleUI.selStage, battleUI.selSlot);
+  drawTopDisplay();
+  drawBottomDisplay();
+  drawPlayerBattle();
+  drawEnemiesBattle();
+  drawCursor();
 }
 
-function drawTopDisplay(charText, descriptionText){
+function drawTopDisplay(){
 
   // [Jadle 100/100] -> [ATK or target desc]
+  var charText = battleData.UI.top.left;
+  var descriptionText = battleData.UI.top.right;
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -1106,9 +1076,14 @@ function drawTopDisplay(charText, descriptionText){
   );
 }
 
-function drawBottomDisplay(playersText, actionText, optionsText, targetText){
+function drawBottomDisplay(){
 
-  var currentPlayer = Object.keys(battleUI.stack).length;
+  var currentPlayer = Object.keys(battleData.stack).length;
+
+  var playersText = battleData.UI.bottom[0].join('\n');
+  var actionText = battleData.UI.bottom[1].join('\n');
+  var optionsText = battleData.UI.bottom[2].join('\n');
+  var targetText = battleData.UI.bottom[3].join('\n');
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -1166,67 +1141,94 @@ function drawBottomDisplay(playersText, actionText, optionsText, targetText){
   );
 }
 
-function drawPlayerBattle(players){
+function drawPlayerBattle(){
 
   var playerWidth = 20;
   ctx.fillStyle = '#FFF';
 
-  for(var i = 0; i < players.length; ++i){
+  for(var i = 0; i < battleData.players.length; ++i){
     ctx.fillRect(
       -(playerWidth) + 48, 
-      (canvas.height / (players.length + 1)) * (i + 1), 
+      (canvas.height / (battleData.players.length + 1)) * (i + 1), 
       playerWidth, 
       30
     );
   }
 }
 
-function drawEnemiesBattle(enemies){
+function drawEnemiesBattle(){
 
   var enemyWidth = 20;
   ctx.fillStyle = '#000';
 
-  for(var i = 0; i < enemies.length; ++i){
+  for(var i = 0; i < battleData.enemies.length; ++i){
     ctx.fillRect(
       canvas.width - 48, 
-      (canvas.height / (enemies.length + 1)) * (i + 1), 
+      (canvas.height / (battleData.enemies.length + 1)) * (i + 1), 
       enemyWidth, 
       30
     );
   }
 }
 
-function drawCursor(selStage, selSlot){
+function drawCursor(){
   ctx.fillStyle = '#F00';
 
-  var thisX = UISpacing.displayBorders + ((canvas.width / 4) * selStage),
-      thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * selSlot) + (fontSize / 2);
+  var thisX = UISpacing.displayBorders + ((canvas.width / 4) * battleData.selStage),
+      thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * battleData.selSlot) + (fontSize / 2);
 
   ctx.fillRect(thisX, thisY, 2, 2);
 }
-function battleSelect(players, enemies, prevKeyState){
+function battleDataInit(players, enemies){
+  var thesePlayersNames = [];
+  var thesePlayersHealth = [];
+  for(var i = 0; i < players.length; ++i){
+    thesePlayersNames.push(players[i].name);
+    thesePlayersHealth.push(players[i].name + ': ' + players[i].currentHP + '/' + players[i].maxHP);
+  }
+  battleData = {
+    UI:{
+      top: {
+        left: thesePlayersHealth.join('\n'),
+        right: ''
+      },
+      bottom: [
+        thesePlayersNames,
+        ['Attack','Magic','Defense'],
+        [],
+        [],
+      ],
+    },
+    players: players,
+    enemies: enemies,
+    selStage: 1,
+    selSlot: 1,
+    currentSel: [],
+    stack: {}
+  };
+}
 
-  var currentPlayer = Object.keys(battleUI.stack).length;
+function battleSelect(prevKeyState){
 
   // Cursor up
   if(keys.up && !prevKeyState.up){
-    battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
+    battleData.selSlot = ((battleData.selSlot - 1) < 0) ? battleData.selSlot : battleData.selSlot - 1;
   }
 
   // Cursor down
   else if(keys.down && !prevKeyState.down){
-    battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
+    battleData.selSlot = ((battleData.selSlot + 1) >= battleData.UI.bottom[battleData.selStage].length) ? battleData.selSlot : battleData.selSlot + 1;
   }
 
   // Next selection
-  else if(keys.enter && !prevKeyState.enter && battleUI.selStage <= 4){
-    battleUI.selStage = battleUI.selStage + 1;
+  else if(keys.enter && !prevKeyState.enter && battleData.selStage <= 4){
+    battleData.selStage = battleData.selStage + 1;
 
     var options = [];
 
-    if(battleUI.selStage == 2){
+    if(battleData.selStage == 2){
 
-      switch(battleUI.selSlot) {
+      switch(battleData.selSlot) {
 
         case 0:
           options = ['Aggressive', 'Precise', 'Fancy'];
@@ -1240,65 +1242,65 @@ function battleSelect(players, enemies, prevKeyState){
           options = ['Defend', 'Escape'];
           break;
       };
-    } else if(battleUI.selStage == 3){
-      for(var i = 0; i < enemies.length; ++i){
-        options.push(enemies[i].name);
+    } else if(battleData.selStage == 3){
+      for(var i = 0; i < battleData.enemies.length; ++i){
+        options.push(battleData.enemies[i].name);
       }
     }
 
-    battleUI.bottom[battleUI.selStage] = options;
-    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, true);
-    battleUI.selSlot = 0;
+    battleData.UI.bottom[battleData.selStage] = options;
+    battleTurnStack(battleData.selStage, battleData.selSlot, true);
+    battleData.selSlot = 0;
   }
 
   // Go back a selection
-  else if(keys.shift && !prevKeyState.shift && battleUI.selStage - 1 >= 1){
-    battleUI.bottom[battleUI.selStage] = [];
-    battleUI.selStage = battleUI.selStage - 1;
-    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, false);
-    battleUI.selSlot = 0;
+  else if(keys.shift && !prevKeyState.shift && battleData.selStage - 1 >= 1){
+    battleData.UI.bottom[battleData.selStage] = [];
+    battleData.selStage = battleData.selStage - 1;
+    battleTurnStack(battleData.selStage, battleData.selSlot, false);
+    battleData.selSlot = 0;
   }
 }
 
-function battleTurnStack(players, enemies, stage, slot, advance){
+function battleTurnStack(stage, slot, advance){
 
-  var currentPlayer = Object.keys(battleUI.stack).length;
+  var currentPlayer = Object.keys(battleData.stack).length;
 
   if(advance){
-    if(battleUI.currentSel.length < 2){
-      battleUI.currentSel.push(
-        battleUI.bottom[stage - 1][slot]
+    if(battleData.currentSel.length < 2){
+      battleData.currentSel.push(
+        battleData.UI.bottom[stage - 1][slot]
       );
     }
     else{
-      battleUI.currentSel.push(
-        battleUI.bottom[stage - 1][slot]
+      battleData.currentSel.push(
+        battleData.UI.bottom[stage - 1][slot]
       );
 
-      battleUI.stack[players[currentPlayer].name] = battleUI.currentSel;
-      battleUI.currentSel = [];
+      battleData.stack[battleData.players[currentPlayer].name] = battleData.currentSel;
+      battleData.currentSel = [];
 
-      if(Object.keys(battleUI.stack).length >= players.length){
-        initiateTurn(players, enemies);
+      if(Object.keys(battleData.stack).length >= battleData.players.length){
+        initiateTurn();
       }
       else {
-        battleUI.bottom[2] = [];
-        battleUI.bottom[3] = [];
-        battleUI.selStage = 1;
-        battleUI.selSlot = 1;
+        battleData.UI.bottom[2] = [];
+        battleData.UI.bottom[3] = [];
+        battleData.selStage = 1;
+        battleData.selSlot = 1;
       }
     }
   }
   else{
-    battleUI.currentSel.pop();
+    battleData.currentSel.pop();
   }
 }
 
-function initiateTurn(players, enemies){
+function initiateTurn(){
   
   var aiAtkOptions = ['Aggressive', 'Precise', 'Fancy'];
 
-  var battlers = players.concat(enemies);
+  var battlers = battleData.players.concat(battleData.enemies);
   battlers.sort(function(a,b){
     return a.agility - b.agility;
   });
@@ -1306,20 +1308,15 @@ function initiateTurn(players, enemies){
   var turnStack = [];
   for(var i = 0; i < battlers.length; ++i){
 
-    if(
-      battleUI.stack.hasOwnProperty(
-        battlers[i].name
-      )
-    ){
+    if(isBattlerPlayer(battlers[i])){
       turnStack.push(
         {
           name: battlers[i].name,
           action: [
-            battleUI.stack[battlers[i].name][0],
-            battleUI.stack[battlers[i].name][1]
+            battleData.stack[battlers[i].name][0],
+            battleData.stack[battlers[i].name][1]
           ],
-          target: battleUI.stack[battlers[i].name][2],
-          player: true
+          target: battleData.stack[battlers[i].name][2]
         }
       );
     }
@@ -1331,27 +1328,26 @@ function initiateTurn(players, enemies){
             "Attack",
             aiAtkOptions[Math.floor(Math.random() * aiAtkOptions.length)]
           ],
-          target: players[Math.floor(Math.random() * players.length)].name,
-          player: false
+          target: battleData.players[Math.floor(Math.random() * battleData.players.length)].name
         }
       );
     }
 
   }
-  battleUI.stack = turnStack;
-  executeTurn(players, enemies);
+  battleData.stack = turnStack;
+  executeTurn();
 }
 
-function executeTurn(players, enemies){
+function executeTurn(){
 
-  console.log(battleUI.stack);
+  console.log(battleData.stack);
 
-  for(var i = 0; i < battleUI.stack.length; ++i){
+  for(var i = 0; i < battleData.stack.length; ++i){
 
-    switch(battleUI.stack[i].action[0]) {
+    switch(battleData.stack[i].action[0]) {
 
       case 'Attack':
-        executeAttack(players, enemies, i);
+        executeAttack(i);
         break;
 
       case 'Magic':
@@ -1364,13 +1360,13 @@ function executeTurn(players, enemies){
     };
   }
 
-  battleDataInit(players);
+  battleDataInit(battleData.players, battleData.enemies);
 }
 
-function executeAttack(players, enemies, stackIndex){
+function executeAttack(stackIndex){
   var atkStat = '';
 
-  switch(battleUI.stack[stackIndex].action[1]) {
+  switch(battleData.stack[stackIndex].action[1]) {
     case 'Aggressive':
       atkStat = 'strength';
       break;
@@ -1382,28 +1378,45 @@ function executeAttack(players, enemies, stackIndex){
       break;
   }
 
-  var damage = findCharacterStat(players, enemies, battleUI.stack[stackIndex].name, atkStat);
-  if(battleUI.stack[stackIndex].player){
-    for(var i = 0; i < enemies.length; ++i){
-      if(enemies[i].name == battleUI.stack[stackIndex].target){
-        enemies[i].currentHP = enemies[i].currentHP - damage;
+  var damage = findCharacterStat(battleData.stack[stackIndex].name, atkStat);
+  if(isBattlerPlayer(battleData.stack[stackIndex])){
+    for(var i = 0; i < battleData.enemies.length; ++i){
+      if(battleData.enemies[i].name == battleData.stack[stackIndex].target){
+        battleData.enemies[i].currentHP = ((battleData.enemies[i].currentHP - damage) < 0) ? 0 : battleData.enemies[i].currentHP - damage;
       }
     }
   }
   else{
-    for(var i = 0; i < players.length; ++i){
-      if(players[i].name == battleUI.stack[stackIndex].target){
-        players[i].currentHP = players[i].currentHP - damage;
+    for(var i = 0; i < battleData.players.length; ++i){
+      if(battleData.players[i].name == battleData.stack[stackIndex].target){
+        battleData.players[i].currentHP = ((battleData.players[i].currentHP - damage) < 0) ? 0 : battleData.players[i].currentHP - damage;
       }
     }
   }
 }
 
-function findCharacterStat(players, enemies, name, stat) {
-  var battlers = players.concat(enemies);
+function findCharacterStat(name, stat) {
+  var battlers = battleData.players.concat(battleData.enemies);
   for (var i = 0; i < battlers.length; i++) {
     if(battlers[i].name == name){
       return battlers[i][stat];
+    }
+  }
+  return false;
+}
+
+function checkDeath(){
+
+}
+
+function dealDamage(attacker, target){
+
+}
+
+function isBattlerPlayer(battler){
+  for(var i = 0; i < battleData.players.length; ++i){
+    if(battler.name == battleData.players[i].name){
+      return true;
     }
   }
   return false;
@@ -1676,6 +1689,7 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
     var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
 
     battleIntro(0, players, enemies);
+    battleDataInit(players, enemies);
   }
 
   else{
