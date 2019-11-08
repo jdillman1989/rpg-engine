@@ -727,17 +727,217 @@ var UISpacing = {
 };
 var fontSize = 9;
 
+window.onload = function(){
+
+  testMap();
+  
+  canvas = document.getElementById('save');
+  ctx = canvas.getContext("2d");
+
+  window.onkeydown = function(e) {
+    switch(e.which) {
+
+      case 87: // W
+        keysState('up', true);
+        break;
+
+      case 65: // A
+        keysState('left', true);
+        break;
+
+      case 83: // S
+        keysState('down', true);
+        break;
+
+      case 68: // D
+        keysState('right', true);
+        break;
+
+      case 13: // Enter
+        keysState('enter', true);
+        break;
+
+      case 16: // Shift
+        keysState('shift', true);
+        break;
+    };
+  };
+
+  window.onkeyup = function(e) {
+    switch(e.which) {
+
+      case 87: // W
+        keysState('up', false);
+        break;
+
+      case 65: // A
+        keysState('left', false);
+        break;
+
+      case 83: // S
+        keysState('down', false);
+        break;
+
+      case 68: // D
+        keysState('right', false);
+        break;
+
+      case 13: // Enter
+        keysState('enter', false);
+        break;
+
+      case 16: // Shift
+        keysState('shift', false);
+        break;
+    };
+  };
+
+  for(var i = 0; i < entities.length; ++i){
+
+    map[entities[i].tile].render.object = entities[i].id;
+
+    if(entities[i].logic){
+
+      window[entities[i].logic.func].apply(null, entities[i].logic.data);
+
+      if(entities[i].logic.state){
+        map[entities[i].tile].state = entities[i].logic.state;
+      }
+    }
+  }
+
+  img = document.createElement('img');
+  img.src = '/rpg-engine/assets/images/bg.png';
+
+  window.requestAnimationFrame(function(){
+    overworldLoop();
+  });
+
+  var fpsMonitor = setInterval(function(){
+    document.getElementById('message').innerHTML = fps;
+  }, 700);
+};
+
+function keysState(key, down){
+  if(down){
+    keys[key] = true;
+  }
+  else{
+    keys[key] = false;
+
+    if(screen == 'overworld'){
+      clearInterval(entities[0].interval);
+      entities[0].interval = 0;
+    }
+  }
+}
+
+function overworldLoop(){
+
+  if (screen == 'overworld') {
+    drawGame(map);
+
+    animateMove(0, keys.up, keys.down, keys.left, keys.right);
+
+    for(var i = 0; i < entities.length; ++i){
+      if(i && entities[i].type == 'mobile'){
+        animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
+      }
+    }
+    window.requestAnimationFrame(function(){
+
+      var now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+
+      overworldLoop();
+    });
+  }
+}
+
+function battleLoop(players, enemies, prevKeyState){
+
+  if (screen == 'battle') {
+    drawBattle(players, enemies);
+
+    battleSelect(players, enemies, prevKeyState);
+
+    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
+
+    window.requestAnimationFrame(function(){
+
+      var now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+
+      battleLoop(players, enemies, thisPrevKeyState);
+    });
+  }
+  else{
+    battleEnd(0);
+  }
+}
+
+function canvasWrite(posX, posY, text){
+
+  ctx.font = fontSize + "px Courier";
+  ctx.fillStyle = "white";
+  var lines = text.split('\n');
+
+  for (var i = 0; i<lines.length; i++){
+    ctx.fillText(lines[i], posX, posY + (i*fontSize) + fontSize);
+  }
+}
+
+function toColor(colorObj){
+  return 'rgb(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ')';
+}
+
+function colorValLimit(color){
+  if(color >= 255){
+    color = 255;
+  }
+
+  if(color <= 0){
+    color = 0;
+  }
+
+  return Math.round(color);
+}
+
+function colorSet(color){
+
+  var colorCool = {
+    r:color.r - 90,
+    g:color.g - 20,
+    b:color.b - 10
+  };
+
+  var colorWarm = {
+    r:color.r - 10,
+    g:color.g - 20,
+    b:color.b - 90
+  };
+
+  var colorObj = {
+    base: color,
+    cool: colorCool,
+    warm: colorWarm
+  };
+
+  return colorObj;
+}
 function battleIntro(step, players, enemies){
 
   screen = 'battle';
 
   step = step + 4;
-
-  // ctx.fillStyle = '#FF0';
-  // ctx.fillRect(0, step + 4, canvas.width, step + 4);
-
-  // ctx.fillStyle = '#F00';
-  // ctx.fillRect(0, step, canvas.width, step + 4);
 
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, step);
@@ -829,231 +1029,6 @@ function battleSet(step, players, enemies){
 
 function battleEnd(step){
   return;
-}
-
-function battleSelect(players, enemies, prevKeyState){
-
-  var currentPlayer = Object.keys(battleUI.stack).length;
-
-  // Cursor up
-  if(keys.up && !prevKeyState.up){
-    battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
-  }
-
-  // Cursor down
-  else if(keys.down && !prevKeyState.down){
-    battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
-  }
-
-  // Next selection
-  else if(keys.enter && !prevKeyState.enter && battleUI.selStage <= 4){
-    battleUI.selStage = battleUI.selStage + 1;
-
-    var options = [];
-
-    if(battleUI.selStage == 2){
-
-      switch(battleUI.selSlot) {
-
-        case 0:
-          options = ['Aggressive', 'Precise', 'Fancy'];
-          break;
-
-        case 1:
-          options = ['Fire', 'Heal'];
-          break;
-
-        case 2:
-          options = ['Defend', 'Escape'];
-          break;
-      };
-    } else if(battleUI.selStage == 3){
-      for(var i = 0; i < enemies.length; ++i){
-        options.push(enemies[i].name);
-      }
-    }
-
-    battleUI.bottom[battleUI.selStage] = options;
-    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, true);
-    battleUI.selSlot = 0;
-  }
-
-  // Go back a selection
-  else if(keys.shift && !prevKeyState.shift && battleUI.selStage - 1 >= 1){
-    battleUI.bottom[battleUI.selStage] = [];
-    battleUI.selStage = battleUI.selStage - 1;
-    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, false);
-    battleUI.selSlot = 0;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-function animateMove(id, up, down, left, right){
-
-  var prevTile = entities[id].tile;
-
-  if(up){
-
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, topLeft, topRight, 0, -1, 'speedY', [2,3]);
-  }
-  else if(down){
-
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-
-    checkBounding(id, bottomLeft, bottomRight, 0, 1, 'speedY', [0,1]);
-  }
-  else{
-    entities[id].speedY = 0;
-  }
-
-  if(left){
-
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
-
-    checkBounding(id, bottomLeft, topLeft, -1, 0, 'speedX', [4,5]);
-  }
-  else if(right){
-
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, bottomRight, topRight, 1, 0, 'speedX', [6,7]);
-  }
-  else{
-    entities[id].speedX = 0;
-  }
-
-  entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
-  map[entities[id].tile].render.object = id;
-  if(entities[id].logic.state){
-    map[entities[id].tile].state = entities[id].logic.state;
-  }
-
-  if(prevTile !== entities[id].tile){
-    map[prevTile].render.object = false;
-    map[prevTile].state = {passable: true};
-  }
-}
-
-function spriteLoop(id, frames, rate){
-  var i = 0;
-  var thisAnim = setInterval(function(){
-
-    entities[id].frame = i;
-    i++;
-    if(i >= frames.length){
-      i = 0;
-    }
-  }, rate);
-}
-
-function setPath(id, path, originPoint, originTime, step){
-
-  if (path[step] != 'wait' && path[step] != 'stop') {
-
-    var destX = Math.abs(entities[id].xy.x - originPoint.x);
-    var destY = Math.abs(entities[id].xy.y - originPoint.y);
-
-    if (destX >= tileSize || destY >= tileSize) {
-
-      step = step + 1;
-      if(step >= path.length){
-        step = 0;
-      }
-
-      originPoint = JSON.parse(JSON.stringify(entities[id].xy));
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
-    }
-  }
-  else{
-    originTime = originTime + 1;
-    if(originTime == 60){
-      originTime = 0;
-      step = step + 1;
-      if(step >= path.length){
-        step = 0;
-      }
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
-    }
-  }
-
-  switch(path[step]) {
-
-    case 'up':
-      entities[id].dir.up = true;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case 'down':
-      entities[id].dir.up = false;
-      entities[id].dir.down = true;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case 'left':
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = true;
-      entities[id].dir.right = false;
-      break;
-
-    case 'right':
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = true;
-      break;
-
-    case 'wait':
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break
-
-    case 'stop':
-      return;
-      break
-  };
-
-  window.requestAnimationFrame(function(){
-    setPath(id, path, originPoint, originTime, step);
-  });
-}
-
-function walkLoop(id, frames){
-
-  var i = 1;
-
-  if(entities[id].interval == 0){
-
-    entities[id].frame = frames[0];
-    entities[id].interval = setInterval(function(){
-      entities[id].frame = frames[i];
-      i++;
-      if(i >= frames.length){
-        i = 0;
-      }
-    }, 200);
-  }
 }
 
 function battleDataInit(players){
@@ -1229,6 +1204,61 @@ function drawCursor(selStage, selSlot){
 
   ctx.fillRect(thisX, thisY, 2, 2);
 }
+function battleSelect(players, enemies, prevKeyState){
+
+  var currentPlayer = Object.keys(battleUI.stack).length;
+
+  // Cursor up
+  if(keys.up && !prevKeyState.up){
+    battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
+  }
+
+  // Cursor down
+  else if(keys.down && !prevKeyState.down){
+    battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
+  }
+
+  // Next selection
+  else if(keys.enter && !prevKeyState.enter && battleUI.selStage <= 4){
+    battleUI.selStage = battleUI.selStage + 1;
+
+    var options = [];
+
+    if(battleUI.selStage == 2){
+
+      switch(battleUI.selSlot) {
+
+        case 0:
+          options = ['Aggressive', 'Precise', 'Fancy'];
+          break;
+
+        case 1:
+          options = ['Fire', 'Heal'];
+          break;
+
+        case 2:
+          options = ['Defend', 'Escape'];
+          break;
+      };
+    } else if(battleUI.selStage == 3){
+      for(var i = 0; i < enemies.length; ++i){
+        options.push(enemies[i].name);
+      }
+    }
+
+    battleUI.bottom[battleUI.selStage] = options;
+    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, true);
+    battleUI.selSlot = 0;
+  }
+
+  // Go back a selection
+  else if(keys.shift && !prevKeyState.shift && battleUI.selStage - 1 >= 1){
+    battleUI.bottom[battleUI.selStage] = [];
+    battleUI.selStage = battleUI.selStage - 1;
+    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, false);
+    battleUI.selSlot = 0;
+  }
+}
 
 function battleTurnStack(players, enemies, stage, slot, advance){
 
@@ -1369,6 +1399,176 @@ function executeAttack(players, enemies, stackIndex){
   }
 }
 
+function findCharacterStat(players, enemies, name, stat) {
+  var battlers = players.concat(enemies);
+  for (var i = 0; i < battlers.length; i++) {
+    if(battlers[i].name == name){
+      return battlers[i][stat];
+    }
+  }
+  return false;
+}
+
+function animateMove(id, up, down, left, right){
+
+  var prevTile = entities[id].tile;
+
+  if(up){
+
+    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
+
+    checkBounding(id, topLeft, topRight, 0, -1, 'speedY', [2,3]);
+  }
+  else if(down){
+
+    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
+
+    checkBounding(id, bottomLeft, bottomRight, 0, 1, 'speedY', [0,1]);
+  }
+  else{
+    entities[id].speedY = 0;
+  }
+
+  if(left){
+
+    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+
+    checkBounding(id, bottomLeft, topLeft, -1, 0, 'speedX', [4,5]);
+  }
+  else if(right){
+
+    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
+
+    checkBounding(id, bottomRight, topRight, 1, 0, 'speedX', [6,7]);
+  }
+  else{
+    entities[id].speedX = 0;
+  }
+
+  entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
+  map[entities[id].tile].render.object = id;
+  if(entities[id].logic.state){
+    map[entities[id].tile].state = entities[id].logic.state;
+  }
+
+  if(prevTile !== entities[id].tile){
+    map[prevTile].render.object = false;
+    map[prevTile].state = {passable: true};
+  }
+}
+
+function spriteLoop(id, frames, rate){
+  var i = 0;
+  var thisAnim = setInterval(function(){
+
+    entities[id].frame = i;
+    i++;
+    if(i >= frames.length){
+      i = 0;
+    }
+  }, rate);
+}
+
+function setPath(id, path, originPoint, originTime, step){
+
+  if (path[step] != 'wait' && path[step] != 'stop') {
+
+    var destX = Math.abs(entities[id].xy.x - originPoint.x);
+    var destY = Math.abs(entities[id].xy.y - originPoint.y);
+
+    if (destX >= tileSize || destY >= tileSize) {
+
+      step = step + 1;
+      if(step >= path.length){
+        step = 0;
+      }
+
+      originPoint = JSON.parse(JSON.stringify(entities[id].xy));
+      clearInterval(entities[id].interval);
+      entities[id].interval = 0;
+    }
+  }
+  else{
+    originTime = originTime + 1;
+    if(originTime == 60){
+      originTime = 0;
+      step = step + 1;
+      if(step >= path.length){
+        step = 0;
+      }
+      clearInterval(entities[id].interval);
+      entities[id].interval = 0;
+    }
+  }
+
+  switch(path[step]) {
+
+    case 'up':
+      entities[id].dir.up = true;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break;
+
+    case 'down':
+      entities[id].dir.up = false;
+      entities[id].dir.down = true;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break;
+
+    case 'left':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = true;
+      entities[id].dir.right = false;
+      break;
+
+    case 'right':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = true;
+      break;
+
+    case 'wait':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break
+
+    case 'stop':
+      return;
+      break
+  };
+
+  window.requestAnimationFrame(function(){
+    setPath(id, path, originPoint, originTime, step);
+  });
+}
+
+function walkLoop(id, frames){
+
+  var i = 1;
+
+  if(entities[id].interval == 0){
+
+    entities[id].frame = frames[0];
+    entities[id].interval = setInterval(function(){
+      entities[id].frame = frames[i];
+      i++;
+      if(i >= frames.length){
+        i = 0;
+      }
+    }, 200);
+  }
+}
+
 function drawGame(map){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1452,224 +1652,6 @@ function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
   entities[id].xy.y = offY;
 }
 
-window.onload = function(){
-
-  testMap();
-  
-  canvas = document.getElementById('save');
-  ctx = canvas.getContext("2d");
-
-  window.onkeydown = function(e) {
-    switch(e.which) {
-
-      case 87: // W
-        keysState('up', true);
-        break;
-
-      case 65: // A
-        keysState('left', true);
-        break;
-
-      case 83: // S
-        keysState('down', true);
-        break;
-
-      case 68: // D
-        keysState('right', true);
-        break;
-
-      case 13: // Enter
-        keysState('enter', true);
-        break;
-
-      case 16: // Shift
-        keysState('shift', true);
-        break;
-    };
-  };
-
-  window.onkeyup = function(e) {
-    switch(e.which) {
-
-      case 87: // W
-        keysState('up', false);
-        break;
-
-      case 65: // A
-        keysState('left', false);
-        break;
-
-      case 83: // S
-        keysState('down', false);
-        break;
-
-      case 68: // D
-        keysState('right', false);
-        break;
-
-      case 13: // Enter
-        keysState('enter', false);
-        break;
-
-      case 16: // Shift
-        keysState('shift', false);
-        break;
-    };
-  };
-
-  for(var i = 0; i < entities.length; ++i){
-
-    map[entities[i].tile].render.object = entities[i].id;
-
-    if(entities[i].logic){
-
-      window[entities[i].logic.func].apply(null, entities[i].logic.data);
-
-      if(entities[i].logic.state){
-        map[entities[i].tile].state = entities[i].logic.state;
-      }
-    }
-  }
-
-  img = document.createElement('img');
-  img.src = '/rpg-engine/assets/images/bg.png';
-
-  window.requestAnimationFrame(function(){
-    overworldLoop();
-  });
-
-  var fpsMonitor = setInterval(function(){
-    document.getElementById('message').innerHTML = fps;
-  }, 700);
-};
-
-function keysState(key, down){
-  if(down){
-    keys[key] = true;
-  }
-  else{
-    keys[key] = false;
-
-    if(screen == 'overworld'){
-      clearInterval(entities[0].interval);
-      entities[0].interval = 0;
-    }
-  }
-}
-
-function overworldLoop(){
-
-  if (screen == 'overworld') {
-    drawGame(map);
-
-    animateMove(0, keys.up, keys.down, keys.left, keys.right);
-
-    for(var i = 0; i < entities.length; ++i){
-      if(i && entities[i].type == 'mobile'){
-        animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
-      }
-    }
-    window.requestAnimationFrame(function(){
-
-      var now = performance.now();
-      while (times.length > 0 && times[0] <= now - 1000) {
-        times.shift();
-      }
-      times.push(now);
-      fps = times.length;
-
-      overworldLoop();
-    });
-  }
-}
-
-function battleLoop(players, enemies, prevKeyState){
-
-  if (screen == 'battle') {
-    drawBattle(players, enemies);
-
-    battleSelect(players, enemies, prevKeyState);
-
-    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
-
-    window.requestAnimationFrame(function(){
-
-      var now = performance.now();
-      while (times.length > 0 && times[0] <= now - 1000) {
-        times.shift();
-      }
-      times.push(now);
-      fps = times.length;
-
-      battleLoop(players, enemies, thisPrevKeyState);
-    });
-  }
-  else{
-    battleEnd(0);
-  }
-}
-
-function findCharacterStat(players, enemies, name, stat) {
-  var battlers = players.concat(enemies);
-  for (var i = 0; i < battlers.length; i++) {
-    if(battlers[i].name == name){
-      return battlers[i][stat];
-    }
-  }
-  return false;
-}
-
-
-function setUIData(players, enemies){
-  for(var i = 0; i < players.length; ++i){
-
-    var selected = i ? false : true;
-
-    var act = [];
-    for(var j = 0; j < players[i].abilities.length; ++j){
-
-      var thistargets = [];
-
-      switch(players[i].abilities[j].targets) {
-
-        case 'player':
-          for(var k = 0; k < players.length; ++k){
-            thistargets.push(players[k].name);
-          }
-          break;
-
-        case 'players':
-          // All players
-          break;
-
-        case 'enemy':
-          for(var k = 0; k < enemies.length; ++k){
-            thistargets.push(enemies[k].name);
-          }
-          break;
-
-        case 'enemies':
-          // All enemies
-          break;
-      };
-
-      var abilityData = {};
-      abilityData[players[i].abilities[j].name] = thistargets;
-      act.push(abilityData);
-    }
-
-    battleUI.push(
-      {
-        sel: selected,
-        name: players[i].name,
-        act: act,
-        def: false,
-        run: false
-      }
-    );
-  }
-}
-
 function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
 
   var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
@@ -1700,56 +1682,6 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
     entities[id][axis] = xPolarity ? xPolarity : yPolarity;
     walkLoop(id, loop);
   }
-}
-
-function canvasWrite(posX, posY, text){
-
-  ctx.font = fontSize + "px Courier";
-  ctx.fillStyle = "white";
-  var lines = text.split('\n');
-
-  for (var i = 0; i<lines.length; i++){
-    ctx.fillText(lines[i], posX, posY + (i*fontSize) + fontSize);
-  }
-}
-
-function toColor(colorObj){
-  return 'rgb(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ')';
-}
-
-function colorValLimit(color){
-  if(color >= 255){
-    color = 255;
-  }
-
-  if(color <= 0){
-    color = 0;
-  }
-
-  return Math.round(color);
-}
-
-function colorSet(color){
-
-  var colorCool = {
-    r:color.r - 90,
-    g:color.g - 20,
-    b:color.b - 10
-  };
-
-  var colorWarm = {
-    r:color.r - 10,
-    g:color.g - 20,
-    b:color.b - 90
-  };
-
-  var colorObj = {
-    base: color,
-    cool: colorCool,
-    warm: colorWarm
-  };
-
-  return colorObj;
 }
 
 function tileToCoords(tile){

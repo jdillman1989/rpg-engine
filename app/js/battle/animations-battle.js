@@ -4,12 +4,6 @@ function battleIntro(step, players, enemies){
 
   step = step + 4;
 
-  // ctx.fillStyle = '#FF0';
-  // ctx.fillRect(0, step + 4, canvas.width, step + 4);
-
-  // ctx.fillStyle = '#F00';
-  // ctx.fillRect(0, step, canvas.width, step + 4);
-
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, step);
 
@@ -101,68 +95,3 @@ function battleSet(step, players, enemies){
 function battleEnd(step){
   return;
 }
-
-function battleSelect(players, enemies, prevKeyState){
-
-  var currentPlayer = Object.keys(battleUI.stack).length;
-
-  // Cursor up
-  if(keys.up && !prevKeyState.up){
-    battleUI.selSlot = ((battleUI.selSlot - 1) < 0) ? battleUI.selSlot : battleUI.selSlot - 1;
-  }
-
-  // Cursor down
-  else if(keys.down && !prevKeyState.down){
-    battleUI.selSlot = ((battleUI.selSlot + 1) >= battleUI.bottom[battleUI.selStage].length) ? battleUI.selSlot : battleUI.selSlot + 1;
-  }
-
-  // Next selection
-  else if(keys.enter && !prevKeyState.enter && battleUI.selStage <= 4){
-    battleUI.selStage = battleUI.selStage + 1;
-
-    var options = [];
-
-    if(battleUI.selStage == 2){
-
-      switch(battleUI.selSlot) {
-
-        case 0:
-          options = ['Aggressive', 'Precise', 'Fancy'];
-          break;
-
-        case 1:
-          options = ['Fire', 'Heal'];
-          break;
-
-        case 2:
-          options = ['Defend', 'Escape'];
-          break;
-      };
-    } else if(battleUI.selStage == 3){
-      for(var i = 0; i < enemies.length; ++i){
-        options.push(enemies[i].name);
-      }
-    }
-
-    battleUI.bottom[battleUI.selStage] = options;
-    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, true);
-    battleUI.selSlot = 0;
-  }
-
-  // Go back a selection
-  else if(keys.shift && !prevKeyState.shift && battleUI.selStage - 1 >= 1){
-    battleUI.bottom[battleUI.selStage] = [];
-    battleUI.selStage = battleUI.selStage - 1;
-    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, false);
-    battleUI.selSlot = 0;
-  }
-}
-
-
-
-
-
-
-
-
-
