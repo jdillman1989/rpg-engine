@@ -98,6 +98,7 @@ var stats = {
   0: [
     {
       name: 'Jadle',
+      stance: 0,
       maxHP: 100,
       currentHP: 100,
       strength: 20,
@@ -107,6 +108,7 @@ var stats = {
     },
     {
       name: 'Idle',
+      stance: 0,
       maxHP: 100,
       currentHP: 100,
       strength: 20,
@@ -118,6 +120,7 @@ var stats = {
   3: [
     {
       name: 'Imp 1',
+      stance: 0,
       maxHP: 15,
       currentHP: 15,
       strength: 20,
@@ -127,6 +130,7 @@ var stats = {
     },
     {
       name: 'Imp 2',
+      stance: 0,
       maxHP: 15,
       currentHP: 15,
       strength: 20,

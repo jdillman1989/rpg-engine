@@ -1,3 +1,14 @@
+function findCharacterStat(players, enemies, name, stat) {
+  var battlers = players.concat(enemies);
+  for (var i = 0; i < battlers.length; i++) {
+    if(battlers[i].name == name){
+      return battlers[i][stat];
+    }
+  }
+  return false;
+}
+
+
 function setUIData(players, enemies){
   for(var i = 0; i < players.length; ++i){
 

@@ -104,7 +104,7 @@ function battleEnd(step){
 
 function battleSelect(players, enemies, prevKeyState){
 
-  var currentPlayer = battleUI.stack.length;
+  var currentPlayer = Object.keys(battleUI.stack).length;
 
   // Cursor up
   if(keys.up && !prevKeyState.up){
@@ -135,11 +135,7 @@ function battleSelect(players, enemies, prevKeyState){
           break;
 
         case 2:
-          options = ['Defend'];
-          break;
-
-        case 3:
-          options = ['Escape'];
+          options = ['Defend', 'Escape'];
           break;
       };
     } else if(battleUI.selStage == 3){
@@ -149,14 +145,16 @@ function battleSelect(players, enemies, prevKeyState){
     }
 
     battleUI.bottom[battleUI.selStage] = options;
-    battleTurnStack(players, battleUI.selStage, battleUI.selSlot, true);
+    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, true);
+    battleUI.selSlot = 0;
   }
 
   // Go back a selection
   else if(keys.shift && !prevKeyState.shift && battleUI.selStage - 1 >= 1){
     battleUI.bottom[battleUI.selStage] = [];
     battleUI.selStage = battleUI.selStage - 1;
-    battleTurnStack(players, battleUI.selStage, battleUI.selSlot, false);
+    battleTurnStack(players, enemies, battleUI.selStage, battleUI.selSlot, false);
+    battleUI.selSlot = 0;
   }
 }
 

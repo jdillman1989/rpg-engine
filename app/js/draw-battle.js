@@ -11,14 +11,14 @@ function battleDataInit(players){
     ],
     bottom: [
       thesePlayers,
-      ['ATK','MAG','DEF','RUN'],
+      ['Attack','Magic','Defense'],
       [],
       [],
     ],
     selStage: 1,
     selSlot: 1,
     currentSel: [],
-    stack: []
+    stack: {}
   };
 }
 
@@ -75,9 +75,7 @@ function drawTopDisplay(charText, descriptionText){
 
 function drawBottomDisplay(playersText, actionText, optionsText, targetText){
 
-  // [Characters] -> [ATK, MAG, DEF, RUN] -> [Menu] -> [Targets]
-
-  var currentPlayer = battleUI.stack.length;
+  var currentPlayer = Object.keys(battleUI.stack).length;
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -174,9 +172,9 @@ function drawCursor(selStage, selSlot){
   ctx.fillRect(thisX, thisY, 2, 2);
 }
 
-function battleTurnStack(players, stage, slot, advance){
+function battleTurnStack(players, enemies, stage, slot, advance){
 
-  var currentPlayer = battleUI.stack.length;
+  var currentPlayer = Object.keys(battleUI.stack).length;
 
   if(advance){
     if(battleUI.currentSel.length < 2){
@@ -189,14 +187,11 @@ function battleTurnStack(players, stage, slot, advance){
         battleUI.bottom[stage - 1][slot]
       );
 
-      battleUI.currentSel.unshift(players[currentPlayer].name);
-      battleUI.stack.push(
-        battleUI.currentSel
-      );
+      battleUI.stack[players[currentPlayer].name] = battleUI.currentSel;
       battleUI.currentSel = [];
 
-      if(battleUI.stack.length >= players.length){
-        initiateTurn();
+      if(Object.keys(battleUI.stack).length >= players.length){
+        initiateTurn(players, enemies);
       }
       else {
         battleUI.bottom[2] = [];
@@ -211,6 +206,107 @@ function battleTurnStack(players, stage, slot, advance){
   }
 }
 
-function initiateTurn(){
+function initiateTurn(players, enemies){
+  
+  var aiAtkOptions = ['Aggressive', 'Precise', 'Fancy'];
+
+  var battlers = players.concat(enemies);
+  battlers.sort(function(a,b){
+    return a.agility - b.agility;
+  });
+
+  var turnStack = [];
+  for(var i = 0; i < battlers.length; ++i){
+
+    if(
+      battleUI.stack.hasOwnProperty(
+        battlers[i].name
+      )
+    ){
+      turnStack.push(
+        {
+          name: battlers[i].name,
+          action: [
+            battleUI.stack[battlers[i].name][0],
+            battleUI.stack[battlers[i].name][1]
+          ],
+          target: battleUI.stack[battlers[i].name][2],
+          player: true
+        }
+      );
+    }
+    else {
+      turnStack.push(
+        {
+          name: battlers[i].name,
+          action: [
+            "Attack",
+            aiAtkOptions[Math.floor(Math.random() * aiAtkOptions.length)]
+          ],
+          target: players[Math.floor(Math.random() * players.length)].name,
+          player: false
+        }
+      );
+    }
+
+  }
+  battleUI.stack = turnStack;
+  executeTurn(players, enemies);
+}
+
+function executeTurn(players, enemies){
+
   console.log(battleUI.stack);
+
+  for(var i = 0; i < battleUI.stack.length; ++i){
+
+    switch(battleUI.stack[i].action[0]) {
+
+      case 'Attack':
+        executeAttack(players, enemies, i);
+        break;
+
+      case 'Magic':
+        // Magic stuff
+        break;
+
+      case 'Defense':
+        // Defense stuff
+        break;
+    };
+  }
+
+  battleDataInit(players);
+}
+
+function executeAttack(players, enemies, stackIndex){
+  var atkStat = '';
+
+  switch(battleUI.stack[stackIndex].action[1]) {
+    case 'Aggressive':
+      atkStat = 'strength';
+      break;
+    case 'Precise':
+      atkStat = 'intuition';
+      break;
+    case 'Fancy':
+      atkStat = 'agility';
+      break;
+  }
+
+  var damage = findCharacterStat(players, enemies, battleUI.stack[stackIndex].name, atkStat);
+  if(battleUI.stack[stackIndex].player){
+    for(var i = 0; i < enemies.length; ++i){
+      if(enemies[i].name == battleUI.stack[stackIndex].target){
+        enemies[i].currentHP = enemies[i].currentHP - damage;
+      }
+    }
+  }
+  else{
+    for(var i = 0; i < players.length; ++i){
+      if(players[i].name == battleUI.stack[stackIndex].target){
+        players[i].currentHP = players[i].currentHP - damage;
+      }
+    }
+  }
 }
