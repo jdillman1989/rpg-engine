@@ -149,6 +149,16 @@ var times = [];
 var fps;
 
 var battleData = {};
+var battleAttackMenu = {
+  'Aggressive': 'strength',
+  'Fancy': 'agility', 
+  'Precise': 'intuition'
+};
+var battleDefenseMenu = {
+  'Defend': 'self',
+  'Escape': 'allies'
+};
+
 var UISpacing = {
   displayBorders: 1,
   displayHeight: 32,

@@ -2,8 +2,12 @@ function battleDataInit(players, enemies){
   var thesePlayersNames = [];
   var thesePlayersHealth = [];
   for(var i = 0; i < players.length; ++i){
+    players[i]['id'] = i;
     thesePlayersNames.push(players[i].name);
     thesePlayersHealth.push(players[i].name + ': ' + players[i].currentHP + '/' + players[i].maxHP);
+  }
+  for(var i = 0; i < enemies.length; ++i){
+    enemies[i]['id'] = i;
   }
   battleData = {
     UI:{
@@ -50,7 +54,7 @@ function battleSelect(prevKeyState){
       switch(battleData.selSlot) {
 
         case 0:
-          options = ['Aggressive', 'Precise', 'Fancy'];
+          options = Object.keys(battleAttackMenu);
           break;
 
         case 1:
@@ -58,7 +62,7 @@ function battleSelect(prevKeyState){
           break;
 
         case 2:
-          options = ['Defend', 'Escape'];
+          options = Object.keys(battleDefenseMenu);
           break;
       };
     } else if(battleData.selStage == 3){
@@ -87,14 +91,10 @@ function battleTurnStack(stage, slot, advance){
 
   if(advance){
     if(battleData.currentSel.length < 2){
-      battleData.currentSel.push(
-        battleData.UI.bottom[stage - 1][slot]
-      );
+      battleData.currentSel.push(slot);
     }
     else{
-      battleData.currentSel.push(
-        battleData.UI.bottom[stage - 1][slot]
-      );
+      battleData.currentSel.push(slot);
 
       battleData.stack[battleData.players[currentPlayer].name] = battleData.currentSel;
       battleData.currentSel = [];
@@ -117,12 +117,12 @@ function battleTurnStack(stage, slot, advance){
 
 function initiateTurn(){
   
-  var aiAtkOptions = ['Aggressive', 'Precise', 'Fancy'];
+  var aiAtkOptions = Object.keys(battleAttackMenu);
 
   var battlers = battleData.players.concat(battleData.enemies);
   battlers.sort(function(a,b){
     return a.agility - b.agility;
-  });
+  }).reverse();
 
   var turnStack = [];
   for(var i = 0; i < battlers.length; ++i){
@@ -130,24 +130,26 @@ function initiateTurn(){
     if(isBattlerPlayer(battlers[i])){
       turnStack.push(
         {
-          name: battlers[i].name,
+          name: battlers[i],
           action: [
             battleData.stack[battlers[i].name][0],
             battleData.stack[battlers[i].name][1]
           ],
-          target: battleData.stack[battlers[i].name][2]
+          target: battleData.stack[battlers[i].name][2],
+          type: 'players'
         }
       );
     }
     else {
       turnStack.push(
         {
-          name: battlers[i].name,
+          name: battlers[i],
           action: [
-            "Attack",
-            aiAtkOptions[Math.floor(Math.random() * aiAtkOptions.length)]
+            0,
+            Math.floor(Math.random() * aiAtkOptions.length)
           ],
-          target: battleData.players[Math.floor(Math.random() * battleData.players.length)].name
+          target: Math.floor(Math.random() * battleData.players.length),
+          type: 'enemies'
         }
       );
     }
@@ -165,15 +167,15 @@ function executeTurn(){
 
     switch(battleData.stack[i].action[0]) {
 
-      case 'Attack':
+      case 0:
         executeAttack(i);
         break;
 
-      case 'Magic':
+      case 1:
         // Magic stuff
         break;
 
-      case 'Defense':
+      case 2:
         // Defense stuff
         break;
     };
@@ -183,35 +185,17 @@ function executeTurn(){
 }
 
 function executeAttack(stackIndex){
-  var atkStat = '';
 
-  switch(battleData.stack[stackIndex].action[1]) {
-    case 'Aggressive':
-      atkStat = 'strength';
-      break;
-    case 'Precise':
-      atkStat = 'intuition';
-      break;
-    case 'Fancy':
-      atkStat = 'agility';
-      break;
-  }
+  var current = battleData.stack[stackIndex];
+  var attacks = Object.keys(battleAttackMenu);
 
-  var damage = findCharacterStat(battleData.stack[stackIndex].name, atkStat);
-  if(isBattlerPlayer(battleData.stack[stackIndex])){
-    for(var i = 0; i < battleData.enemies.length; ++i){
-      if(battleData.enemies[i].name == battleData.stack[stackIndex].target){
-        battleData.enemies[i].currentHP = ((battleData.enemies[i].currentHP - damage) < 0) ? 0 : battleData.enemies[i].currentHP - damage;
-      }
-    }
-  }
-  else{
-    for(var i = 0; i < battleData.players.length; ++i){
-      if(battleData.players[i].name == battleData.stack[stackIndex].target){
-        battleData.players[i].currentHP = ((battleData.players[i].currentHP - damage) < 0) ? 0 : battleData.players[i].currentHP - damage;
-      }
-    }
-  }
+  dealPhysicalDamage(
+    current.type, 
+    current.name.id, 
+    (current.type == 'players') ? 'enemies' : 'players',
+    current.target,
+    battleAttackMenu[attacks[current.action[1]]]
+  );
 }
 
 function findCharacterStat(name, stat) {
@@ -228,8 +212,22 @@ function checkDeath(){
 
 }
 
-function dealDamage(attacker, target){
+// attackerType: string, battleData key, either players or enemies
+// attackerID: int, array index of battleData.{{attackerType}}
+// targetType: string, battleData key, either players or enemies
+// targetID: int, array index of battleData.{{targetType}}
+// stat: string, object key for atk stat
 
+function dealPhysicalDamage(attackerType, attackerID, targetType, targetID, stat){
+  var atkStat = battleData[attackerType][attackerID][stat];
+  var defenseStat = 0;
+  var weapon = 0;
+  var dmgFormulaRaw = ((atkStat * 0.5) + (weapon)) - (defenseStat);
+  var dmgFormula = (dmgFormulaRaw <= 0) ? 1 : dmgFormulaRaw;
+
+  battleData[targetType][targetID].currentHP = (
+    (battleData[targetType][targetID].currentHP - dmgFormula) < 0
+  ) ? 0 : battleData[targetType][targetID].currentHP - dmgFormula;
 }
 
 function isBattlerPlayer(battler){
