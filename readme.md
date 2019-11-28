@@ -3,14 +3,6 @@
 # Phase 1 Basic Game Loop
 
 - Battle System
--- `battleData.currentSel` should only receive indexes
---- So player and enemy objs can be referenced directly rather than looped
--- Need a `getSelectedPlayer()` function
---- In place of `var currentPlayer = Object.keys(battleData.stack).length;`
--- Tracking player and enemy death
---- Dead characters get removed from turn stack
--- Revamp character stat values
---- To more accurately test battle end state
 -- battleEnd() function to return to overworld
 --- Trigger on successful escape or all enemies dead
 --- Remove enemy from map data
@@ -19,6 +11,8 @@
 
 - Collision interactions
 -- Track when enemy collides with player
+-- Other options for enemy AI
+--- Run and Chase
 
 - Character data
 -- Character inventory and equipment tracking
@@ -36,11 +30,21 @@
 - Battle Defense
 -- Need functions to handle defend targeting and temporary stat recalc
 -- Need functions to handle escape success rolls
+--- Battle results get applied to players on escape end, not to enemies
+--- AI confusion state (after battles)
 
 - Battle magic
 -- Magic menu in battle checks inventory for spells
 -- Spell table for looking up effects and targeting options
 -- Different targeting options depending on selected spell
+
+- Enemy Battle AI options
+-- Favor attacks
+--- Favor aggr/fancy/precise
+-- Favor magic
+--- Enemy spell effects
+-- Favor defense
+--- Enemy will attempt escape rolls
 
 - Pause menu (shift key)
 -- UI for changing equipment, viewing stats, inventory, etc.

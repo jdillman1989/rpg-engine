@@ -678,12 +678,32 @@ var stats = {
       focus: 30
     },
     {
+      name: 'Jadle B',
+      stance: 0,
+      maxHP: 100,
+      currentHP: 0,
+      strength: 20,
+      agility: 85,
+      intuition: 50,
+      focus: 30
+    },
+    {
       name: 'Idle',
+      stance: 0,
+      maxHP: 100,
+      currentHP: 0,
+      strength: 20,
+      agility: 70,
+      intuition: 50,
+      focus: 30
+    },
+    {
+      name: 'Idle B',
       stance: 0,
       maxHP: 100,
       currentHP: 100,
       strength: 20,
-      agility: 70,
+      agility: 75,
       intuition: 50,
       focus: 30
     }
@@ -1088,7 +1108,7 @@ function drawTopDisplay(){
 
 function drawBottomDisplay(){
 
-  var currentPlayer = Object.keys(battleData.stack).length;
+  var currentPlayer = getCurrentPlayer();
 
   var playersText = battleData.UI.bottom[0].join('\n');
   var actionText = battleData.UI.bottom[1].join('\n');
@@ -1192,8 +1212,12 @@ function drawCursor(){
 function battleDataInit(players, enemies){
   var thesePlayersNames = [];
   var thesePlayersHealth = [];
+  var currentStack = {};
   for(var i = 0; i < players.length; ++i){
     players[i]['id'] = i;
+    if(!players[i].currentHP){
+      currentStack[players[i].name] = false;
+    }
     thesePlayersNames.push(players[i].name);
     thesePlayersHealth.push(players[i].name + ': ' + players[i].currentHP + '/' + players[i].maxHP);
   }
@@ -1218,7 +1242,7 @@ function battleDataInit(players, enemies){
     selStage: 1,
     selSlot: 1,
     currentSel: [],
-    stack: {}
+    stack: currentStack
   };
 }
 
@@ -1278,7 +1302,7 @@ function battleSelect(prevKeyState){
 
 function battleTurnStack(stage, slot, advance){
 
-  var currentPlayer = Object.keys(battleData.stack).length;
+  var currentPlayer = getCurrentPlayer();
 
   if(advance){
     if(battleData.currentSel.length < 2){
@@ -1316,36 +1340,45 @@ function initiateTurn(){
   }).reverse();
 
   var turnStack = [];
-  for(var i = 0; i < battlers.length; ++i){
+  var playerTargets = [];
+  for(var i = 0; i < battleData.players.length; ++i){
 
-    if(isBattlerPlayer(battlers[i])){
+    // Check if the player can take action (not 0 currentHP)
+    if(battleData.stack[battleData.players[i].name]){
       turnStack.push(
         {
-          name: battlers[i],
+          name: battleData.players[i],
           action: [
-            battleData.stack[battlers[i].name][0],
-            battleData.stack[battlers[i].name][1]
+            battleData.stack[battleData.players[i].name][0],
+            battleData.stack[battleData.players[i].name][1]
           ],
-          target: battleData.stack[battlers[i].name][2],
-          type: 'players'
+          target: battleData.stack[battleData.players[i].name][2],
+          type: 'players',
+          agility: battleData.players[i].agility
         }
       );
+      playerTargets.push(battleData.players[i].id);
     }
-    else {
-      turnStack.push(
-        {
-          name: battlers[i],
-          action: [
-            0,
-            Math.floor(Math.random() * aiAtkOptions.length)
-          ],
-          target: Math.floor(Math.random() * battleData.players.length),
-          type: 'enemies'
-        }
-      );
-    }
-
   }
+  for(var i = 0; i < battleData.enemies.length; ++i){
+    turnStack.push(
+      {
+        name: battleData.enemies[i],
+        action: [
+          0,
+          Math.floor(Math.random() * aiAtkOptions.length)
+        ],
+        target: playerTargets[Math.floor(Math.random() * playerTargets.length)],
+        type: 'enemies',
+        agility: battleData.enemies[i].agility
+      }
+    );
+  }
+
+  turnStack.sort(function(a,b){
+    return a.agility - b.agility;
+  }).reverse();
+
   battleData.stack = turnStack;
   executeTurn();
 }
@@ -1399,10 +1432,6 @@ function findCharacterStat(name, stat) {
   return false;
 }
 
-function checkDeath(){
-
-}
-
 // attackerType: string, battleData key, either players or enemies
 // attackerID: int, array index of battleData.{{attackerType}}
 // targetType: string, battleData key, either players or enemies
@@ -1421,13 +1450,15 @@ function dealPhysicalDamage(attackerType, attackerID, targetType, targetID, stat
   ) ? 0 : battleData[targetType][targetID].currentHP - dmgFormula;
 }
 
-function isBattlerPlayer(battler){
-  for(var i = 0; i < battleData.players.length; ++i){
-    if(battler.name == battleData.players[i].name){
-      return true;
+function getCurrentPlayer(){
+  for(var playerIndex = 0; playerIndex < battleData.players.length; ++playerIndex){
+    if(
+      !battleData.stack.hasOwnProperty(battleData.players[playerIndex].name) && 
+      battleData.players[playerIndex].currentHP
+    ){
+      return playerIndex;
     }
   }
-  return false;
 }
 
 function animateMove(id, up, down, left, right){

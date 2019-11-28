@@ -46,7 +46,7 @@ function drawTopDisplay(){
 
 function drawBottomDisplay(){
 
-  var currentPlayer = Object.keys(battleData.stack).length;
+  var currentPlayer = getCurrentPlayer();
 
   var playersText = battleData.UI.bottom[0].join('\n');
   var actionText = battleData.UI.bottom[1].join('\n');

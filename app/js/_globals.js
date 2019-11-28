@@ -107,12 +107,32 @@ var stats = {
       focus: 30
     },
     {
+      name: 'Jadle B',
+      stance: 0,
+      maxHP: 100,
+      currentHP: 0,
+      strength: 20,
+      agility: 85,
+      intuition: 50,
+      focus: 30
+    },
+    {
       name: 'Idle',
+      stance: 0,
+      maxHP: 100,
+      currentHP: 0,
+      strength: 20,
+      agility: 70,
+      intuition: 50,
+      focus: 30
+    },
+    {
+      name: 'Idle B',
       stance: 0,
       maxHP: 100,
       currentHP: 100,
       strength: 20,
-      agility: 70,
+      agility: 75,
       intuition: 50,
       focus: 30
     }
