@@ -3,19 +3,25 @@
 # Phase 1 Basic Game Loop
 
 - Battle System
--- Revamp menu selection system
---- Account for menu options being added and removed (consistent ids)
---- Dont pass player/enemy full objects to battle turn stack under `name`. Pass id and use the `player` key boolean
 -- battleEnd() function to return to overworld
 --- Trigger on successful escape or all enemies dead
 --- Remove enemy from map data
 --- Resave player stat data from `battleData` to `stats`
 --- Clear `battleData`
+--- Game Over state on all players dead
+-- XP system
+--- add XP to stats global
+--- add level to stats global
+--- baseXP = 1000?
+--- xpToNextLvl = baseXP * (currentLvl / 10)
+--- xpRewarded = total enemies maxHP
+--- statPointsOnLvl = (Math.floor(currentLvl / 2) < 2) ? 2 : Math.floor(currentLvl / 2);
 
 - Collision interactions
 -- Track when enemy collides with player
 -- Other options for enemy AI
 --- Run and Chase
+--- AI confusion state
 
 - Character data
 -- Character inventory and equipment tracking
@@ -34,12 +40,12 @@
 -- Need functions to handle defend targeting and temporary stat recalc
 -- Need functions to handle escape success rolls
 --- Battle results get applied to players on escape end, not to enemies
---- AI confusion state (after battles)
 
 - Battle magic
 -- Magic menu in battle checks inventory for spells
 -- Spell table for looking up effects and targeting options
 -- Different targeting options depending on selected spell
+-- Scrolling battle menu
 
 - Enemy Battle AI options
 -- Favor attacks

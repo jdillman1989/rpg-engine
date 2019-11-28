@@ -239,21 +239,22 @@ function executeTurn(){
   console.log(battleData.stack);
 
   for(var i = 0; i < battleData.stack.length; ++i){
+    if(battleData[battleData.stack[i].type][battleData.stack[i].id].currentHP){
+      switch(battleData.stack[i].action[0]) {
 
-    switch(battleData.stack[i].action[0]) {
+        case 0:
+          executeAttack(i);
+          break;
 
-      case 0:
-        executeAttack(i);
-        break;
+        case 1:
+          // Magic stuff
+          break;
 
-      case 1:
-        // Magic stuff
-        break;
-
-      case 2:
-        // Defense stuff
-        break;
-    };
+        case 2:
+          // Defense stuff
+          break;
+      };
+    }
   }
 
   battleDataInit(battleData.players, battleData.enemies);
