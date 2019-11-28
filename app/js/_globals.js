@@ -60,23 +60,6 @@ var entities = [
   },
   {
     id: 2,
-    type: 'static',
-    tile: 37,
-    xy: tileToCoords(37),
-    speedX: 0,
-    speedY: 0,
-    sprite: tree,
-    frame: 0,
-    interval: 0,
-    logic: {
-      func: 'spriteLoop',
-      data: [2, tree.render, 1500],
-      state: {passable: false}
-    },
-    dir: false
-  },
-  {
-    id: 3,
     type: 'mobile',
     tile: 28,
     xy: tileToCoords(28),
@@ -87,7 +70,41 @@ var entities = [
     interval: 0,
     logic: {
       func: 'setPath',
-      data: [3, ['wait', 'down', 'wait', 'down', 'wait', 'left', 'wait', 'left', 'wait', 'up', 'wait', 'up', 'wait', 'right', 'wait', 'right'], tileToCoords(28), 0, 0],
+      data: [2, ['wait', 'down', 'wait', 'down', 'wait', 'left', 'wait', 'left', 'wait', 'up', 'wait', 'up', 'wait', 'right', 'wait', 'right'], tileToCoords(28), 0, 0],
+      state: {passable: true, battle: true}
+    },
+    dir: {up:false, down:false, left:false, right:false}
+  },
+  {
+    id: 3,
+    type: 'static',
+    tile: 37,
+    xy: tileToCoords(37),
+    speedX: 0,
+    speedY: 0,
+    sprite: tree,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'spriteLoop',
+      data: [3, tree.render, 1500],
+      state: {passable: false}
+    },
+    dir: false
+  },
+  {
+    id: 4,
+    type: 'mobile',
+    tile: 52,
+    xy: tileToCoords(52),
+    speedX: 0,
+    speedY: 0,
+    sprite: enemy,
+    frame: 0,
+    interval: 0,
+    logic: {
+      func: 'setPath',
+      data: [4, ['left', 'wait', 'right', 'wait'], tileToCoords(28), 0, 0],
       state: {passable: true, battle: true}
     },
     dir: {up:false, down:false, left:false, right:false}
@@ -119,7 +136,7 @@ var stats = {
       focus: 30
     }
   ],
-  3: [
+  2: [
     {
       id: 0,
       name: 'Imp 1',
@@ -139,6 +156,19 @@ var stats = {
       currentHP: 15,
       strength: 10,
       agility: 50,
+      intuition: 50,
+      focus: 30
+    }
+  ],
+  4: [
+    {
+      id: 0,
+      name: 'Imp',
+      stance: 0,
+      maxHP: 20,
+      currentHP: 20,
+      strength: 20,
+      agility: 60,
       intuition: 50,
       focus: 30
     }

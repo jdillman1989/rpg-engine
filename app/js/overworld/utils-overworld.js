@@ -20,9 +20,10 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
 
     var players = stats[0];
     var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
+    var enemiesID = tileA.render.object ? tileA.render.object : tileB.render.object;
 
     battleIntro(0);
-    battleDataInit(players, enemies);
+    battleDataInit(players, enemies, enemiesID);
   }
 
   else{

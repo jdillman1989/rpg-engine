@@ -63,19 +63,7 @@ window.onload = function(){
     };
   };
 
-  for(var i = 0; i < entities.length; ++i){
-
-    map[entities[i].tile].render.object = entities[i].id;
-
-    if(entities[i].logic){
-
-      window[entities[i].logic.func].apply(null, entities[i].logic.data);
-
-      if(entities[i].logic.state){
-        map[entities[i].tile].state = entities[i].logic.state;
-      }
-    }
-  }
+  entityDataToMap();
 
   img = document.createElement('img');
   img.src = '/rpg-engine/assets/images/bg.png';
@@ -88,6 +76,29 @@ window.onload = function(){
     document.getElementById('message').innerHTML = fps;
   }, 700);
 };
+
+function entityDataToMap(){
+  for(var i = 0; i < entities.length; ++i){
+
+    console.log(entities[i]);
+
+    if(entities[i].type){
+      map[entities[i].tile].render.object = entities[i].id;
+
+      if(entities[i].logic){
+        window[entities[i].logic.func].apply(null, entities[i].logic.data);
+
+        if(entities[i].logic.state){
+          map[entities[i].tile].state = entities[i].logic.state;
+        }
+      }
+    }
+    else {
+      map[entities[i].tile].render.object = false;
+      map[entities[i].tile].state = {passable: true};
+    }
+  }
+}
 
 function keysState(key, down){
   if(down){
@@ -151,6 +162,13 @@ function battleLoop(prevKeyState){
     });
   }
   else{
-    battleEnd(0);
+    battleSelect(prevKeyState);
+    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
+
+    if(battleData.players.length){
+      window.requestAnimationFrame(function(){
+        battleLoop(thisPrevKeyState);
+      });
+    }
   }
 }

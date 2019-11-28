@@ -3,12 +3,6 @@
 # Phase 1 Basic Game Loop
 
 - Battle System
--- battleEnd() function to return to overworld
---- Trigger on successful escape or all enemies dead
---- Remove enemy from map data
---- Resave player stat data from `battleData` to `stats`
---- Clear `battleData`
---- Game Over state on all players dead
 -- XP system
 --- add XP to stats global
 --- add level to stats global
@@ -57,6 +51,8 @@
 
 - Pause menu (shift key)
 -- UI for changing equipment, viewing stats, inventory, etc.
+
+- Game Over state on all players dead
 
 - Battle animations
 -- Animate for all 3 attack types

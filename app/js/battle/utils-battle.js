@@ -1,4 +1,4 @@
-function battleDataInit(players, enemies){
+function battleDataInit(players, enemies, enemiesID){
 
   var thesePlayersNames = [];
   var thesePlayersHealth = [];
@@ -22,9 +22,6 @@ function battleDataInit(players, enemies){
       aliveEnemies--;
     }
   }
-  if(!aliveEnemies){
-    stopBattle();
-  }
 
   battleData = {
     UI:{
@@ -45,103 +42,115 @@ function battleDataInit(players, enemies){
     },
     players: players,
     enemies: enemies,
+    enemiesID: enemiesID,
     selStage: 1,
     selSlot: 0,
     currentSel: [],
     stack: currentStack
   };
+
+  if(!aliveEnemies){
+    setTimeout(function(){
+      battleEnd(0);
+    }, 500);
+  }
 }
 
 function battleSelect(prevKeyState){
 
-  // Cursor up
-  if(keys.up && !prevKeyState.up){
-    var prevSlot = ((battleData.selSlot - 1) < 0) ? battleData.selSlot : battleData.selSlot - 1;
-    for(var i = prevSlot; i >= 0; i--){
-      if(!battleData.UI.bottom[battleData.selStage][i].disabled){
-        battleData.selSlot = i;
-        break;
-      }
-    }
-  }
+  if (screen == 'battle') {
 
-  // Cursor down
-  else if(keys.down && !prevKeyState.down){
-    var nextSlot = ((battleData.selSlot + 1) >= battleData.UI.bottom[battleData.selStage].length) ? battleData.selSlot : battleData.selSlot + 1;
-    for(var i = nextSlot; i < battleData.UI.bottom[battleData.selStage].length; i++){
-      if(!battleData.UI.bottom[battleData.selStage][i].disabled){
-        battleData.selSlot = i;
-        break;
-      }
-    }
-  }
-
-  // Next selection
-  else if(keys.enter && !prevKeyState.enter && battleData.selStage <= 4){
-    battleData.selStage = battleData.selStage + 1;
-
-    var options = [];
-
-    if(battleData.selStage == 2){
-
-      switch(battleData.selSlot){
-
-        case 0:
-          var attackNames = Object.keys(battleAttackMenu);
-          for(var i = 0; i < attackNames.length; ++i){
-            options.push({text: attackNames[i], disabled: false, id: i});
-          }
+    // Cursor up
+    if(keys.up && !prevKeyState.up){
+      var prevSlot = ((battleData.selSlot - 1) < 0) ? battleData.selSlot : battleData.selSlot - 1;
+      for(var i = prevSlot; i >= 0; i--){
+        if(!battleData.UI.bottom[battleData.selStage][i].disabled){
+          battleData.selSlot = i;
           break;
-
-        case 1:
-          options = [
-            {text: 'Fire', disabled: false, id: 0},
-            {text: 'Heal', disabled: false, id: 1}
-          ];
-          break;
-
-        case 2:
-          var defenseNames = Object.keys(battleDefenseMenu);
-          for(var i = 0; i < defenseNames.length; ++i){
-            options.push({text: defenseNames[i], disabled: false, id: i});
-          }
-          break;
-      };
-    } else if(battleData.selStage == 3){
-      for(var i = 0; i < battleData.enemies.length; ++i){
-        if(battleData.enemies[i].currentHP){
-          options.push({
-            text: battleData.enemies[i].name, 
-            disabled: false, 
-            id: battleData.enemies[i].id
-          });
-        }
-        else{
-          options.push({
-            text: battleData.enemies[i].name, 
-            disabled: true, 
-            id: battleData.enemies[i].id
-          });
         }
       }
     }
 
-    battleData.UI.bottom[battleData.selStage] = options;
-    battleTurnStack(battleData.selStage, battleData.selSlot, true);
-    battleData.selSlot = getFirstAvailableSlot();
+    // Cursor down
+    else if(keys.down && !prevKeyState.down){
+      var nextSlot = ((battleData.selSlot + 1) >= battleData.UI.bottom[battleData.selStage].length) ? battleData.selSlot : battleData.selSlot + 1;
+      for(var i = nextSlot; i < battleData.UI.bottom[battleData.selStage].length; i++){
+        if(!battleData.UI.bottom[battleData.selStage][i].disabled){
+          battleData.selSlot = i;
+          break;
+        }
+      }
+    }
+
+    // Next selection
+    else if(keys.enter && !prevKeyState.enter && battleData.selStage <= 4){
+      battleData.selStage = battleData.selStage + 1;
+
+      var options = [];
+
+      if(battleData.selStage == 2){
+
+        switch(battleData.selSlot){
+
+          case 0:
+            var attackNames = Object.keys(battleAttackMenu);
+            for(var i = 0; i < attackNames.length; ++i){
+              options.push({text: attackNames[i], disabled: false, id: i});
+            }
+            break;
+
+          case 1:
+            options = [
+              {text: 'Fire', disabled: false, id: 0},
+              {text: 'Heal', disabled: false, id: 1}
+            ];
+            break;
+
+          case 2:
+            var defenseNames = Object.keys(battleDefenseMenu);
+            for(var i = 0; i < defenseNames.length; ++i){
+              options.push({text: defenseNames[i], disabled: false, id: i});
+            }
+            break;
+        };
+      } else if(battleData.selStage == 3){
+        for(var i = 0; i < battleData.enemies.length; ++i){
+          if(battleData.enemies[i].currentHP){
+            options.push({
+              text: battleData.enemies[i].name, 
+              disabled: false, 
+              id: battleData.enemies[i].id
+            });
+          }
+          else{
+            options.push({
+              text: battleData.enemies[i].name, 
+              disabled: true, 
+              id: battleData.enemies[i].id
+            });
+          }
+        }
+      }
+
+      battleData.UI.bottom[battleData.selStage] = options;
+      battleTurnStack(battleData.selStage, battleData.selSlot, true);
+      battleData.selSlot = getFirstAvailableSlot();
+    }
+
+    // Go back a selection
+    else if(keys.shift && !prevKeyState.shift && battleData.selStage - 1 >= 1){
+      battleData.UI.bottom[battleData.selStage] = [];
+      battleData.selStage = battleData.selStage - 1;
+      battleTurnStack(battleData.selStage, battleData.selSlot, false);
+      battleData.selSlot = getFirstAvailableSlot();
+    }
   }
 
-  // Go back a selection
-  else if(keys.shift && !prevKeyState.shift && battleData.selStage - 1 >= 1){
-    battleData.UI.bottom[battleData.selStage] = [];
-    battleData.selStage = battleData.selStage - 1;
-    battleTurnStack(battleData.selStage, battleData.selSlot, false);
-    battleData.selSlot = getFirstAvailableSlot();
+  else {
+    if(keys.enter && !prevKeyState.enter){
+      stopBattle();
+    }
   }
-
-  // console.log("stage: " + battleData.selStage + ", " + "slot: " + battleData.selSlot);
-
-  // console.log("stage: " + battleData.selStage + ", " + "slot: " + battleData.selSlot + ", " + "selection: " + battleData.UI.bottom[battleData.selStage][battleData.selSlot].text);
 }
 
 function getFirstAvailableSlot(){
@@ -236,8 +245,6 @@ function initiateTurn(){
 
 function executeTurn(){
 
-  console.log(battleData.stack);
-
   for(var i = 0; i < battleData.stack.length; ++i){
     if(battleData[battleData.stack[i].type][battleData.stack[i].id].currentHP){
       switch(battleData.stack[i].action[0]) {
@@ -257,7 +264,7 @@ function executeTurn(){
     }
   }
 
-  battleDataInit(battleData.players, battleData.enemies);
+  battleDataInit(battleData.players, battleData.enemies, battleData.enemiesID);
 }
 
 function executeAttack(stackIndex){
@@ -292,8 +299,6 @@ function findCharacterStat(name, stat) {
 
 function dealPhysicalDamage(attackerType, attackerID, targetType, targetID, stat){
 
-  // console.log("dealPhysicalDamage: " + attackerType + ", " + attackerID + ", " + targetType + ", " + targetID + ", " + stat);
-
   var atkStat = battleData[attackerType][attackerID][stat];
   var defenseStat = 0;
   var weapon = 0;
@@ -317,6 +322,19 @@ function getCurrentPlayer(){
 }
 
 function stopBattle(){
-  console.log("stopBattle");
-  battleEnd(0);
+  delete stats[battleData.enemiesID];
+  for(var i = 0; i < entities.length; ++i){
+    if(entities[i].type && entities[i].id == battleData.enemiesID){
+      entities[i] = {type: false, tile: entities[i].tile};
+    }
+  }
+
+  console.log(entities);
+
+  stats[0] = battleData.players;
+  battleData = {};
+
+  entityDataToMap();
+
+  overworldLoop();
 }
