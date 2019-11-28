@@ -3,6 +3,9 @@
 # Phase 1 Basic Game Loop
 
 - Battle System
+-- Revamp menu selection system
+--- Account for menu options being added and removed (consistent ids)
+--- Dont pass player/enemy full objects to battle turn stack under `name`. Pass id and use the `player` key boolean
 -- battleEnd() function to return to overworld
 --- Trigger on successful escape or all enemies dead
 --- Remove enemy from map data

@@ -97,48 +97,31 @@ var entities = [
 var stats = {
   0: [
     {
+      id: 0,
       name: 'Jadle',
       stance: 0,
       maxHP: 100,
       currentHP: 100,
-      strength: 20,
+      strength: 30,
       agility: 80,
       intuition: 50,
       focus: 30
     },
     {
-      name: 'Jadle B',
-      stance: 0,
-      maxHP: 100,
-      currentHP: 0,
-      strength: 20,
-      agility: 85,
-      intuition: 50,
-      focus: 30
-    },
-    {
+      id: 1,
       name: 'Idle',
       stance: 0,
       maxHP: 100,
-      currentHP: 0,
+      currentHP: 10,
       strength: 20,
       agility: 70,
-      intuition: 50,
-      focus: 30
-    },
-    {
-      name: 'Idle B',
-      stance: 0,
-      maxHP: 100,
-      currentHP: 100,
-      strength: 20,
-      agility: 75,
       intuition: 50,
       focus: 30
     }
   ],
   3: [
     {
+      id: 0,
       name: 'Imp 1',
       stance: 0,
       maxHP: 15,
@@ -149,11 +132,12 @@ var stats = {
       focus: 30
     },
     {
+      id: 1,
       name: 'Imp 2',
       stance: 0,
       maxHP: 15,
       currentHP: 15,
-      strength: 20,
+      strength: 10,
       agility: 50,
       intuition: 50,
       focus: 30

@@ -48,10 +48,20 @@ function drawBottomDisplay(){
 
   var currentPlayer = getCurrentPlayer();
 
-  var playersText = battleData.UI.bottom[0].join('\n');
-  var actionText = battleData.UI.bottom[1].join('\n');
-  var optionsText = battleData.UI.bottom[2].join('\n');
-  var targetText = battleData.UI.bottom[3].join('\n');
+  function drawBottomDisplayTextData(data){
+    var returnData = '';
+    if(data.length){
+      for(var i = 0; i < data.length; ++i){
+        returnData += data.text + '\n';
+      }
+    }
+    return returnData;
+  }
+
+  var playersText = battleData.UI.bottom[0];
+  var actionText = battleData.UI.bottom[1];
+  var optionsText = battleData.UI.bottom[2];
+  var targetText = battleData.UI.bottom[3];
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -76,33 +86,33 @@ function drawBottomDisplay(){
   ctx.fillRect(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     (canvas.height - UISpacing.displayHeight + UISpacing.displayBorders) + (currentPlayer * fontSize), 
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4)), 
+    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) - 10), 
     fontSize
   );
 
   // Player names
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     playersText
   );
 
   // Player actions
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1),
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     actionText
   );
 
   // Contextual options
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 2), 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     optionsText
   );
 
   // Contextual targets
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 3), 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     targetText
@@ -130,12 +140,14 @@ function drawEnemiesBattle(){
   ctx.fillStyle = '#000';
 
   for(var i = 0; i < battleData.enemies.length; ++i){
-    ctx.fillRect(
-      canvas.width - 48, 
-      (canvas.height / (battleData.enemies.length + 1)) * (i + 1), 
-      enemyWidth, 
-      30
-    );
+    if (battleData.enemies[i].currentHP) {
+      ctx.fillRect(
+        canvas.width - 48, 
+        (canvas.height / (battleData.enemies.length + 1)) * (i + 1), 
+        enemyWidth, 
+        30
+      );
+    }
   }
 }
 

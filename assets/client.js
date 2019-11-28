@@ -668,48 +668,31 @@ var entities = [
 var stats = {
   0: [
     {
+      id: 0,
       name: 'Jadle',
       stance: 0,
       maxHP: 100,
       currentHP: 100,
-      strength: 20,
+      strength: 30,
       agility: 80,
       intuition: 50,
       focus: 30
     },
     {
-      name: 'Jadle B',
-      stance: 0,
-      maxHP: 100,
-      currentHP: 0,
-      strength: 20,
-      agility: 85,
-      intuition: 50,
-      focus: 30
-    },
-    {
+      id: 1,
       name: 'Idle',
       stance: 0,
       maxHP: 100,
-      currentHP: 0,
+      currentHP: 10,
       strength: 20,
       agility: 70,
-      intuition: 50,
-      focus: 30
-    },
-    {
-      name: 'Idle B',
-      stance: 0,
-      maxHP: 100,
-      currentHP: 100,
-      strength: 20,
-      agility: 75,
       intuition: 50,
       focus: 30
     }
   ],
   3: [
     {
+      id: 0,
       name: 'Imp 1',
       stance: 0,
       maxHP: 15,
@@ -720,11 +703,12 @@ var stats = {
       focus: 30
     },
     {
+      id: 1,
       name: 'Imp 2',
       stance: 0,
       maxHP: 15,
       currentHP: 15,
-      strength: 20,
+      strength: 10,
       agility: 50,
       intuition: 50,
       focus: 30
@@ -920,8 +904,17 @@ function canvasWrite(posX, posY, text){
   ctx.fillStyle = "white";
   var lines = text.split('\n');
 
-  for (var i = 0; i<lines.length; i++){
+  for (var i = 0; i < lines.length; i++){
     ctx.fillText(lines[i], posX, posY + (i*fontSize) + fontSize);
+  }
+}
+
+// textData: [{text, disabled, id}, {text, disabled, id}, ...]
+function canvasWriteData(posX, posY, textData){
+  ctx.font = fontSize + "px Courier";
+  for (var i = 0; i < textData.length; i++){
+    ctx.fillStyle = (textData[i].disabled) ? "gray" : "white";
+    ctx.fillText(textData[i].text, posX, posY + (i*fontSize) + fontSize);
   }
 }
 
@@ -1110,10 +1103,20 @@ function drawBottomDisplay(){
 
   var currentPlayer = getCurrentPlayer();
 
-  var playersText = battleData.UI.bottom[0].join('\n');
-  var actionText = battleData.UI.bottom[1].join('\n');
-  var optionsText = battleData.UI.bottom[2].join('\n');
-  var targetText = battleData.UI.bottom[3].join('\n');
+  function drawBottomDisplayTextData(data){
+    var returnData = '';
+    if(data.length){
+      for(var i = 0; i < data.length; ++i){
+        returnData += data.text + '\n';
+      }
+    }
+    return returnData;
+  }
+
+  var playersText = battleData.UI.bottom[0];
+  var actionText = battleData.UI.bottom[1];
+  var optionsText = battleData.UI.bottom[2];
+  var targetText = battleData.UI.bottom[3];
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -1138,33 +1141,33 @@ function drawBottomDisplay(){
   ctx.fillRect(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     (canvas.height - UISpacing.displayHeight + UISpacing.displayBorders) + (currentPlayer * fontSize), 
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4)), 
+    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) - 10), 
     fontSize
   );
 
   // Player names
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding, 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     playersText
   );
 
   // Player actions
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1),
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     actionText
   );
 
   // Contextual options
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 2), 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     optionsText
   );
 
   // Contextual targets
-  canvasWrite(
+  canvasWriteData(
     UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 3), 
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
     targetText
@@ -1192,12 +1195,14 @@ function drawEnemiesBattle(){
   ctx.fillStyle = '#000';
 
   for(var i = 0; i < battleData.enemies.length; ++i){
-    ctx.fillRect(
-      canvas.width - 48, 
-      (canvas.height / (battleData.enemies.length + 1)) * (i + 1), 
-      enemyWidth, 
-      30
-    );
+    if (battleData.enemies[i].currentHP) {
+      ctx.fillRect(
+        canvas.width - 48, 
+        (canvas.height / (battleData.enemies.length + 1)) * (i + 1), 
+        enemyWidth, 
+        30
+      );
+    }
   }
 }
 
@@ -1210,29 +1215,46 @@ function drawCursor(){
   ctx.fillRect(thisX, thisY, 2, 2);
 }
 function battleDataInit(players, enemies){
+
   var thesePlayersNames = [];
   var thesePlayersHealth = [];
   var currentStack = {};
   for(var i = 0; i < players.length; ++i){
-    players[i]['id'] = i;
     if(!players[i].currentHP){
       currentStack[players[i].name] = false;
+      thesePlayersNames.push({text: players[i].name, disabled: true, id: players[i].id});
     }
-    thesePlayersNames.push(players[i].name);
+    else{
+      thesePlayersNames.push({text: players[i].name, disabled: false, id: players[i].id});
+    }
     thesePlayersHealth.push(players[i].name + ': ' + players[i].currentHP + '/' + players[i].maxHP);
   }
+
+  var theseEnemiesHealth = [];
+  var aliveEnemies = enemies.length;
   for(var i = 0; i < enemies.length; ++i){
-    enemies[i]['id'] = i;
+    theseEnemiesHealth.push(enemies[i].name + ': ' + enemies[i].currentHP + '/' + enemies[i].maxHP);
+    if(!enemies[i].currentHP){
+      aliveEnemies--;
+    }
   }
+  if(!aliveEnemies){
+    stopBattle();
+  }
+
   battleData = {
     UI:{
       top: {
         left: thesePlayersHealth.join('\n'),
-        right: ''
+        right: theseEnemiesHealth.join('\n')
       },
       bottom: [
         thesePlayersNames,
-        ['Attack','Magic','Defense'],
+        [
+          {text: 'Attack', disabled: false, id: 0},
+          {text: 'Magic', disabled: false, id: 1},
+          {text: 'Defense', disabled: false, id: 2}
+        ],
         [],
         [],
       ],
@@ -1240,7 +1262,7 @@ function battleDataInit(players, enemies){
     players: players,
     enemies: enemies,
     selStage: 1,
-    selSlot: 1,
+    selSlot: 0,
     currentSel: [],
     stack: currentStack
   };
@@ -1250,12 +1272,24 @@ function battleSelect(prevKeyState){
 
   // Cursor up
   if(keys.up && !prevKeyState.up){
-    battleData.selSlot = ((battleData.selSlot - 1) < 0) ? battleData.selSlot : battleData.selSlot - 1;
+    var prevSlot = ((battleData.selSlot - 1) < 0) ? battleData.selSlot : battleData.selSlot - 1;
+    for(var i = prevSlot; i >= 0; i--){
+      if(!battleData.UI.bottom[battleData.selStage][i].disabled){
+        battleData.selSlot = i;
+        break;
+      }
+    }
   }
 
   // Cursor down
   else if(keys.down && !prevKeyState.down){
-    battleData.selSlot = ((battleData.selSlot + 1) >= battleData.UI.bottom[battleData.selStage].length) ? battleData.selSlot : battleData.selSlot + 1;
+    var nextSlot = ((battleData.selSlot + 1) >= battleData.UI.bottom[battleData.selStage].length) ? battleData.selSlot : battleData.selSlot + 1;
+    for(var i = nextSlot; i < battleData.UI.bottom[battleData.selStage].length; i++){
+      if(!battleData.UI.bottom[battleData.selStage][i].disabled){
+        battleData.selSlot = i;
+        break;
+      }
+    }
   }
 
   // Next selection
@@ -1266,29 +1300,51 @@ function battleSelect(prevKeyState){
 
     if(battleData.selStage == 2){
 
-      switch(battleData.selSlot) {
+      switch(battleData.selSlot){
 
         case 0:
-          options = Object.keys(battleAttackMenu);
+          var attackNames = Object.keys(battleAttackMenu);
+          for(var i = 0; i < attackNames.length; ++i){
+            options.push({text: attackNames[i], disabled: false, id: i});
+          }
           break;
 
         case 1:
-          options = ['Fire', 'Heal'];
+          options = [
+            {text: 'Fire', disabled: false, id: 0},
+            {text: 'Heal', disabled: false, id: 1}
+          ];
           break;
 
         case 2:
-          options = Object.keys(battleDefenseMenu);
+          var defenseNames = Object.keys(battleDefenseMenu);
+          for(var i = 0; i < defenseNames.length; ++i){
+            options.push({text: defenseNames[i], disabled: false, id: i});
+          }
           break;
       };
     } else if(battleData.selStage == 3){
       for(var i = 0; i < battleData.enemies.length; ++i){
-        options.push(battleData.enemies[i].name);
+        if(battleData.enemies[i].currentHP){
+          options.push({
+            text: battleData.enemies[i].name, 
+            disabled: false, 
+            id: battleData.enemies[i].id
+          });
+        }
+        else{
+          options.push({
+            text: battleData.enemies[i].name, 
+            disabled: true, 
+            id: battleData.enemies[i].id
+          });
+        }
       }
     }
 
     battleData.UI.bottom[battleData.selStage] = options;
     battleTurnStack(battleData.selStage, battleData.selSlot, true);
-    battleData.selSlot = 0;
+    battleData.selSlot = getFirstAvailableSlot();
   }
 
   // Go back a selection
@@ -1296,7 +1352,19 @@ function battleSelect(prevKeyState){
     battleData.UI.bottom[battleData.selStage] = [];
     battleData.selStage = battleData.selStage - 1;
     battleTurnStack(battleData.selStage, battleData.selSlot, false);
-    battleData.selSlot = 0;
+    battleData.selSlot = getFirstAvailableSlot();
+  }
+
+  // console.log("stage: " + battleData.selStage + ", " + "slot: " + battleData.selSlot);
+
+  // console.log("stage: " + battleData.selStage + ", " + "slot: " + battleData.selSlot + ", " + "selection: " + battleData.UI.bottom[battleData.selStage][battleData.selSlot].text);
+}
+
+function getFirstAvailableSlot(){
+  for(var i = 0; i < battleData.UI.bottom[battleData.selStage].length; i++){
+    if(!battleData.UI.bottom[battleData.selStage][i].disabled){
+      return i;
+    }
   }
 }
 
@@ -1321,7 +1389,7 @@ function battleTurnStack(stage, slot, advance){
         battleData.UI.bottom[2] = [];
         battleData.UI.bottom[3] = [];
         battleData.selStage = 1;
-        battleData.selSlot = 1;
+        battleData.selSlot = getFirstAvailableSlot();
       }
     }
   }
@@ -1331,13 +1399,6 @@ function battleTurnStack(stage, slot, advance){
 }
 
 function initiateTurn(){
-  
-  var aiAtkOptions = Object.keys(battleAttackMenu);
-
-  var battlers = battleData.players.concat(battleData.enemies);
-  battlers.sort(function(a,b){
-    return a.agility - b.agility;
-  }).reverse();
 
   var turnStack = [];
   var playerTargets = [];
@@ -1347,7 +1408,7 @@ function initiateTurn(){
     if(battleData.stack[battleData.players[i].name]){
       turnStack.push(
         {
-          name: battleData.players[i],
+          id: battleData.players[i].id,
           action: [
             battleData.stack[battleData.players[i].name][0],
             battleData.stack[battleData.players[i].name][1]
@@ -1360,19 +1421,25 @@ function initiateTurn(){
       playerTargets.push(battleData.players[i].id);
     }
   }
+
+  var aiAtkOptions = Object.keys(battleAttackMenu);
   for(var i = 0; i < battleData.enemies.length; ++i){
-    turnStack.push(
-      {
-        name: battleData.enemies[i],
-        action: [
-          0,
-          Math.floor(Math.random() * aiAtkOptions.length)
-        ],
-        target: playerTargets[Math.floor(Math.random() * playerTargets.length)],
-        type: 'enemies',
-        agility: battleData.enemies[i].agility
-      }
-    );
+
+    // Check if the enemy has currentHP
+    if(battleData.enemies[i].currentHP){
+      turnStack.push(
+        {
+          id: battleData.enemies[i].id,
+          action: [
+            0,
+            Math.floor(Math.random() * aiAtkOptions.length)
+          ],
+          target: playerTargets[Math.floor(Math.random() * playerTargets.length)],
+          type: 'enemies',
+          agility: battleData.enemies[i].agility
+        }
+      );
+    }
   }
 
   turnStack.sort(function(a,b){
@@ -1415,7 +1482,7 @@ function executeAttack(stackIndex){
 
   dealPhysicalDamage(
     current.type, 
-    current.name.id, 
+    current.id, 
     (current.type == 'players') ? 'enemies' : 'players',
     current.target,
     battleAttackMenu[attacks[current.action[1]]]
@@ -1439,6 +1506,9 @@ function findCharacterStat(name, stat) {
 // stat: string, object key for atk stat
 
 function dealPhysicalDamage(attackerType, attackerID, targetType, targetID, stat){
+
+  // console.log("dealPhysicalDamage: " + attackerType + ", " + attackerID + ", " + targetType + ", " + targetID + ", " + stat);
+
   var atkStat = battleData[attackerType][attackerID][stat];
   var defenseStat = 0;
   var weapon = 0;
@@ -1459,6 +1529,11 @@ function getCurrentPlayer(){
       return playerIndex;
     }
   }
+}
+
+function stopBattle(){
+  console.log("stopBattle");
+  battleEnd(0);
 }
 
 function animateMove(id, up, down, left, right){

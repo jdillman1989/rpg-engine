@@ -4,8 +4,17 @@ function canvasWrite(posX, posY, text){
   ctx.fillStyle = "white";
   var lines = text.split('\n');
 
-  for (var i = 0; i<lines.length; i++){
+  for (var i = 0; i < lines.length; i++){
     ctx.fillText(lines[i], posX, posY + (i*fontSize) + fontSize);
+  }
+}
+
+// textData: [{text, disabled, id}, {text, disabled, id}, ...]
+function canvasWriteData(posX, posY, textData){
+  ctx.font = fontSize + "px Courier";
+  for (var i = 0; i < textData.length; i++){
+    ctx.fillStyle = (textData[i].disabled) ? "gray" : "white";
+    ctx.fillText(textData[i].text, posX, posY + (i*fontSize) + fontSize);
   }
 }
 
