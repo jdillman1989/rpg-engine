@@ -50,6 +50,10 @@ function battleDataInit(players, enemies, enemiesID){
   };
 
   if(!aliveEnemies){
+    var battleXP = xpEarned();
+    for(var i = 0; i < battleData.players.length; ++i){
+      battleData.players[i].experience.points += battleXP;
+    }
     setTimeout(function(){
       battleEnd(0);
     }, 500);
@@ -146,9 +150,11 @@ function battleSelect(prevKeyState){
     }
   }
 
+  // End of battle button state
   else {
     if(keys.enter && !prevKeyState.enter){
-      stopBattle();
+
+      stopBattle(true);
     }
   }
 }
@@ -303,7 +309,7 @@ function dealPhysicalDamage(attackerType, attackerID, targetType, targetID, stat
   var defenseStat = 0;
   var weapon = 0;
   var dmgFormulaRaw = ((atkStat * 0.5) + (weapon)) - (defenseStat);
-  var dmgFormula = (dmgFormulaRaw <= 0) ? 1 : dmgFormulaRaw;
+  var dmgFormula = (dmgFormulaRaw <= 0) ? 1 : Math.round(dmgFormulaRaw);
 
   battleData[targetType][targetID].currentHP = (
     (battleData[targetType][targetID].currentHP - dmgFormula) < 0
@@ -321,20 +327,35 @@ function getCurrentPlayer(){
   }
 }
 
-function stopBattle(){
-  delete stats[battleData.enemiesID];
-  for(var i = 0; i < entities.length; ++i){
-    if(entities[i].type && entities[i].id == battleData.enemiesID){
-      entities[i] = {type: false, tile: entities[i].tile};
-    }
-  }
+function stopBattle(win){
 
-  console.log(entities);
+  if(win){
+    delete stats[battleData.enemiesID];
+    for(var i = 0; i < entities.length; ++i){
+      if(entities[i].type && entities[i].id == battleData.enemiesID){
+        entities[i] = {type: false, tile: entities[i].tile};
+      }
+    }
+
+    var battleXP = xpEarned();
+    for(var i = 0; i < battleData.players.length; ++i){
+      battleData.players[i].experience.points += battleXP;
+    }
+
+    checkXP = true;
+  }
 
   stats[0] = battleData.players;
   battleData = {};
-
   entityDataToMap();
 
   overworldLoop();
+}
+
+function xpEarned(){
+  var battleXP = 0;
+  for(var i = 0; i < battleData.enemies.length; ++i){
+    battleXP += battleData.enemies[i].maxHP;
+  }
+  return battleXP;
 }

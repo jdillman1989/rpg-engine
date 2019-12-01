@@ -117,23 +117,43 @@ var stats = {
       id: 0,
       name: 'Jadle',
       stance: 0,
-      maxHP: 100,
-      currentHP: 100,
-      strength: 30,
-      agility: 80,
-      intuition: 50,
-      focus: 30
+      maxHP: 30,
+      currentHP: 30,
+      strength: 10,
+      agility: 10,
+      intuition: 10,
+      focus: 10,
+      experience: {
+        level: 1,
+        points: 0,
+        bonuses: {
+          strength: 0,
+          agility: 0,
+          intuition: 0,
+          focus: 0
+        }
+      }
     },
     {
       id: 1,
       name: 'Idle',
       stance: 0,
-      maxHP: 100,
-      currentHP: 10,
-      strength: 20,
-      agility: 70,
-      intuition: 50,
-      focus: 30
+      maxHP: 30,
+      currentHP: 30,
+      strength: 10,
+      agility: 10,
+      intuition: 10,
+      focus: 10,
+      experience: {
+        level: 2,
+        points: 0,
+        bonuses: {
+          strength: 0,
+          agility: 0,
+          intuition: 0,
+          focus: 0
+        }
+      }
     }
   ],
   2: [
@@ -141,23 +161,23 @@ var stats = {
       id: 0,
       name: 'Imp 1',
       stance: 0,
-      maxHP: 15,
-      currentHP: 15,
-      strength: 20,
-      agility: 60,
-      intuition: 50,
-      focus: 30
+      maxHP: 5,
+      currentHP: 5,
+      strength: 7,
+      agility: 8,
+      intuition: 3,
+      focus: 3
     },
     {
       id: 1,
       name: 'Imp 2',
       stance: 0,
-      maxHP: 15,
-      currentHP: 15,
-      strength: 10,
-      agility: 50,
-      intuition: 50,
-      focus: 30
+      maxHP: 5,
+      currentHP: 5,
+      strength: 7,
+      agility: 7,
+      intuition: 3,
+      focus: 3
     }
   ],
   4: [
@@ -165,15 +185,18 @@ var stats = {
       id: 0,
       name: 'Imp',
       stance: 0,
-      maxHP: 20,
-      currentHP: 20,
-      strength: 20,
-      agility: 60,
-      intuition: 50,
-      focus: 30
+      maxHP: 10,
+      currentHP: 10,
+      strength: 7,
+      agility: 12,
+      intuition: 3,
+      focus: 3
     }
   ]
 }
+
+var baseXP = 100;
+var checkXP = false;
 
 var map = [];
 

@@ -688,23 +688,43 @@ var stats = {
       id: 0,
       name: 'Jadle',
       stance: 0,
-      maxHP: 100,
-      currentHP: 100,
-      strength: 30,
-      agility: 80,
-      intuition: 50,
-      focus: 30
+      maxHP: 30,
+      currentHP: 30,
+      strength: 10,
+      agility: 10,
+      intuition: 10,
+      focus: 10,
+      experience: {
+        level: 1,
+        points: 0,
+        bonuses: {
+          strength: 0,
+          agility: 0,
+          intuition: 0,
+          focus: 0
+        }
+      }
     },
     {
       id: 1,
       name: 'Idle',
       stance: 0,
-      maxHP: 100,
-      currentHP: 10,
-      strength: 20,
-      agility: 70,
-      intuition: 50,
-      focus: 30
+      maxHP: 30,
+      currentHP: 30,
+      strength: 10,
+      agility: 10,
+      intuition: 10,
+      focus: 10,
+      experience: {
+        level: 2,
+        points: 0,
+        bonuses: {
+          strength: 0,
+          agility: 0,
+          intuition: 0,
+          focus: 0
+        }
+      }
     }
   ],
   2: [
@@ -712,23 +732,23 @@ var stats = {
       id: 0,
       name: 'Imp 1',
       stance: 0,
-      maxHP: 15,
-      currentHP: 15,
-      strength: 20,
-      agility: 60,
-      intuition: 50,
-      focus: 30
+      maxHP: 5,
+      currentHP: 5,
+      strength: 7,
+      agility: 8,
+      intuition: 3,
+      focus: 3
     },
     {
       id: 1,
       name: 'Imp 2',
       stance: 0,
-      maxHP: 15,
-      currentHP: 15,
-      strength: 10,
-      agility: 50,
-      intuition: 50,
-      focus: 30
+      maxHP: 5,
+      currentHP: 5,
+      strength: 7,
+      agility: 7,
+      intuition: 3,
+      focus: 3
     }
   ],
   4: [
@@ -736,15 +756,18 @@ var stats = {
       id: 0,
       name: 'Imp',
       stance: 0,
-      maxHP: 20,
-      currentHP: 20,
-      strength: 20,
-      agility: 60,
-      intuition: 50,
-      focus: 30
+      maxHP: 10,
+      currentHP: 10,
+      strength: 7,
+      agility: 12,
+      intuition: 3,
+      focus: 3
     }
   ]
 }
+
+var baseXP = 100;
+var checkXP = false;
 
 var map = [];
 
@@ -853,8 +876,6 @@ window.onload = function(){
 function entityDataToMap(){
   for(var i = 0; i < entities.length; ++i){
 
-    console.log(entities[i]);
-
     if(entities[i].type){
       map[entities[i].tile].render.object = entities[i].id;
 
@@ -899,6 +920,12 @@ function overworldLoop(){
         animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
       }
     }
+
+    if(checkXP){
+      xpCheck();
+      checkXP = false;
+    }
+
     window.requestAnimationFrame(function(){
 
       var now = performance.now();
@@ -944,6 +971,85 @@ function battleLoop(prevKeyState){
       });
     }
   }
+}
+
+function xpCheck(){
+  var playerParty = stats[0];
+  for(var i = 0; i < playerParty.length; i++){
+    var levelUp = baseXP * (playerParty[i].experience.level / 10);
+    if(playerParty[i].experience.points >= levelUp){
+      screen = 'levelup';
+      centeredBoxAnimate(0, 40, 'levelUpUI', [i]);
+    }
+  }
+}
+
+function levelUpUI(statsID){
+
+  var displaySize = 40;
+  var statPointsOnLvl = (Math.floor(stats[0][statsID].experience.level / 2) < 2) ? 2 : Math.floor(stats[0][statsID].experience.level / 2);
+
+  centeredBox(displaySize);
+
+  canvasWrite(
+    (canvas.width / 2) - displaySize + UISpacing.displayBorders + UISpacing.displayPadding, 
+    (canvas.height / 2) - displaySize + UISpacing.displayBorders + UISpacing.displayPadding, 
+    stats[0][statsID].name + " levels up!\nAvailable points:    " + statPointsOnLvl + "\nStrength: " + stats[0][statsID].strength + "\nAgility: " + stats[0][statsID].agility + "\nIntuition: " + stats[0][statsID].intuition + "\nFocus: " + stats[0][statsID].focus
+  );
+}
+
+function recalcMaxHP(statsID){
+  stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
+}
+
+function centeredBoxAnimate(step, size, callback, callbackData){
+  step = step + 4;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(
+    (canvas.width / 2) - step, 
+    (canvas.height / 2) - step, 
+    step * 2, 
+    step * 2
+  );
+  ctx.fillStyle = '#225';
+  ctx.fillRect(
+    (canvas.width / 2) - step + UISpacing.displayBorders, 
+    (canvas.height / 2) - step + UISpacing.displayBorders, 
+    (step * 2) - UISpacing.displayBorders, 
+    (step * 2) - UISpacing.displayBorders
+  );
+
+  if(step >= size){
+    console.log("stop box animate");
+    window[callback].apply(null, callbackData);
+    return;
+  }
+  else{
+    window.requestAnimationFrame(function(){
+      centeredBoxAnimate(step, size, callback, callbackData);
+    });
+  }
+}
+
+function centeredBox(size){
+
+  var displaySize = size;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(
+    (canvas.width / 2) - displaySize, 
+    (canvas.height / 2) - displaySize, 
+    displaySize * 2, 
+    displaySize * 2
+  );
+  ctx.fillStyle = '#225';
+  ctx.fillRect(
+    (canvas.width / 2) - displaySize + UISpacing.displayBorders, 
+    (canvas.height / 2) - displaySize + UISpacing.displayBorders, 
+    (displaySize * 2) - (UISpacing.displayBorders * 2), 
+    (displaySize * 2) - (UISpacing.displayBorders * 2)
+  );
 }
 
 function canvasWrite(posX, posY, text){
@@ -1076,14 +1182,12 @@ function battleSet(step){
     ctx.fillRect(-(playerWidth) + (step * 1.5), (canvas.height / (battleData.players.length + 1)) * (i + 1), playerWidth, 30);
   }
 
-
   // Draw enemies
   var enemyWidth = 20;
   ctx.fillStyle = '#000';
   for(var i = 0; i < battleData.enemies.length; ++i){
     ctx.fillRect(canvas.width - (step * 1.5), (canvas.height / (battleData.enemies.length + 1)) * (i + 1), enemyWidth, 30);
   }
-
 
   if(step >= UISpacing.displayHeight){
     var keyState = JSON.parse(JSON.stringify(keys));
@@ -1098,64 +1202,21 @@ function battleSet(step){
 }
 
 function battleEnd(step){
-  screen = 'overworld';
-
-  step = step + 4;
-
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(
-    (canvas.width / 2) - step, 
-    (canvas.height / 2) - step, 
-    step * 2, 
-    step * 2
-  );
-  ctx.fillStyle = '#225';
-  ctx.fillRect(
-    (canvas.width / 2) - step + UISpacing.displayBorders, 
-    (canvas.height / 2) - step + UISpacing.displayBorders, 
-    (step * 2) - UISpacing.displayBorders, 
-    (step * 2) - UISpacing.displayBorders
-  );
-
-  if(step >= 40){
-    battleEndText();
-    return;
-  }
-  else{
-    window.requestAnimationFrame(function(){
-      battleEnd(step);
-    });
-  }
+  screen = 'overworld'; // start listening for OK button confirmation
+  centeredBoxAnimate(step, 40, 'battleEndText');
 }
 
 function battleEndText(){
 
+  var battleXP = xpEarned();
   var displaySize = 40;
-  var xpEarned = 0;
 
-  for(var i = 0; i < battleData.enemies.length; ++i){
-    xpEarned += battleData.enemies[i].maxHP;
-  }
-
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(
-    (canvas.width / 2) - displaySize, 
-    (canvas.height / 2) - displaySize, 
-    displaySize * 2, 
-    displaySize * 2
-  );
-  ctx.fillStyle = '#225';
-  ctx.fillRect(
-    (canvas.width / 2) - displaySize + UISpacing.displayBorders, 
-    (canvas.height / 2) - displaySize + UISpacing.displayBorders, 
-    (displaySize * 2) - (UISpacing.displayBorders * 2), 
-    (displaySize * 2) - (UISpacing.displayBorders * 2)
-  );
+  centeredBox(displaySize);
 
   canvasWrite(
     (canvas.width / 2) - displaySize + UISpacing.displayBorders + UISpacing.displayPadding, 
     (canvas.height / 2) - displaySize + UISpacing.displayBorders + UISpacing.displayPadding, 
-    "You win!\nRewards\nXP:    " + xpEarned
+    "You win!\nRewards\nXP:    " + battleXP
   );
 
   var buttonWidth = 20;
@@ -1388,6 +1449,10 @@ function battleDataInit(players, enemies, enemiesID){
   };
 
   if(!aliveEnemies){
+    var battleXP = xpEarned();
+    for(var i = 0; i < battleData.players.length; ++i){
+      battleData.players[i].experience.points += battleXP;
+    }
     setTimeout(function(){
       battleEnd(0);
     }, 500);
@@ -1484,9 +1549,11 @@ function battleSelect(prevKeyState){
     }
   }
 
+  // End of battle button state
   else {
     if(keys.enter && !prevKeyState.enter){
-      stopBattle();
+
+      stopBattle(true);
     }
   }
 }
@@ -1641,7 +1708,7 @@ function dealPhysicalDamage(attackerType, attackerID, targetType, targetID, stat
   var defenseStat = 0;
   var weapon = 0;
   var dmgFormulaRaw = ((atkStat * 0.5) + (weapon)) - (defenseStat);
-  var dmgFormula = (dmgFormulaRaw <= 0) ? 1 : dmgFormulaRaw;
+  var dmgFormula = (dmgFormulaRaw <= 0) ? 1 : Math.round(dmgFormulaRaw);
 
   battleData[targetType][targetID].currentHP = (
     (battleData[targetType][targetID].currentHP - dmgFormula) < 0
@@ -1659,22 +1726,37 @@ function getCurrentPlayer(){
   }
 }
 
-function stopBattle(){
-  delete stats[battleData.enemiesID];
-  for(var i = 0; i < entities.length; ++i){
-    if(entities[i].type && entities[i].id == battleData.enemiesID){
-      entities[i] = {type: false, tile: entities[i].tile};
-    }
-  }
+function stopBattle(win){
 
-  console.log(entities);
+  if(win){
+    delete stats[battleData.enemiesID];
+    for(var i = 0; i < entities.length; ++i){
+      if(entities[i].type && entities[i].id == battleData.enemiesID){
+        entities[i] = {type: false, tile: entities[i].tile};
+      }
+    }
+
+    var battleXP = xpEarned();
+    for(var i = 0; i < battleData.players.length; ++i){
+      battleData.players[i].experience.points += battleXP;
+    }
+
+    checkXP = true;
+  }
 
   stats[0] = battleData.players;
   battleData = {};
-
   entityDataToMap();
 
   overworldLoop();
+}
+
+function xpEarned(){
+  var battleXP = 0;
+  for(var i = 0; i < battleData.enemies.length; ++i){
+    battleXP += battleData.enemies[i].maxHP;
+  }
+  return battleXP;
 }
 
 function animateMove(id, up, down, left, right){

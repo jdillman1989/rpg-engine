@@ -80,8 +80,6 @@ window.onload = function(){
 function entityDataToMap(){
   for(var i = 0; i < entities.length; ++i){
 
-    console.log(entities[i]);
-
     if(entities[i].type){
       map[entities[i].tile].render.object = entities[i].id;
 
@@ -126,6 +124,12 @@ function overworldLoop(){
         animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
       }
     }
+
+    if(checkXP){
+      xpCheck();
+      checkXP = false;
+    }
+
     window.requestAnimationFrame(function(){
 
       var now = performance.now();
