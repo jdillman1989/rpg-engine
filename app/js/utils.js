@@ -3,15 +3,6 @@ function xpCheck(){
   for(var i = 0; i < playerParty.length; i++){
     var levelUp = baseXP * (playerParty[i].experience.level / 10);
     if(playerParty[i].experience.points >= levelUp){
-
-
-
-
-      console.log(i);
-
-
-
-
       screen = 'levelup';
       centeredBoxAnimate(0, 40, 'levelUpUI', [i]);
     }
@@ -55,7 +46,6 @@ function centeredBoxAnimate(step, size, callback, callbackData){
   );
 
   if(step >= size){
-    console.log("stop box animate");
     window[callback].apply(null, callbackData);
     return;
   }

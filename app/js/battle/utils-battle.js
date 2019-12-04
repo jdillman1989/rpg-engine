@@ -50,10 +50,6 @@ function battleDataInit(players, enemies, enemiesID){
   };
 
   if(!aliveEnemies){
-    var battleXP = xpEarned();
-    for(var i = 0; i < battleData.players.length; ++i){
-      battleData.players[i].experience.points += battleXP;
-    }
     setTimeout(function(){
       battleEnd(0);
     }, 500);
@@ -341,7 +337,6 @@ function stopBattle(win){
     for(var i = 0; i < battleData.players.length; ++i){
       battleData.players[i].experience.points += battleXP;
     }
-
     checkXP = true;
   }
 

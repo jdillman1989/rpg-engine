@@ -716,7 +716,7 @@ var stats = {
       intuition: 10,
       focus: 10,
       experience: {
-        level: 2,
+        level: 3,
         points: 0,
         bonuses: {
           strength: 0,
@@ -978,6 +978,15 @@ function xpCheck(){
   for(var i = 0; i < playerParty.length; i++){
     var levelUp = baseXP * (playerParty[i].experience.level / 10);
     if(playerParty[i].experience.points >= levelUp){
+
+
+
+
+      console.log(playerParty[i].experience.level + ": " + playerParty[i].experience.points + " / " + levelUp);
+
+
+
+
       screen = 'levelup';
       centeredBoxAnimate(0, 40, 'levelUpUI', [i]);
     }
@@ -1021,7 +1030,6 @@ function centeredBoxAnimate(step, size, callback, callbackData){
   );
 
   if(step >= size){
-    console.log("stop box animate");
     window[callback].apply(null, callbackData);
     return;
   }
@@ -1449,10 +1457,6 @@ function battleDataInit(players, enemies, enemiesID){
   };
 
   if(!aliveEnemies){
-    var battleXP = xpEarned();
-    for(var i = 0; i < battleData.players.length; ++i){
-      battleData.players[i].experience.points += battleXP;
-    }
     setTimeout(function(){
       battleEnd(0);
     }, 500);
@@ -1739,8 +1743,8 @@ function stopBattle(win){
     var battleXP = xpEarned();
     for(var i = 0; i < battleData.players.length; ++i){
       battleData.players[i].experience.points += battleXP;
+      console.log(battleData.players[i].experience.points);
     }
-
     checkXP = true;
   }
 

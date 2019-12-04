@@ -145,7 +145,7 @@ var stats = {
       intuition: 10,
       focus: 10,
       experience: {
-        level: 2,
+        level: 3,
         points: 0,
         bonuses: {
           strength: 0,
@@ -195,7 +195,7 @@ var stats = {
   ]
 }
 
-var baseXP = 100;
+var baseXP = 100; // 500
 var checkXP = false;
 
 var map = [];
