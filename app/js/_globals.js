@@ -125,7 +125,7 @@ var stats = {
       focus: 10,
       experience: {
         level: 1,
-        points: 0,
+        points: 10,
         bonuses: {
           strength: 0,
           agility: 0,
@@ -196,7 +196,7 @@ var stats = {
 }
 
 var baseXP = 100; // 500
-var checkXP = false;
+var checkXP = true;
 
 var map = [];
 
@@ -215,6 +215,8 @@ var battleDefenseMenu = {
   'Defend': 'self',
   'Escape': 'allies'
 };
+
+var menuData = {};
 
 var UISpacing = {
   displayBorders: 1,

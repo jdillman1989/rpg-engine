@@ -4,7 +4,7 @@ function drawBattle(){
   drawBottomDisplay();
   drawPlayerBattle();
   drawEnemiesBattle();
-  drawCursor();
+  drawBattleCursor();
 }
 
 function drawBattleBG(){
@@ -153,7 +153,7 @@ function drawEnemiesBattle(){
   }
 }
 
-function drawCursor(){
+function drawBattleCursor(){
   ctx.fillStyle = '#F00';
 
   var thisX = UISpacing.displayBorders + ((canvas.width / 4) * battleData.selStage),
