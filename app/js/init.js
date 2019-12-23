@@ -176,3 +176,26 @@ function battleLoop(prevKeyState){
     }
   }
 }
+
+function menuLoop(prevKeyState){
+
+  if (screen == 'menu') {
+    drawMenu();
+
+    menuSelect(prevKeyState);
+
+    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
+
+    window.requestAnimationFrame(function(){
+
+      var now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+
+      menuLoop(thisPrevKeyState);
+    });
+  }
+}

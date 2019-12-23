@@ -1,4 +1,5 @@
 function drawBattle(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
   drawTopDisplay();
   drawBottomDisplay();
@@ -8,7 +9,6 @@ function drawBattle(){
 }
 
 function drawBattleBG(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 }
 

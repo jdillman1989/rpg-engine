@@ -975,6 +975,29 @@ function battleLoop(prevKeyState){
   }
 }
 
+function menuLoop(prevKeyState){
+
+  if (screen == 'menu') {
+    drawMenu();
+
+    menuSelect(prevKeyState);
+
+    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
+
+    window.requestAnimationFrame(function(){
+
+      var now = performance.now();
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift();
+      }
+      times.push(now);
+      fps = times.length;
+
+      menuLoop(thisPrevKeyState);
+    });
+  }
+}
+
 function canvasWrite(posX, posY, text){
 
   ctx.font = fontSize + "px Courier";
@@ -1158,6 +1181,7 @@ function battleEndText(){
   );
 }
 function drawBattle(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
   drawTopDisplay();
   drawBottomDisplay();
@@ -1167,7 +1191,6 @@ function drawBattle(){
 }
 
 function drawBattleBG(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 }
 
@@ -1705,24 +1728,20 @@ function centeredBoxAnimate(step, size, callback, callbackData){
     });
   }
 }
-function drawMenu(displaySize){
+function drawMenu(){
 
-  var menuText = menuData.head;
-  var boxX = (canvas.width / 2) - displaySize;
-  var boxY = (canvas.height / 2) - displaySize;
-  var optionsY = boxY + fontSize + UISpacing.displayBorders + (UISpacing.displayPadding * 2);
-  var optionsX = boxX + UISpacing.displayBorders + UISpacing.displayPadding;
+  ctx.clearRect(
+    (canvas.width / 2) - menuData.size, 
+    (canvas.height / 2) - menuData.size, 
+    menuData.size * 2, 
+    menuData.size * 2
+  );
 
-  if(menuData.body.length){
-    menuText += "\n" + menuData.body;
-    var lines = menuData.body.split('\n');
+  var menuText = menuData.head + "\n" + menuData.body;
+  var boxX = (canvas.width / 2) - menuData.size;
+  var boxY = (canvas.height / 2) - menuData.size;
 
-    for (var i = 0; i < lines.length; i++){
-      optionsY += fontSize;
-    }
-  }
-
-  centeredBox(displaySize);
+  centeredBox(menuData.size);
 
   canvasWrite(
     boxX + UISpacing.displayBorders + UISpacing.displayPadding, 
@@ -1730,8 +1749,61 @@ function drawMenu(displaySize){
     menuText
   );
 
-  drawOptions(optionsX, optionsY);
+  drawOptions();
   drawMenuCursor();
+}
+
+function drawOptions(){
+  for(var i = 0; i < menuData.options.length; i++){
+    canvasWrite(
+      menuData.options[i].x, 
+      menuData.options[i].y, 
+      menuData.options[i].text
+    );
+  }
+}
+
+function centeredBox(size){
+
+  var displaySize = size;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(
+    (canvas.width / 2) - displaySize, 
+    (canvas.height / 2) - displaySize, 
+    displaySize * 2, 
+    displaySize * 2
+  );
+  ctx.fillStyle = '#225';
+  ctx.fillRect(
+    (canvas.width / 2) - displaySize + UISpacing.displayBorders, 
+    (canvas.height / 2) - displaySize + UISpacing.displayBorders, 
+    (displaySize * 2) - (UISpacing.displayBorders * 2), 
+    (displaySize * 2) - (UISpacing.displayBorders * 2)
+  );
+}
+
+function drawMenuCursor(){
+  ctx.fillStyle = '#F00';
+
+  var thisX = menuData.options[menuData.currentSel].x - 2,
+      thisY = menuData.options[menuData.currentSel].y + (fontSize / 2) + 1;
+
+  ctx.fillRect(thisX, thisY, 2, 2);
+}
+function xpCheck(){
+  var playerParty = stats[0];
+  for(var i = 0; i < playerParty.length; i++){
+    var levelUp = baseXP * (playerParty[i].experience.level / 10);
+    if(playerParty[i].experience.points >= levelUp){
+      screen = 'menu';
+      centeredBoxAnimate(0, 50, 'levelUpUI', [i]);
+    }
+  }
+}
+
+function recalcMaxHP(statsID){
+  stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
 }
 
 function levelUpUI(statsID){
@@ -1770,87 +1842,65 @@ function levelUpUI(statsID){
       }
     ]
   };
-  drawMenu(boxSize);
-}
 
-function drawOptions(optionsX, optionY){
-  for(var i = 0; i < menuData.options.length; i++){
-    var row = (i % 2) ? (fontSize * ((i - 1) / 2)) : (fontSize * (i / 2)); // even=0, odd=1
-    // 0:
-    // 9 x 0/2 = 0
+  var boxX = (canvas.width / 2) - boxSize;
+  var boxY = (canvas.height / 2) - boxSize;
+  var optionsY = boxY + fontSize + UISpacing.displayBorders + (UISpacing.displayPadding * 2);
+  var optionsX = boxX + UISpacing.displayBorders + UISpacing.displayPadding;
 
-    // 1:
-    // 9 x ((1-1)/2) = 0
-
-    // 2:
-    // 9 x 2/2 = 9
-
-    // 3:
-    // 9 x ((3-1)/2) = 9
-
-    // 4:
-    // 9 x 4/2 = 18
-
-    // 5:
-    // 9 x ((5-1)/2) = 18
-
-    // 6:
-    // 9 x 6/2 = 27
-
-    // 7:
-    // 9 x ((7-1)/2) = 27
-    var col = (i % 2) ? menuData.size : 0; // even=0, odd=1
-    canvasWrite(
-      optionsX + col, 
-      optionY + row, 
-      menuData.options[i].text
-    );
-    menuData.options[i].x = optionsX + col;
-    menuData.options[i].y = optionY + row;
-  }
-}
-
-function centeredBox(size){
-
-  var displaySize = size;
-
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(
-    (canvas.width / 2) - displaySize, 
-    (canvas.height / 2) - displaySize, 
-    displaySize * 2, 
-    displaySize * 2
-  );
-  ctx.fillStyle = '#225';
-  ctx.fillRect(
-    (canvas.width / 2) - displaySize + UISpacing.displayBorders, 
-    (canvas.height / 2) - displaySize + UISpacing.displayBorders, 
-    (displaySize * 2) - (UISpacing.displayBorders * 2), 
-    (displaySize * 2) - (UISpacing.displayBorders * 2)
-  );
-}
-
-function drawMenuCursor(){
-  ctx.fillStyle = '#F00';
-
-  var thisX = menuData.options[menuData.currentSel].x - 2,
-      thisY = menuData.options[menuData.currentSel].y + (fontSize / 2) + 1;
-
-  ctx.fillRect(thisX, thisY, 2, 2);
-}
-function xpCheck(){
-  var playerParty = stats[0];
-  for(var i = 0; i < playerParty.length; i++){
-    var levelUp = baseXP * (playerParty[i].experience.level / 10);
-    if(playerParty[i].experience.points >= levelUp){
-      screen = 'levelup';
-      centeredBoxAnimate(0, 50, 'levelUpUI', [i]);
+  if(menuData.body.length){
+    var lines = menuData.body.split('\n');
+    for (var i = 0; i < lines.length; i++){
+      optionsY += fontSize;
     }
   }
+
+  for(var i = 0; i < menuData.options.length; i++){
+    var row = (i % 2) ? (fontSize * ((i - 1) / 2)) : (fontSize * (i / 2));
+    var col = (i % 2) ? menuData.size : 0;
+
+    menuData.options[i].x = optionsX + col;
+    menuData.options[i].y = optionsY + row;
+  }
+
+  var keyState = JSON.parse(JSON.stringify(keys));
+  menuLoop(keyState);
 }
 
-function recalcMaxHP(statsID){
-  stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
+function menuSelect(prevKeyState){
+
+  if (screen == 'menu') {
+
+    // Cursor up
+    if(keys.up && !prevKeyState.up){
+      menuData.currentSel = (menuData.currentSel - 2 >= 0) ? menuData.currentSel - 2 : 0;
+    }
+
+    // Cursor down
+    else if(keys.down && !prevKeyState.down){
+      menuData.currentSel = (menuData.currentSel + 2 < menuData.options.length) ? menuData.currentSel + 2 : menuData.currentSel;
+    }
+
+    // Cursor left
+    else if(keys.left && !prevKeyState.left){
+      menuData.currentSel = (menuData.currentSel - 1 >= 0) ? menuData.currentSel - 1 : 0;
+    }
+
+    // Cursor right
+    else if(keys.right && !prevKeyState.right){
+      menuData.currentSel = (menuData.currentSel + 1 < menuData.options.length) ? menuData.currentSel + 1 : menuData.currentSel;
+    }
+
+    // Next selection
+    else if(keys.enter && !prevKeyState.enter){
+
+    }
+
+    // Go back a selection
+    else if(keys.shift && !prevKeyState.shift){
+
+    }
+  }
 }
 function animateMove(id, up, down, left, right){
 
