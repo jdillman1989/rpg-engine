@@ -25,6 +25,11 @@ function drawMenu(){
 
 function drawOptions(){
   for(var i = 0; i < menuData.options.length; i++){
+    if(menuData.options[i].effects){
+      window[menuData.options[i].effects.func].apply(null, menuData.options[i].effects.data);
+    }
+  }
+  for(var i = 0; i < menuData.options.length; i++){
     canvasWrite(
       menuData.options[i].x, 
       menuData.options[i].y, 
@@ -60,4 +65,18 @@ function drawMenuCursor(){
       thisY = menuData.options[menuData.currentSel].y + (fontSize / 2) + 1;
 
   ctx.fillRect(thisX, thisY, 2, 2);
+}
+
+function statHighlight(color, optionID){
+  ctx.fillStyle = color;
+
+  var thisX = menuData.options[optionID].x,
+      thisY = menuData.options[optionID].y;
+
+  ctx.fillRect(
+    menuData.options[optionID].x,
+    menuData.options[optionID].y,
+    fontCharWidth * 3,
+    fontSize
+  );
 }

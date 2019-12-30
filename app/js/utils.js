@@ -1,3 +1,55 @@
+function getBonusedStats(playerID) {
+  var playerBonuses = stats[0][playerID].experience.bonuses;
+  var statsSorted = Object.keys(playerBonuses).sort(
+    function(a,b){
+      return playerBonuses[a]-playerBonuses[b];
+    }
+  );
+
+  var result = {};
+  result.primary = statsSorted[statsSorted.length - 1];
+  result.secondary = statsSorted[statsSorted.length - 2];
+
+  return result;
+}
+
+function abbrevs(text){
+  switch(text){
+
+    case "Str":
+      return "strength";
+      break;
+
+    case "Agl":
+      return "agility";
+      break;
+
+    case "Int":
+      return "intuition";
+      break;
+
+    case "Foc":
+      return "focus";
+      break;
+
+    case "strength":
+      return "Str";
+      break;
+
+    case "agility":
+      return "Agl";
+      break;
+
+    case "intuition":
+      return "Int";
+      break;
+
+    case "focus":
+      return "Foc";
+      break;
+  };
+}
+
 function canvasWrite(posX, posY, text){
 
   ctx.font = fontSize + "px Courier";

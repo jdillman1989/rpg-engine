@@ -273,6 +273,14 @@ function executeAttack(stackIndex){
 
   var current = battleData.stack[stackIndex];
   var attacks = Object.keys(battleAttackMenu);
+  var targetType = 'players';
+  var attackingStat = battleAttackMenu[attacks[current.action[1]]];
+  if(current.type == 'players'){
+    targetType = 'enemies';
+
+    // Add experience bonuses for using a stat
+    stats[0][current.id].experience.bonuses[attackingStat]++;
+  }
 
   dealPhysicalDamage(
     current.type, 

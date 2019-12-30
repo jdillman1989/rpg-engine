@@ -125,7 +125,7 @@ var stats = {
       focus: 10,
       experience: {
         level: 1,
-        points: 10,
+        points: 0,
         bonuses: {
           strength: 0,
           agility: 0,
@@ -145,7 +145,7 @@ var stats = {
       intuition: 10,
       focus: 10,
       experience: {
-        level: 3,
+        level: 1,
         points: 0,
         bonuses: {
           strength: 0,
@@ -195,8 +195,8 @@ var stats = {
   ]
 }
 
-var baseXP = 100; // 500
-var checkXP = true;
+var baseXP = 500; // 500
+var checkXP = false;
 
 var map = [];
 
@@ -224,3 +224,4 @@ var UISpacing = {
   displayPadding: 3
 };
 var fontSize = 9;
+var fontCharWidth = 6;
