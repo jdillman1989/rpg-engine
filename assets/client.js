@@ -696,12 +696,12 @@ var stats = {
       focus: 10,
       experience: {
         level: 1,
-        points: 10,
+        points: 0,
         bonuses: {
           strength: 0,
-          agility: 9,
+          agility: 0,
           intuition: 0,
-          focus: 10
+          focus: 0
         }
       }
     },
@@ -716,7 +716,7 @@ var stats = {
       intuition: 10,
       focus: 10,
       experience: {
-        level: 3,
+        level: 1,
         points: 0,
         bonuses: {
           strength: 0,
@@ -766,8 +766,8 @@ var stats = {
   ]
 }
 
-var baseXP = 100; // 500
-var checkXP = true;
+var baseXP = 500; // 500
+var checkXP = false;
 
 var map = [];
 
@@ -1108,6 +1108,739 @@ function colorSet(color){
   };
 
   return colorObj;
+}
+function centeredBoxAnimate(step, size, callback, callbackData){
+  step = step + 4;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(
+    (canvas.width / 2) - step, 
+    (canvas.height / 2) - step, 
+    step * 2, 
+    step * 2
+  );
+  ctx.fillStyle = '#225';
+  ctx.fillRect(
+    (canvas.width / 2) - step + UISpacing.displayBorders, 
+    (canvas.height / 2) - step + UISpacing.displayBorders, 
+    (step * 2) - UISpacing.displayBorders, 
+    (step * 2) - UISpacing.displayBorders
+  );
+
+  if(step >= size){
+    window[callback].apply(null, callbackData);
+    return;
+  }
+  else{
+    window.requestAnimationFrame(function(){
+      centeredBoxAnimate(step, size, callback, callbackData);
+    });
+  }
+}
+function drawMenu(){
+
+  ctx.clearRect(
+    (canvas.width / 2) - menuData.size, 
+    (canvas.height / 2) - menuData.size, 
+    menuData.size * 2, 
+    menuData.size * 2
+  );
+
+  var menuText = menuData.head + "\n" + menuData.body;
+  var boxX = (canvas.width / 2) - menuData.size;
+  var boxY = (canvas.height / 2) - menuData.size;
+
+  centeredBox(menuData.size);
+
+  canvasWrite(
+    boxX + UISpacing.displayBorders + UISpacing.displayPadding, 
+    boxY + UISpacing.displayBorders + UISpacing.displayPadding, 
+    menuText
+  );
+
+  drawOptions();
+  drawMenuCursor();
+}
+
+function drawOptions(){
+  for(var i = 0; i < menuData.options.length; i++){
+    if(menuData.options[i].effects){
+      window[menuData.options[i].effects.func].apply(null, menuData.options[i].effects.data);
+    }
+  }
+  for(var i = 0; i < menuData.options.length; i++){
+    canvasWrite(
+      menuData.options[i].x, 
+      menuData.options[i].y, 
+      menuData.options[i].text
+    );
+  }
+}
+
+function centeredBox(size){
+
+  var displaySize = size;
+
+  ctx.fillStyle = '#FFF';
+  ctx.fillRect(
+    (canvas.width / 2) - displaySize, 
+    (canvas.height / 2) - displaySize, 
+    displaySize * 2, 
+    displaySize * 2
+  );
+  ctx.fillStyle = '#225';
+  ctx.fillRect(
+    (canvas.width / 2) - displaySize + UISpacing.displayBorders, 
+    (canvas.height / 2) - displaySize + UISpacing.displayBorders, 
+    (displaySize * 2) - (UISpacing.displayBorders * 2), 
+    (displaySize * 2) - (UISpacing.displayBorders * 2)
+  );
+}
+
+function drawMenuCursor(){
+  ctx.fillStyle = '#F00';
+
+  var thisX = menuData.options[menuData.currentSel].x - 2,
+      thisY = menuData.options[menuData.currentSel].y + (fontSize / 2) + 1;
+
+  ctx.fillRect(thisX, thisY, 2, 2);
+}
+
+function statHighlight(color, optionID){
+  ctx.fillStyle = color;
+
+  var thisX = menuData.options[optionID].x,
+      thisY = menuData.options[optionID].y;
+
+  ctx.fillRect(
+    menuData.options[optionID].x,
+    menuData.options[optionID].y,
+    fontCharWidth * 3,
+    fontSize
+  );
+}
+function xpCheck(){
+  var playerParty = stats[0];
+  for(var i = 0; i < playerParty.length; i++){
+    var levelUp = baseXP * (playerParty[i].experience.level / 10);
+    if(playerParty[i].experience.points >= levelUp){
+      stats[0][i].experience.points = playerParty[i].experience.points - levelUp;
+      screen = 'menu';
+      centeredBoxAnimate(0, 48, 'levelUpUI', [i]);
+    }
+  }
+}
+
+function recalcMaxHP(statsID){
+  stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
+}
+
+function levelUpUI(statsID){
+  var statPointsOnLvl = (Math.floor(stats[0][statsID].experience.level / 2) < 2) ? 2 : Math.floor(stats[0][statsID].experience.level / 2);
+  var boxSize = 50;
+  var pointBonuses = getBonusedStats(statsID);
+
+  menuData = {
+    playerID: statsID,
+    size: boxSize,
+    currentSel: 0,
+    head: stats[0][statsID].name + " levels up!",
+    body: "Points: " + statPointsOnLvl,
+    enter: {
+      func: "xpMenuAdd",
+      data: [0]
+    },
+    shift: {
+      func: "xpMenuSubtract",
+      data: [0]
+    },
+    returnScreen: "overworld",
+    options: [
+      {
+        id: 0,
+        text: "Str:" + stats[0][statsID].strength + "+0",
+        x: 0,
+        y: 0,
+        effects: false
+      },
+      {
+        id: 1,
+        text: "Agl:" + stats[0][statsID].agility + "+0",
+        x: 0,
+        y: 0,
+        effects: false
+      },
+      {
+        id: 2,
+        text: "Int:" + stats[0][statsID].intuition + "+0",
+        x: 0,
+        y: 0,
+        effects: false
+      },
+      {
+        id: 3,
+        text: "Foc:" + stats[0][statsID].focus + "+0",
+        x: 0,
+        y: 0,
+        effects: false
+      }
+    ],
+    extra: pointBonuses
+  };
+
+  var boxX = (canvas.width / 2) - boxSize;
+  var boxY = (canvas.height / 2) - boxSize;
+  var optionsY = boxY + fontSize + UISpacing.displayBorders + (UISpacing.displayPadding * 2);
+  var optionsX = boxX + UISpacing.displayBorders + UISpacing.displayPadding;
+
+  if(menuData.body.length){
+    var lines = menuData.body.split('\n');
+    for (var i = 0; i < lines.length; i++){
+      optionsY += fontSize;
+    }
+  }
+
+  for(var i = 0; i < menuData.options.length; i++){
+
+    var uiBonusedStat = menuData.options[i].text.split(":");
+    var bonusedStat = abbrevs(uiBonusedStat[0]);
+    if(menuData.extra.primary == bonusedStat){
+      menuData.options[i].effects = {
+        func: "statHighlight",
+        data: ["#193", menuData.options[i].id]
+      }
+    }
+    if(menuData.extra.secondary == bonusedStat){
+      menuData.options[i].effects = {
+        func: "statHighlight",
+        data: ["#A05", menuData.options[i].id]
+      }
+    }
+
+    // Calc text placements (2 columns)
+    var row = (i % 2) ? (fontSize * ((i - 1) / 2)) : (fontSize * (i / 2));
+    var col = (i % 2) ? menuData.size : 0;
+
+    menuData.options[i].x = optionsX + col;
+    menuData.options[i].y = optionsY + row;
+  }
+
+  var keyState = JSON.parse(JSON.stringify(keys));
+  menuLoop(keyState);
+}
+
+function menuSelect(prevKeyState){
+
+  if (screen == 'menu') {
+
+    // Cursor up
+    if(keys.up && !prevKeyState.up){
+      menuData.currentSel = (menuData.currentSel - 2 >= 0) ? menuData.currentSel - 2 : menuData.currentSel;
+    }
+
+    // Cursor down
+    else if(keys.down && !prevKeyState.down){
+      menuData.currentSel = (menuData.currentSel + 2 < menuData.options.length) ? menuData.currentSel + 2 : menuData.currentSel;
+    }
+
+    // Cursor left
+    else if(keys.left && !prevKeyState.left){
+      menuData.currentSel = (menuData.currentSel - 1 >= 0) ? menuData.currentSel - 1 : menuData.currentSel;
+    }
+
+    // Cursor right
+    else if(keys.right && !prevKeyState.right){
+      menuData.currentSel = (menuData.currentSel + 1 < menuData.options.length) ? menuData.currentSel + 1 : menuData.currentSel;
+    }
+
+    // Next selection
+    else if(keys.enter && !prevKeyState.enter){
+      window[menuData.enter.func].apply(null, menuData.enter.data);
+    }
+
+    // Go back a selection
+    else if(keys.shift && !prevKeyState.shift){
+      window[menuData.shift.func].apply(null, menuData.shift.data);
+    }
+  }
+}
+
+function xpMenuAdd(data){
+  var uiRemaining = menuData.body.split(": ");
+  var remaining = parseInt(uiRemaining[1]);
+
+  if(remaining){
+    var prevMenuData = JSON.parse(JSON.stringify(menuData));
+    var newRemaining = remaining - 1;
+    var uiAdded = menuData.options[menuData.currentSel].text.split("+");
+    var added = parseInt(uiAdded[1]);
+    var newAdded = added + 1;
+
+    menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
+    menuData.body = uiRemaining[0] + ": " + newRemaining;
+
+    if(!newRemaining){
+      var selections = "";
+      var selectedPoints = [];
+      for(var i = 0; i < menuData.options.length; i++){
+        var uiSelected = menuData.options[i].text.split("+");
+        var selected = parseInt(uiSelected[1]);
+        if(selected){
+          var uiSelectedStat = menuData.options[i].text.split(":");
+          var uiCurrentPoints = uiSelectedStat[1].split("+");
+          var selectedStat = abbrevs(uiSelectedStat[0]);
+
+          // Add Bonus Multiplier
+          var bonusMultiplier = 1;
+          if(menuData.extra.primary == selectedStat){
+            bonusMultiplier = 1.5;
+          }
+          if(menuData.extra.secondary == selectedStat){
+            bonusMultiplier = 1.2;
+          }
+
+          var finalStat = parseInt(uiCurrentPoints[0]) + (Math.ceil(selected * bonusMultiplier));
+          selections += selectedStat + ":" + finalStat + "\n";
+          selectedPoints.push({
+            stat: selectedStat,
+            points: finalStat
+          });
+        }
+      }
+
+      menuData.currentSel = 0;
+      menuData.body = selections;
+      menuData.enter.func = "xpMenuClose";
+      menuData.enter.data = [selectedPoints];
+      menuData.shift.func = "xpMenuReturn";
+      menuData.shift.data = [prevMenuData];
+      menuData.options = [
+        {
+          id: 0,
+          text: "OK",
+          x: (canvas.width / 2) - menuData.size + UISpacing.displayBorders + UISpacing.displayPadding,
+          y: (canvas.height / 2) + menuData.size - UISpacing.displayBorders - UISpacing.displayPadding - (fontSize * 2)
+        }
+      ];
+    }
+  }
+}
+
+function xpMenuSubtract(data){
+  var uiAdded = menuData.options[menuData.currentSel].text.split("+");
+  var added = parseInt(uiAdded[1]);
+
+  if(added){
+    var uiRemaining = menuData.body.split(": ");
+    var remaining = parseInt(uiRemaining[1]);
+    var newRemaining = remaining + 1;
+    var newAdded = added - 1;
+
+    menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
+    menuData.body = uiRemaining[0] + ": " + newRemaining;
+  }
+}
+
+function xpMenuClose(points){
+
+  for(var i = 0; i < points.length; i++){
+    stats[0][menuData.playerID][points[i].stat] = points[i].points;
+  }
+
+  recalcMaxHP(menuData.playerID);
+
+  stats[0][menuData.playerID].experience.level = stats[0][menuData.playerID].experience.level + 1;
+  stats[0][menuData.playerID].experience.bonuses.strength = 0;
+  stats[0][menuData.playerID].experience.bonuses.agility = 0;
+  stats[0][menuData.playerID].experience.bonuses.focus = 0;
+  stats[0][menuData.playerID].experience.bonuses.intuition = 0;
+
+  screen = menuData.returnScreen;
+  menuData = {};
+  overworldLoop();
+}
+
+function xpMenuReturn(prevData){
+  menuData = prevData;
+}
+
+function animateMove(id, up, down, left, right){
+
+  var prevTile = entities[id].tile;
+
+  if(up){
+
+    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
+
+    checkBounding(id, topLeft, topRight, 0, -1, 'speedY', [2,3]);
+  }
+  else if(down){
+
+    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
+
+    checkBounding(id, bottomLeft, bottomRight, 0, 1, 'speedY', [0,1]);
+  }
+  else{
+    entities[id].speedY = 0;
+  }
+
+  if(left){
+
+    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+
+    checkBounding(id, bottomLeft, topLeft, -1, 0, 'speedX', [4,5]);
+  }
+  else if(right){
+
+    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
+    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
+
+    checkBounding(id, bottomRight, topRight, 1, 0, 'speedX', [6,7]);
+  }
+  else{
+    entities[id].speedX = 0;
+  }
+
+  entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
+  map[entities[id].tile].render.object = id;
+  if(entities[id].logic.state){
+    map[entities[id].tile].state = entities[id].logic.state;
+  }
+
+  if(prevTile !== entities[id].tile){
+    map[prevTile].render.object = false;
+    map[prevTile].state = {passable: true};
+  }
+}
+
+function spriteLoop(id, frames, rate){
+  var i = 0;
+  var thisAnim = setInterval(function(){
+
+    entities[id].frame = i;
+    i++;
+    if(i >= frames.length){
+      i = 0;
+    }
+  }, rate);
+}
+
+function setPath(id, path, originPoint, originTime, step){
+
+  if (path[step] != 'wait' && path[step] != 'stop') {
+
+    var destX = Math.abs(entities[id].xy.x - originPoint.x);
+    var destY = Math.abs(entities[id].xy.y - originPoint.y);
+
+    if (destX >= tileSize || destY >= tileSize) {
+
+      step = step + 1;
+      if(step >= path.length){
+        step = 0;
+      }
+
+      originPoint = JSON.parse(JSON.stringify(entities[id].xy));
+      clearInterval(entities[id].interval);
+      entities[id].interval = 0;
+    }
+  }
+  else{
+    originTime = originTime + 1;
+    if(originTime == 60){
+      originTime = 0;
+      step = step + 1;
+      if(step >= path.length){
+        step = 0;
+      }
+      clearInterval(entities[id].interval);
+      entities[id].interval = 0;
+    }
+  }
+
+  switch(path[step]) {
+
+    case 'up':
+      entities[id].dir.up = true;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break;
+
+    case 'down':
+      entities[id].dir.up = false;
+      entities[id].dir.down = true;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break;
+
+    case 'left':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = true;
+      entities[id].dir.right = false;
+      break;
+
+    case 'right':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = true;
+      break;
+
+    case 'wait':
+      entities[id].dir.up = false;
+      entities[id].dir.down = false;
+      entities[id].dir.left = false;
+      entities[id].dir.right = false;
+      break
+
+    case 'stop':
+      return;
+      break
+  };
+
+  window.requestAnimationFrame(function(){
+    setPath(id, path, originPoint, originTime, step);
+  });
+}
+
+function walkLoop(id, frames){
+
+  var i = 1;
+
+  if(entities[id].interval == 0){
+
+    entities[id].frame = frames[0];
+    entities[id].interval = setInterval(function(){
+      entities[id].frame = frames[i];
+      i++;
+      if(i >= frames.length){
+        i = 0;
+      }
+    }, 200);
+  }
+}
+
+function drawGame(map){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  var tileObjData = [];
+
+  for(var y = 0; y < mapH; ++y){
+    for(var x = 0; x < mapW; ++x){
+
+      var currentPos = ((y*mapW)+x);
+
+      ctx.fillStyle = map[currentPos].render.base;
+
+      var thisObj = map[currentPos].render.object;
+
+      if(thisObj !== false){
+
+        ctx.fillStyle = '#00F';
+
+        thisObj = entities[thisObj];
+        var originX = (x*tileSize);
+        var originY = ((y*tileSize) + tileSize) - thisObj.sprite.height;
+        if(thisObj.type == 'mobile'){
+          originX = thisObj.xy.x;
+          originY = thisObj.xy.y;
+        }
+        tileObjData.push(
+          {
+            id: thisObj.id,
+            type: thisObj.type,
+            originX: originX, 
+            originY: originY, 
+            width: thisObj.sprite.width, 
+            height: thisObj.sprite.height,
+            render: thisObj.sprite.render[thisObj.frame]
+          }
+        );
+      }
+
+      if(currentPos == entities[0].tile){
+        ctx.fillStyle = '#FF0';
+      }
+
+      ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
+
+    }
+  }
+
+  for(var i = 0; i < tileObjData.length; ++i){
+    if(tileObjData[i].type == 'mobile'){
+      drawEntity(tileObjData[i].id, tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
+    }
+    else{
+      drawSprite(tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
+    }
+  }
+}
+
+function drawSprite(posX, posY, sizeX, sizeY, thisSprite){
+  var k = 0;
+
+  for(var y = posY; y < posY + sizeY; ++y){
+    for(var x = posX; x < posX + sizeX; ++x){
+
+      if(thisSprite[k]){
+        ctx.fillStyle = thisSprite[k];
+        ctx.fillRect(x, y, 1, 1);
+      }
+      k++;
+    }
+  }
+}
+
+function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
+
+  var offX = posX + entities[id].speedX;
+  var offY = posY + entities[id].speedY;
+
+  drawSprite(offX, offY + sizeX - sizeY, sizeX, sizeY, thisSprite);
+
+  entities[id].xy.x = offX;
+  entities[id].xy.y = offY;
+}
+
+function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
+
+  var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
+  var tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
+
+  if(
+    !tileA.state.passable || 
+    !tileB.state.passable
+  ){
+    entities[id][axis] = 0;
+  }
+
+  else if(
+    !id && (
+      tileA.state.battle || 
+      tileB.state.battle
+    )
+  ){
+    entities[id][axis] = 0;
+
+    var players = stats[0];
+    var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
+    var enemiesID = tileA.render.object ? tileA.render.object : tileB.render.object;
+
+    battleIntro(0);
+    battleDataInit(players, enemies, enemiesID);
+  }
+
+  else{
+    entities[id][axis] = xPolarity ? xPolarity : yPolarity;
+    walkLoop(id, loop);
+  }
+}
+
+function tileToCoords(tile){
+
+  var yIndex = Math.floor(tile / mapW);
+  var xIndex = tile - (yIndex * mapW);
+
+  var y = yIndex * tileSize;
+  var x = xIndex * tileSize;
+  return {x:x, y:y};
+}
+
+function coordsToTile(x, y){
+
+  var tile = ((Math.floor(y / tileSize)) * mapW) + (Math.floor(x / tileSize));
+  return tile;
+}
+
+function adjacentTiles(tile){
+
+  var obj = { "far":{}, "close":{}, "all":{} };
+
+  var adj = {
+    nw: (tile - (mapW + 1)),
+    ne: (tile - (mapW - 1)),
+    sw: (tile + (mapW - 1)),
+    se: (tile + (mapW + 1)),
+    n: (tile - mapW),
+    e: (tile - 1),
+    w: (tile + 1),
+    s: (tile + mapW)
+  };
+
+  var bounds = Object.values(adj);
+  var dir = Object.keys(adj);
+
+  for (var i = 0; i < bounds.length; i++) {
+    if (bounds[i] > -1 && bounds[i] <= (mapW * mapH)) {
+      if (dir[i].length > 1) {
+        obj["far"][dir[i]] = bounds[i];
+      }
+      else{
+        obj["close"][dir[i]] = bounds[i];
+      }
+      obj["all"][dir[i]] = bounds[i];
+    }
+  }
+
+  return obj;
+}
+
+function testMap(){
+  for(var i = 0; i < (mapH * mapW); ++i){
+
+    // Edges
+
+    if (
+      // top
+      i < mapW || 
+      // left
+      (i % mapW) == 0 || 
+      // right
+      ((i + 1) % mapW) == 0 || 
+      // bottom
+      i > ((mapW * mapH) - mapW)
+    ) {
+
+      map.push(
+        {
+          id: i,
+          render: {
+            base: '#D35',
+            object: false,
+            sprite: false
+          },
+          state: {
+            passable: false
+          }
+        },
+      );
+
+    }
+    else{
+
+      // Grass
+
+      map.push(
+        {
+          id: i,
+          render: {
+            base: '#0C3',
+            object: false,
+            sprite: false
+          },
+          state: {
+            passable: true
+          }
+        },
+      );
+
+    }
+  }
 }
 function battleIntro(step){
 
@@ -1759,734 +2492,4 @@ function xpEarned(){
     battleXP += battleData.enemies[i].maxHP;
   }
   return battleXP;
-}
-
-function centeredBoxAnimate(step, size, callback, callbackData){
-  step = step + 4;
-
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(
-    (canvas.width / 2) - step, 
-    (canvas.height / 2) - step, 
-    step * 2, 
-    step * 2
-  );
-  ctx.fillStyle = '#225';
-  ctx.fillRect(
-    (canvas.width / 2) - step + UISpacing.displayBorders, 
-    (canvas.height / 2) - step + UISpacing.displayBorders, 
-    (step * 2) - UISpacing.displayBorders, 
-    (step * 2) - UISpacing.displayBorders
-  );
-
-  if(step >= size){
-    window[callback].apply(null, callbackData);
-    return;
-  }
-  else{
-    window.requestAnimationFrame(function(){
-      centeredBoxAnimate(step, size, callback, callbackData);
-    });
-  }
-}
-function drawMenu(){
-
-  ctx.clearRect(
-    (canvas.width / 2) - menuData.size, 
-    (canvas.height / 2) - menuData.size, 
-    menuData.size * 2, 
-    menuData.size * 2
-  );
-
-  var menuText = menuData.head + "\n" + menuData.body;
-  var boxX = (canvas.width / 2) - menuData.size;
-  var boxY = (canvas.height / 2) - menuData.size;
-
-  centeredBox(menuData.size);
-
-  canvasWrite(
-    boxX + UISpacing.displayBorders + UISpacing.displayPadding, 
-    boxY + UISpacing.displayBorders + UISpacing.displayPadding, 
-    menuText
-  );
-
-  drawOptions();
-  drawMenuCursor();
-}
-
-function drawOptions(){
-  for(var i = 0; i < menuData.options.length; i++){
-    if(menuData.options[i].effects){
-      window[menuData.options[i].effects.func].apply(null, menuData.options[i].effects.data);
-    }
-  }
-  for(var i = 0; i < menuData.options.length; i++){
-    canvasWrite(
-      menuData.options[i].x, 
-      menuData.options[i].y, 
-      menuData.options[i].text
-    );
-  }
-}
-
-function centeredBox(size){
-
-  var displaySize = size;
-
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(
-    (canvas.width / 2) - displaySize, 
-    (canvas.height / 2) - displaySize, 
-    displaySize * 2, 
-    displaySize * 2
-  );
-  ctx.fillStyle = '#225';
-  ctx.fillRect(
-    (canvas.width / 2) - displaySize + UISpacing.displayBorders, 
-    (canvas.height / 2) - displaySize + UISpacing.displayBorders, 
-    (displaySize * 2) - (UISpacing.displayBorders * 2), 
-    (displaySize * 2) - (UISpacing.displayBorders * 2)
-  );
-}
-
-function drawMenuCursor(){
-  ctx.fillStyle = '#F00';
-
-  var thisX = menuData.options[menuData.currentSel].x - 2,
-      thisY = menuData.options[menuData.currentSel].y + (fontSize / 2) + 1;
-
-  ctx.fillRect(thisX, thisY, 2, 2);
-}
-
-function statHighlight(color, optionID){
-  ctx.fillStyle = color;
-
-  var thisX = menuData.options[optionID].x,
-      thisY = menuData.options[optionID].y;
-
-  ctx.fillRect(
-    menuData.options[optionID].x,
-    menuData.options[optionID].y,
-    fontCharWidth * 3,
-    fontSize
-  );
-}
-function xpCheck(){
-  var playerParty = stats[0];
-  for(var i = 0; i < playerParty.length; i++){
-    var levelUp = baseXP * (playerParty[i].experience.level / 10);
-    if(playerParty[i].experience.points >= levelUp){
-      stats[0][i].experience.points = playerParty[i].experience.points - levelUp;
-      screen = 'menu';
-      centeredBoxAnimate(0, 48, 'levelUpUI', [i]);
-    }
-  }
-}
-
-function recalcMaxHP(statsID){
-  stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
-}
-
-function levelUpUI(statsID){
-  var statPointsOnLvl = (Math.floor(stats[0][statsID].experience.level / 2) < 2) ? 2 : Math.floor(stats[0][statsID].experience.level / 2);
-  var boxSize = 50;
-  var pointBonuses = getBonusedStats(statsID);
-
-  menuData = {
-    playerID: statsID,
-    size: boxSize,
-    currentSel: 0,
-    head: stats[0][statsID].name + " levels up!",
-    body: "Points: " + statPointsOnLvl,
-    enter: {
-      func: "xpMenuAdd",
-      data: [0]
-    },
-    shift: {
-      func: "xpMenuSubtract",
-      data: [0]
-    },
-    returnScreen: "overworld",
-    options: [
-      {
-        id: 0,
-        text: "Str:" + stats[0][statsID].strength + "+0",
-        x: 0,
-        y: 0,
-        effects: false
-      },
-      {
-        id: 1,
-        text: "Agl:" + stats[0][statsID].agility + "+0",
-        x: 0,
-        y: 0,
-        effects: false
-      },
-      {
-        id: 2,
-        text: "Int:" + stats[0][statsID].intuition + "+0",
-        x: 0,
-        y: 0,
-        effects: false
-      },
-      {
-        id: 3,
-        text: "Foc:" + stats[0][statsID].focus + "+0",
-        x: 0,
-        y: 0,
-        effects: false
-      }
-    ],
-    extra: pointBonuses
-  };
-
-  var boxX = (canvas.width / 2) - boxSize;
-  var boxY = (canvas.height / 2) - boxSize;
-  var optionsY = boxY + fontSize + UISpacing.displayBorders + (UISpacing.displayPadding * 2);
-  var optionsX = boxX + UISpacing.displayBorders + UISpacing.displayPadding;
-
-  if(menuData.body.length){
-    var lines = menuData.body.split('\n');
-    for (var i = 0; i < lines.length; i++){
-      optionsY += fontSize;
-    }
-  }
-
-  for(var i = 0; i < menuData.options.length; i++){
-
-    var uiBonusedStat = menuData.options[i].text.split(":");
-    var bonusedStat = abbrevs(uiBonusedStat[0]);
-    if(menuData.extra.primary == bonusedStat){
-      menuData.options[i].effects = {
-        func: "statHighlight",
-        data: ["#193", menuData.options[i].id]
-      }
-    }
-    if(menuData.extra.secondary == bonusedStat){
-      menuData.options[i].effects = {
-        func: "statHighlight",
-        data: ["#A05", menuData.options[i].id]
-      }
-    }
-
-    // Calc text placements (2 columns)
-    var row = (i % 2) ? (fontSize * ((i - 1) / 2)) : (fontSize * (i / 2));
-    var col = (i % 2) ? menuData.size : 0;
-
-    menuData.options[i].x = optionsX + col;
-    menuData.options[i].y = optionsY + row;
-  }
-
-  var keyState = JSON.parse(JSON.stringify(keys));
-  menuLoop(keyState);
-}
-
-function menuSelect(prevKeyState){
-
-  if (screen == 'menu') {
-
-    // Cursor up
-    if(keys.up && !prevKeyState.up){
-      menuData.currentSel = (menuData.currentSel - 2 >= 0) ? menuData.currentSel - 2 : menuData.currentSel;
-    }
-
-    // Cursor down
-    else if(keys.down && !prevKeyState.down){
-      menuData.currentSel = (menuData.currentSel + 2 < menuData.options.length) ? menuData.currentSel + 2 : menuData.currentSel;
-    }
-
-    // Cursor left
-    else if(keys.left && !prevKeyState.left){
-      menuData.currentSel = (menuData.currentSel - 1 >= 0) ? menuData.currentSel - 1 : menuData.currentSel;
-    }
-
-    // Cursor right
-    else if(keys.right && !prevKeyState.right){
-      menuData.currentSel = (menuData.currentSel + 1 < menuData.options.length) ? menuData.currentSel + 1 : menuData.currentSel;
-    }
-
-    // Next selection
-    else if(keys.enter && !prevKeyState.enter){
-      window[menuData.enter.func].apply(null, menuData.enter.data);
-    }
-
-    // Go back a selection
-    else if(keys.shift && !prevKeyState.shift){
-      window[menuData.shift.func].apply(null, menuData.shift.data);
-    }
-  }
-}
-
-function xpMenuAdd(data){
-  var uiRemaining = menuData.body.split(": ");
-  var remaining = parseInt(uiRemaining[1]);
-
-  if(remaining){
-    var prevMenuData = JSON.parse(JSON.stringify(menuData));
-    var newRemaining = remaining - 1;
-    var uiAdded = menuData.options[menuData.currentSel].text.split("+");
-    var added = parseInt(uiAdded[1]);
-    var newAdded = added + 1;
-
-    menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
-    menuData.body = uiRemaining[0] + ": " + newRemaining;
-
-    if(!newRemaining){
-      var selections = "";
-      var selectedPoints = [];
-      for(var i = 0; i < menuData.options.length; i++){
-        var uiSelected = menuData.options[i].text.split("+");
-        var selected = parseInt(uiSelected[1]);
-        if(selected){
-          var uiSelectedStat = menuData.options[i].text.split(":");
-          var uiCurrentPoints = uiSelectedStat[1].split("+");
-          var selectedStat = abbrevs(uiSelectedStat[0]);
-
-          // Add Bonus Multiplier
-          var bonusMultiplier = 1;
-          if(menuData.extra.primary == selectedStat){
-            bonusMultiplier = 1.5;
-          }
-          if(menuData.extra.secondary == selectedStat){
-            bonusMultiplier = 1.2;
-          }
-
-          var finalStat = parseInt(uiCurrentPoints[0]) + (Math.ceil(selected * bonusMultiplier));
-          selections += selectedStat + ":" + finalStat + "\n";
-          selectedPoints.push({
-            stat: selectedStat,
-            points: finalStat
-          });
-        }
-      }
-
-      menuData.currentSel = 0;
-      menuData.body = selections;
-      menuData.enter.func = "xpMenuClose";
-      menuData.enter.data = [selectedPoints];
-      menuData.shift.func = "xpMenuReturn";
-      menuData.shift.data = [prevMenuData];
-      menuData.options = [
-        {
-          id: 0,
-          text: "OK",
-          x: (canvas.width / 2) - menuData.size + UISpacing.displayBorders + UISpacing.displayPadding,
-          y: (canvas.height / 2) + menuData.size - UISpacing.displayBorders - UISpacing.displayPadding - (fontSize * 2)
-        }
-      ];
-    }
-  }
-}
-
-function xpMenuSubtract(data){
-  var uiAdded = menuData.options[menuData.currentSel].text.split("+");
-  var added = parseInt(uiAdded[1]);
-
-  if(added){
-    var uiRemaining = menuData.body.split(": ");
-    var remaining = parseInt(uiRemaining[1]);
-    var newRemaining = remaining + 1;
-    var newAdded = added - 1;
-
-    menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
-    menuData.body = uiRemaining[0] + ": " + newRemaining;
-  }
-}
-
-function xpMenuClose(points){
-
-  for(var i = 0; i < points.length; i++){
-    stats[0][menuData.playerID][points[i].stat] = points[i].points;
-  }
-
-  recalcMaxHP(menuData.playerID);
-
-  stats[0][menuData.playerID].experience.level = stats[0][menuData.playerID].experience.level + 1;
-
-  screen = menuData.returnScreen;
-  menuData = {};
-  overworldLoop();
-}
-
-function xpMenuReturn(prevData){
-  menuData = prevData;
-}
-
-function animateMove(id, up, down, left, right){
-
-  var prevTile = entities[id].tile;
-
-  if(up){
-
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, topLeft, topRight, 0, -1, 'speedY', [2,3]);
-  }
-  else if(down){
-
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-
-    checkBounding(id, bottomLeft, bottomRight, 0, 1, 'speedY', [0,1]);
-  }
-  else{
-    entities[id].speedY = 0;
-  }
-
-  if(left){
-
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
-
-    checkBounding(id, bottomLeft, topLeft, -1, 0, 'speedX', [4,5]);
-  }
-  else if(right){
-
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, bottomRight, topRight, 1, 0, 'speedX', [6,7]);
-  }
-  else{
-    entities[id].speedX = 0;
-  }
-
-  entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
-  map[entities[id].tile].render.object = id;
-  if(entities[id].logic.state){
-    map[entities[id].tile].state = entities[id].logic.state;
-  }
-
-  if(prevTile !== entities[id].tile){
-    map[prevTile].render.object = false;
-    map[prevTile].state = {passable: true};
-  }
-}
-
-function spriteLoop(id, frames, rate){
-  var i = 0;
-  var thisAnim = setInterval(function(){
-
-    entities[id].frame = i;
-    i++;
-    if(i >= frames.length){
-      i = 0;
-    }
-  }, rate);
-}
-
-function setPath(id, path, originPoint, originTime, step){
-
-  if (path[step] != 'wait' && path[step] != 'stop') {
-
-    var destX = Math.abs(entities[id].xy.x - originPoint.x);
-    var destY = Math.abs(entities[id].xy.y - originPoint.y);
-
-    if (destX >= tileSize || destY >= tileSize) {
-
-      step = step + 1;
-      if(step >= path.length){
-        step = 0;
-      }
-
-      originPoint = JSON.parse(JSON.stringify(entities[id].xy));
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
-    }
-  }
-  else{
-    originTime = originTime + 1;
-    if(originTime == 60){
-      originTime = 0;
-      step = step + 1;
-      if(step >= path.length){
-        step = 0;
-      }
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
-    }
-  }
-
-  switch(path[step]) {
-
-    case 'up':
-      entities[id].dir.up = true;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case 'down':
-      entities[id].dir.up = false;
-      entities[id].dir.down = true;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case 'left':
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = true;
-      entities[id].dir.right = false;
-      break;
-
-    case 'right':
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = true;
-      break;
-
-    case 'wait':
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break
-
-    case 'stop':
-      return;
-      break
-  };
-
-  window.requestAnimationFrame(function(){
-    setPath(id, path, originPoint, originTime, step);
-  });
-}
-
-function walkLoop(id, frames){
-
-  var i = 1;
-
-  if(entities[id].interval == 0){
-
-    entities[id].frame = frames[0];
-    entities[id].interval = setInterval(function(){
-      entities[id].frame = frames[i];
-      i++;
-      if(i >= frames.length){
-        i = 0;
-      }
-    }, 200);
-  }
-}
-
-function drawGame(map){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  var tileObjData = [];
-
-  for(var y = 0; y < mapH; ++y){
-    for(var x = 0; x < mapW; ++x){
-
-      var currentPos = ((y*mapW)+x);
-
-      ctx.fillStyle = map[currentPos].render.base;
-
-      var thisObj = map[currentPos].render.object;
-
-      if(thisObj !== false){
-
-        ctx.fillStyle = '#00F';
-
-        thisObj = entities[thisObj];
-        var originX = (x*tileSize);
-        var originY = ((y*tileSize) + tileSize) - thisObj.sprite.height;
-        if(thisObj.type == 'mobile'){
-          originX = thisObj.xy.x;
-          originY = thisObj.xy.y;
-        }
-        tileObjData.push(
-          {
-            id: thisObj.id,
-            type: thisObj.type,
-            originX: originX, 
-            originY: originY, 
-            width: thisObj.sprite.width, 
-            height: thisObj.sprite.height,
-            render: thisObj.sprite.render[thisObj.frame]
-          }
-        );
-      }
-
-      if(currentPos == entities[0].tile){
-        ctx.fillStyle = '#FF0';
-      }
-
-      ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
-
-    }
-  }
-
-  for(var i = 0; i < tileObjData.length; ++i){
-    if(tileObjData[i].type == 'mobile'){
-      drawEntity(tileObjData[i].id, tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
-    }
-    else{
-      drawSprite(tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
-    }
-  }
-}
-
-function drawSprite(posX, posY, sizeX, sizeY, thisSprite){
-  var k = 0;
-
-  for(var y = posY; y < posY + sizeY; ++y){
-    for(var x = posX; x < posX + sizeX; ++x){
-
-      if(thisSprite[k]){
-        ctx.fillStyle = thisSprite[k];
-        ctx.fillRect(x, y, 1, 1);
-      }
-      k++;
-    }
-  }
-}
-
-function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
-
-  var offX = posX + entities[id].speedX;
-  var offY = posY + entities[id].speedY;
-
-  drawSprite(offX, offY + sizeX - sizeY, sizeX, sizeY, thisSprite);
-
-  entities[id].xy.x = offX;
-  entities[id].xy.y = offY;
-}
-
-function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
-
-  var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
-  var tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
-
-  if(
-    !tileA.state.passable || 
-    !tileB.state.passable
-  ){
-    entities[id][axis] = 0;
-  }
-
-  else if(
-    !id && (
-      tileA.state.battle || 
-      tileB.state.battle
-    )
-  ){
-    entities[id][axis] = 0;
-
-    var players = stats[0];
-    var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
-    var enemiesID = tileA.render.object ? tileA.render.object : tileB.render.object;
-
-    battleIntro(0);
-    battleDataInit(players, enemies, enemiesID);
-  }
-
-  else{
-    entities[id][axis] = xPolarity ? xPolarity : yPolarity;
-    walkLoop(id, loop);
-  }
-}
-
-function tileToCoords(tile){
-
-  var yIndex = Math.floor(tile / mapW);
-  var xIndex = tile - (yIndex * mapW);
-
-  var y = yIndex * tileSize;
-  var x = xIndex * tileSize;
-  return {x:x, y:y};
-}
-
-function coordsToTile(x, y){
-
-  var tile = ((Math.floor(y / tileSize)) * mapW) + (Math.floor(x / tileSize));
-  return tile;
-}
-
-function adjacentTiles(tile){
-
-  var obj = { "far":{}, "close":{}, "all":{} };
-
-  var adj = {
-    nw: (tile - (mapW + 1)),
-    ne: (tile - (mapW - 1)),
-    sw: (tile + (mapW - 1)),
-    se: (tile + (mapW + 1)),
-    n: (tile - mapW),
-    e: (tile - 1),
-    w: (tile + 1),
-    s: (tile + mapW)
-  };
-
-  var bounds = Object.values(adj);
-  var dir = Object.keys(adj);
-
-  for (var i = 0; i < bounds.length; i++) {
-    if (bounds[i] > -1 && bounds[i] <= (mapW * mapH)) {
-      if (dir[i].length > 1) {
-        obj["far"][dir[i]] = bounds[i];
-      }
-      else{
-        obj["close"][dir[i]] = bounds[i];
-      }
-      obj["all"][dir[i]] = bounds[i];
-    }
-  }
-
-  return obj;
-}
-
-function testMap(){
-  for(var i = 0; i < (mapH * mapW); ++i){
-
-    // Edges
-
-    if (
-      // top
-      i < mapW || 
-      // left
-      (i % mapW) == 0 || 
-      // right
-      ((i + 1) % mapW) == 0 || 
-      // bottom
-      i > ((mapW * mapH) - mapW)
-    ) {
-
-      map.push(
-        {
-          id: i,
-          render: {
-            base: '#D35',
-            object: false,
-            sprite: false
-          },
-          state: {
-            passable: false
-          }
-        },
-      );
-
-    }
-    else{
-
-      // Grass
-
-      map.push(
-        {
-          id: i,
-          render: {
-            base: '#0C3',
-            object: false,
-            sprite: false
-          },
-          state: {
-            passable: true
-          }
-        },
-      );
-
-    }
-  }
 }
