@@ -84,7 +84,10 @@ function entityDataToMap(){
       map[entities[i].tile].render.object = entities[i].id;
 
       if(entities[i].logic){
-        window[entities[i].logic.func].apply(null, entities[i].logic.data);
+
+        if(entities[i].logic.func){
+          window[entities[i].logic.func].apply(null, entities[i].logic.data);
+        }
 
         if(entities[i].logic.state){
           map[entities[i].tile].state = entities[i].logic.state;

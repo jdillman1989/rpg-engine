@@ -38,7 +38,11 @@ var entities = [
     sprite: playerSprite,
     frame: 0,
     interval: 0,
-    logic: false,
+    logic: {
+      func: false,
+      data: false,
+      state: {passable: true, player: true}
+    },
     dir: false
   },
   {

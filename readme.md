@@ -2,20 +2,13 @@
 
 # Phase 1 Basic Game Loop
 
-- Battle System
--- XP system
---- add XP to stats global
---- add level to stats global
---- baseXP = 1000?
---- xpToNextLvl = baseXP * (currentLvl / 10)
---- xpRewarded = total enemies maxHP
---- statPointsOnLvl = (Math.floor(currentLvl / 2) < 2) ? 2 : Math.floor(currentLvl / 2);
-
 - Collision interactions
--- Track when enemy collides with player
 -- Other options for enemy AI
 --- Run and Chase
 --- AI confusion state
+
+- XP system
+-- Fix multiple players levelling in one check
 
 - Character data
 -- Character inventory and equipment tracking
