@@ -16,7 +16,7 @@ const battleIntro = (step) => {
       battleIntro(step);
     });
   }
-}
+};
 
 const battleBg = (step) => {
 
@@ -41,7 +41,7 @@ const battleBg = (step) => {
       battleBg(step);
     });
   }
-}
+};
 
 const battleSet = (step) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -107,12 +107,12 @@ const battleSet = (step) => {
       battleSet(step);
     });
   }
-}
+};
 
 const battleEnd = (step) => {
   screen = 'overworld'; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, 'battleEndText');
-}
+};
 
 const battleEndText = () => {
 
@@ -142,4 +142,4 @@ const battleEndText = () => {
     positionBottomCenter,
     "OK",
   );
-}
+};

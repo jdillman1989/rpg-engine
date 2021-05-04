@@ -1,4 +1,4 @@
-function drawBattle(){
+const drawBattle = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
   drawTopDisplay();
@@ -6,13 +6,13 @@ function drawBattle(){
   drawPlayerBattle();
   drawEnemiesBattle();
   drawBattleCursor();
-}
+};
 
-function drawBattleBG(){
+const drawBattleBG = () => {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-}
+};
 
-function drawTopDisplay(){
+const drawTopDisplay = () => {
 
   // [Jadle 100/100] -> [ATK or target desc]
   var charText = battleData.UI.top.left;
@@ -44,26 +44,26 @@ function drawTopDisplay(){
     UISpacing.displayBorders, 
     descriptionText
   );
-}
+};
 
-function drawBottomDisplay(){
+const drawBottomDisplay = () => {
 
-  var currentPlayer = getCurrentPlayer();
+  const currentPlayer = getCurrentPlayer();
 
-  function drawBottomDisplayTextData(data){
-    var returnData = '';
-    if(data.length){
-      for(var i = 0; i < data.length; ++i){
+  const drawBottomDisplayTextData = (data) => {
+    let returnData = '';
+    if (data.length) {
+      for (let i = 0; i < data.length; ++i) {
         returnData += data.text + '\n';
       }
     }
     return returnData;
-  }
+  };
 
-  var playersText = battleData.UI.bottom[0];
-  var actionText = battleData.UI.bottom[1];
-  var optionsText = battleData.UI.bottom[2];
-  var targetText = battleData.UI.bottom[3];
+  const playersText = battleData.UI.bottom[0];
+  const actionText = battleData.UI.bottom[1];
+  const optionsText = battleData.UI.bottom[2];
+  const targetText = battleData.UI.bottom[3];
 
   // Borders
   ctx.fillStyle = '#FFF';
@@ -121,12 +121,12 @@ function drawBottomDisplay(){
   );
 }
 
-function drawPlayerBattle(){
+const drawPlayerBattle = () => {
 
-  var playerWidth = 20;
+  const playerWidth = 20;
   ctx.fillStyle = '#FFF';
 
-  for(var i = 0; i < battleData.players.length; ++i){
+  for (let i = 0; i < battleData.players.length; ++i) {
     ctx.fillRect(
       -(playerWidth) + 48, 
       (canvas.height / (battleData.players.length + 1)) * (i + 1), 
@@ -134,14 +134,14 @@ function drawPlayerBattle(){
       30
     );
   }
-}
+};
 
-function drawEnemiesBattle(){
+const drawEnemiesBattle = () => {
 
-  var enemyWidth = 20;
+  const enemyWidth = 20;
   ctx.fillStyle = '#000';
 
-  for(var i = 0; i < battleData.enemies.length; ++i){
+  for (let i = 0; i < battleData.enemies.length; ++i) {
     if (battleData.enemies[i].currentHP) {
       ctx.fillRect(
         canvas.width - 48, 
@@ -153,11 +153,11 @@ function drawEnemiesBattle(){
   }
 }
 
-function drawBattleCursor(){
+const drawBattleCursor = () => {
   ctx.fillStyle = '#F00';
 
-  var thisX = UISpacing.displayBorders + ((canvas.width / 4) * battleData.selStage),
-      thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * battleData.selSlot) + (fontSize / 2);
+  const thisX = UISpacing.displayBorders + ((canvas.width / 4) * battleData.selStage);
+  const thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * battleData.selSlot) + (fontSize / 2);
 
   ctx.fillRect(thisX, thisY, 2, 2);
 }
