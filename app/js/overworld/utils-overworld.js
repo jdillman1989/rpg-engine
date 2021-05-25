@@ -6,7 +6,7 @@
 // yPolarity: int that determines how the entity is moving vertically (0, 1, -1)
 // axis: string that corresponds to an obj key from the entity to set it's vertical or horizontal speed ('speedX', or 'speedY')
 // loop: array of ints that determine the sprite frames to pass to walkLoop() for animation
-const checkBounding = (
+var checkBounding = (
   id,
   cornerA,
   cornerB,
@@ -58,7 +58,7 @@ const checkBounding = (
   }
 };
 
-const tileToCoords = (tile) => {
+var tileToCoords = (tile) => {
   const yIndex = Math.floor(tile / mapW);
   const xIndex = tile - yIndex * mapW;
 
@@ -67,12 +67,12 @@ const tileToCoords = (tile) => {
   return { x, y };
 };
 
-const coordsToTile = (x, y) => {
+var coordsToTile = (x, y) => {
   const tile = Math.floor(y / tileSize) * mapW + Math.floor(x / tileSize);
   return tile;
 };
 
-const adjacentTiles = (tile) => {
+var adjacentTiles = (tile) => {
   const obj = { far: {}, close: {}, all: {} };
 
   const adj = {
@@ -103,7 +103,7 @@ const adjacentTiles = (tile) => {
   return obj;
 };
 
-const testMap = () => {
+var testMap = () => {
   for (let i = 0; i < mapH * mapW; ++i) {
     // Edges
 

@@ -1,4 +1,4 @@
-const drawGame = (map) => {
+var drawGame = (map) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const tileObjData = [];
@@ -62,7 +62,7 @@ const drawGame = (map) => {
   }
 };
 
-const drawSprite = (posX, posY, sizeX, sizeY, thisSprite) => {
+var drawSprite = (posX, posY, sizeX, sizeY, thisSprite) => {
   let k = 0;
 
   for (let y = posY; y < posY + sizeY; ++y) {
@@ -76,7 +76,7 @@ const drawSprite = (posX, posY, sizeX, sizeY, thisSprite) => {
   }
 };
 
-const drawEntity = (id, posX, posY, sizeX, sizeY, thisSprite) => {
+var drawEntity = (id, posX, posY, sizeX, sizeY, thisSprite) => {
   const offX = posX + entities[id].speedX;
   const offY = posY + entities[id].speedY;
 

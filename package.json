@@ -1,0 +1,23 @@
+{
+  "name": "rpg-engine",
+  "version": "1.0.0",
+  "description": "Canvas-based RPG game engine",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdillman1989/rpg-engine.git"
+  },
+  "author": "Jesse Dillman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jdillman1989/rpg-engine/issues"
+  },
+  "homepage": "https://github.com/jdillman1989/rpg-engine#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1"
+  }
+}

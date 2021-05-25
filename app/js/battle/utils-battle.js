@@ -1,4 +1,4 @@
-const battleDataInit = (players, enemies, enemiesID) => {
+var battleDataInit = (players, enemies, enemiesID) => {
   const thesePlayersNames = [];
   const thesePlayersHealth = [];
   let currentStack = {};
@@ -66,7 +66,7 @@ const battleDataInit = (players, enemies, enemiesID) => {
   }
 };
 
-const battleSelect = (prevKeyState) => {
+var battleSelect = (prevKeyState) => {
   if (screen == "battle") {
     // Cursor up
     if (keys.up && !prevKeyState.up) {
@@ -174,7 +174,7 @@ const battleSelect = (prevKeyState) => {
   }
 };
 
-const getFirstAvailableSlot = () => {
+var getFirstAvailableSlot = () => {
   for (let i = 0; i < battleData.UI.bottom[battleData.selStage].length; i++) {
     if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
       return i;
@@ -182,7 +182,7 @@ const getFirstAvailableSlot = () => {
   }
 };
 
-const battleTurnStack = (stage, slot, advance) => {
+var battleTurnStack = (stage, slot, advance) => {
   const currentPlayer = getCurrentPlayer();
 
   if (advance) {
@@ -209,7 +209,7 @@ const battleTurnStack = (stage, slot, advance) => {
   }
 };
 
-const initiateTurn = () => {
+var initiateTurn = () => {
   const turnStack = [];
   const playerTargets = [];
 
@@ -257,7 +257,7 @@ const initiateTurn = () => {
   executeTurn();
 };
 
-const executeTurn = () => {
+var executeTurn = () => {
   for (let i = 0; i < battleData.stack.length; ++i) {
     // Does current actor (type and id) have HP
     if (
@@ -283,7 +283,7 @@ const executeTurn = () => {
   battleDataInit(battleData.players, battleData.enemies, battleData.enemiesID);
 };
 
-const executeAttack = (stackIndex) => {
+var executeAttack = (stackIndex) => {
   const current = battleData.stack[stackIndex];
   const attacks = Object.keys(battleAttackMenu);
   let targetType = "players";
@@ -304,7 +304,7 @@ const executeAttack = (stackIndex) => {
   );
 };
 
-const findCharacterStat = (name, stat) => {
+var findCharacterStat = (name, stat) => {
   const battlers = battleData.players.concat(battleData.enemies);
   for (let i = 0; i < battlers.length; i++) {
     if (battlers[i].name == name) {
@@ -320,7 +320,7 @@ const findCharacterStat = (name, stat) => {
 // targetID: int, array index of battleData.{{targetType}}
 // stat: string, object key for atk stat
 
-const dealPhysicalDamage = (
+var dealPhysicalDamage = (
   attackerType,
   attackerID,
   targetType,
@@ -339,7 +339,7 @@ const dealPhysicalDamage = (
       : battleData[targetType][targetID].currentHP - dmgFormula;
 };
 
-const getCurrentPlayer = () => {
+var getCurrentPlayer = () => {
   for (
     let playerIndex = 0;
     playerIndex < battleData.players.length;
@@ -354,7 +354,7 @@ const getCurrentPlayer = () => {
   }
 };
 
-const stopBattle = (win) => {
+var stopBattle = (win) => {
   if (win) {
     delete stats[battleData.enemiesID];
     for (let i = 0; i < entities.length; ++i) {
@@ -377,7 +377,7 @@ const stopBattle = (win) => {
   overworldLoop();
 };
 
-const xpEarned = () => {
+var xpEarned = () => {
   let battleXP = 0;
   for (let i = 0; i < battleData.enemies.length; ++i) {
     battleXP += battleData.enemies[i].maxHP;

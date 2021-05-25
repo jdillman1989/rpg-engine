@@ -1,4 +1,4 @@
-const drawMenu = () => {
+var drawMenu = () => {
   ctx.clearRect(
     canvas.width / 2 - menuData.size,
     canvas.height / 2 - menuData.size,
@@ -22,7 +22,7 @@ const drawMenu = () => {
   drawMenuCursor();
 };
 
-const drawOptions = () => {
+var drawOptions = () => {
   for (let i = 0; i < menuData.options.length; i++) {
     if (menuData.options[i].effects) {
       window[menuData.options[i].effects.func].apply(
@@ -40,7 +40,7 @@ const drawOptions = () => {
   }
 };
 
-const centeredBox = (size) => {
+var centeredBox = (size) => {
   ctx.fillStyle = "#FFF";
   ctx.fillRect(
     canvas.width / 2 - size,
@@ -57,7 +57,7 @@ const centeredBox = (size) => {
   );
 };
 
-const drawMenuCursor = () => {
+var drawMenuCursor = () => {
   ctx.fillStyle = "#F00";
 
   const thisX = menuData.options[menuData.currentSel].x - 2;
@@ -66,7 +66,7 @@ const drawMenuCursor = () => {
   ctx.fillRect(thisX, thisY, 2, 2);
 };
 
-const statHighlight = (color, optionID) => {
+var statHighlight = (color, optionID) => {
   ctx.fillStyle = color;
 
   ctx.fillRect(

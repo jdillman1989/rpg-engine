@@ -1,32 +1,33 @@
 // Black
-var k1 = "#BBBBBB";
-var k2 = "#7C7C7C";
-var k3 = "#000000";
+const k1 = "#BBBBBB";
+const k2 = "#7C7C7C";
+const k3 = "#000000";
 
 // Brown
-var b1 = "#F0A357";
-var b2 = "#D5642E";
-var b3 = "#7D2010";
+const b1 = "#F0A357";
+const b2 = "#D5642E";
+const b3 = "#7D2010";
 
 // Green
-var g1 = "#C6F452";
-var g2 = "#7CD466";
-var g3 = "#49A42F";
+const g1 = "#C6F452";
+const g2 = "#7CD466";
+const g3 = "#49A42F";
 
 // Yellow
-var y1 = "#EFB740";
-var y2 = "#A57D28";
-var y3 = "#4C310B";
+const y1 = "#EFB740";
+const y2 = "#A57D28";
+const y3 = "#4C310B";
 
 // Blue
-var l1 = "#72F8FA";
-var l2 = "#61BBF6";
-var l3 = "#2E7CF0";
+const l1 = "#72F8FA";
+const l2 = "#61BBF6";
+const l3 = "#2E7CF0";
 
 // Red
-var r1 = "#F85998";
-var r2 = "#D12E59";
-var r3 = "#9A1E26";
+const r1 = "#F85998";
+const r2 = "#D12E59";
+const r3 = "#9A1E26";
+
 var enemy = { // 16 x 24
   width: 16,
   height: 24,
@@ -570,38 +571,38 @@ var tree = { // 16 x 32
   ]
 };
 // Canvas Element
-var canvas = null;
+let canvas = null;
 
 // Canvas Draw
-var ctx = null;
+let ctx = null;
 
 // Static Globals
-var tileSize = 16,
-    mapW = 10,
-    mapH = 10;
+const tileSize = 16,
+  mapW = 10,
+  mapH = 10;
 
-var camera = {
+let camera = {
   x: 0,
   y: 0,
   width: 10,
-  height: 10
+  height: 10,
 };
 
-var keys = {
+let keys = {
   up: false,
   down: false,
   left: false,
   right: false,
   enter: false,
-  shift: false
+  shift: false,
 };
 
-var screen = 'overworld';
+let screen = "overworld";
 
-var entities = [
+let entities = [
   {
     id: 0,
-    type: 'mobile',
+    type: "mobile",
     tile: 22,
     xy: tileToCoords(22),
     speedX: 0,
@@ -612,13 +613,13 @@ var entities = [
     logic: {
       func: false,
       data: false,
-      state: {passable: true, player: true}
+      state: { passable: true, player: true },
     },
-    dir: false
+    dir: false,
   },
   {
     id: 1,
-    type: 'static',
+    type: "static",
     tile: 44,
     xy: tileToCoords(44),
     speedX: 0,
@@ -627,15 +628,15 @@ var entities = [
     frame: 0,
     interval: 0,
     logic: {
-      func: 'spriteLoop',
+      func: "spriteLoop",
       data: [1, tree.render, 1000],
-      state: {passable: false}
+      state: { passable: false },
     },
-    dir: false
+    dir: false,
   },
   {
     id: 2,
-    type: 'mobile',
+    type: "mobile",
     tile: 28,
     xy: tileToCoords(28),
     speedX: 0,
@@ -644,15 +645,38 @@ var entities = [
     frame: 0,
     interval: 0,
     logic: {
-      func: 'setPath',
-      data: [2, ['wait', 'down', 'wait', 'down', 'wait', 'left', 'wait', 'left', 'wait', 'up', 'wait', 'up', 'wait', 'right', 'wait', 'right'], tileToCoords(28), 0, 0],
-      state: {passable: true, battle: true}
+      func: "setPath",
+      data: [
+        2,
+        [
+          "wait",
+          "down",
+          "wait",
+          "down",
+          "wait",
+          "left",
+          "wait",
+          "left",
+          "wait",
+          "up",
+          "wait",
+          "up",
+          "wait",
+          "right",
+          "wait",
+          "right",
+        ],
+        tileToCoords(28),
+        0,
+        0,
+      ],
+      state: { passable: true, battle: true },
     },
-    dir: {up:false, down:false, left:false, right:false}
+    dir: { up: false, down: false, left: false, right: false },
   },
   {
     id: 3,
-    type: 'static',
+    type: "static",
     tile: 37,
     xy: tileToCoords(37),
     speedX: 0,
@@ -661,15 +685,15 @@ var entities = [
     frame: 0,
     interval: 0,
     logic: {
-      func: 'spriteLoop',
+      func: "spriteLoop",
       data: [3, tree.render, 1500],
-      state: {passable: false}
+      state: { passable: false },
     },
-    dir: false
+    dir: false,
   },
   {
     id: 4,
-    type: 'mobile',
+    type: "mobile",
     tile: 52,
     xy: tileToCoords(52),
     speedX: 0,
@@ -678,19 +702,19 @@ var entities = [
     frame: 0,
     interval: 0,
     logic: {
-      func: 'setPath',
-      data: [4, ['left', 'wait', 'right', 'wait'], tileToCoords(28), 0, 0],
-      state: {passable: true, battle: true}
+      func: "setPath",
+      data: [4, ["left", "wait", "right", "wait"], tileToCoords(28), 0, 0],
+      state: { passable: true, battle: true },
     },
-    dir: {up:false, down:false, left:false, right:false}
-  }
+    dir: { up: false, down: false, left: false, right: false },
+  },
 ];
 
-var stats = {
+let stats = {
   0: [
     {
       id: 0,
-      name: 'Jadle',
+      name: "Jadle",
       stance: 0,
       maxHP: 30,
       currentHP: 30,
@@ -705,13 +729,13 @@ var stats = {
           strength: 0,
           agility: 0,
           intuition: 0,
-          focus: 0
-        }
-      }
+          focus: 0,
+        },
+      },
     },
     {
       id: 1,
-      name: 'Idle',
+      name: "Idle",
       stance: 0,
       maxHP: 30,
       currentHP: 30,
@@ -726,218 +750,215 @@ var stats = {
           strength: 0,
           agility: 0,
           intuition: 0,
-          focus: 0
-        }
-      }
-    }
+          focus: 0,
+        },
+      },
+    },
   ],
   2: [
     {
       id: 0,
-      name: 'Imp 1',
+      name: "Imp 1",
       stance: 0,
       maxHP: 5,
       currentHP: 5,
       strength: 7,
       agility: 8,
       intuition: 3,
-      focus: 3
+      focus: 3,
     },
     {
       id: 1,
-      name: 'Imp 2',
+      name: "Imp 2",
       stance: 0,
       maxHP: 5,
       currentHP: 5,
       strength: 7,
       agility: 7,
       intuition: 3,
-      focus: 3
-    }
+      focus: 3,
+    },
   ],
   4: [
     {
       id: 0,
-      name: 'Imp',
+      name: "Imp",
       stance: 0,
       maxHP: 10,
       currentHP: 10,
       strength: 7,
       agility: 12,
       intuition: 3,
-      focus: 3
-    }
-  ]
-}
-
-var baseXP = 500; // 500
-var checkXP = false;
-
-var map = [];
-
-var img;
-
-var times = [];
-var fps;
-
-var battleData = {};
-var battleAttackMenu = {
-  'Aggressive': 'strength',
-  'Fancy': 'agility', 
-  'Precise': 'intuition'
-};
-var battleDefenseMenu = {
-  'Defend': 'self',
-  'Escape': 'allies'
+      focus: 3,
+    },
+  ],
 };
 
-var menuData = {};
+const baseXP = 500; // 500
+let checkXP = false;
 
-var UISpacing = {
+let map = [];
+
+let img;
+
+let times = [];
+let fps;
+
+let battleData = {};
+const battleAttackMenu = {
+  Aggressive: "strength",
+  Fancy: "agility",
+  Precise: "intuition",
+};
+const battleDefenseMenu = {
+  Defend: "self",
+  Escape: "allies",
+};
+
+let menuData = {};
+
+const UISpacing = {
   displayBorders: 1,
   displayHeight: 32,
-  displayPadding: 3
+  displayPadding: 3,
 };
-var fontSize = 9;
-var fontCharWidth = 6;
+const fontSize = 9;
+const fontCharWidth = 6;
 
-window.onload = function(){
-
+window.onload = () => {
   testMap();
-  
-  canvas = document.getElementById('save');
+
+  canvas = document.getElementById("save");
   ctx = canvas.getContext("2d");
 
-  window.onkeydown = function(e) {
-    switch(e.which) {
-
+  window.onkeydown = (e) => {
+    switch (e.which) {
       case 87: // W
-        keysState('up', true);
+        keysState("up", true);
         break;
 
       case 65: // A
-        keysState('left', true);
+        keysState("left", true);
         break;
 
       case 83: // S
-        keysState('down', true);
+        keysState("down", true);
         break;
 
       case 68: // D
-        keysState('right', true);
+        keysState("right", true);
         break;
 
       case 13: // Enter
-        keysState('enter', true);
+        keysState("enter", true);
         break;
 
       case 16: // Shift
-        keysState('shift', true);
+        keysState("shift", true);
         break;
-    };
+    }
   };
 
-  window.onkeyup = function(e) {
-    switch(e.which) {
-
+  window.onkeyup = (e) => {
+    switch (e.which) {
       case 87: // W
-        keysState('up', false);
+        keysState("up", false);
         break;
 
       case 65: // A
-        keysState('left', false);
+        keysState("left", false);
         break;
 
       case 83: // S
-        keysState('down', false);
+        keysState("down", false);
         break;
 
       case 68: // D
-        keysState('right', false);
+        keysState("right", false);
         break;
 
       case 13: // Enter
-        keysState('enter', false);
+        keysState("enter", false);
         break;
 
       case 16: // Shift
-        keysState('shift', false);
+        keysState("shift", false);
         break;
-    };
+    }
   };
 
   entityDataToMap();
 
-  img = document.createElement('img');
-  img.src = '/rpg-engine/assets/images/bg.png';
+  img = document.createElement("img");
+  img.src = "/rpg-engine/assets/images/bg.png";
 
-  window.requestAnimationFrame(function(){
+  window.requestAnimationFrame(() => {
     overworldLoop();
   });
 
-  var fpsMonitor = setInterval(function(){
-    document.getElementById('message').innerHTML = fps;
+  const fpsMonitor = setInterval(() => {
+    document.getElementById("message").innerHTML = fps;
   }, 700);
 };
 
-function entityDataToMap(){
-  for(var i = 0; i < entities.length; ++i){
-
-    if(entities[i].type){
+var entityDataToMap = () => {
+  for (let i = 0; i < entities.length; ++i) {
+    if (entities[i].type) {
       map[entities[i].tile].render.object = entities[i].id;
 
-      if(entities[i].logic){
-
-        if(entities[i].logic.func){
+      if (entities[i].logic) {
+        if (entities[i].logic.func) {
           window[entities[i].logic.func].apply(null, entities[i].logic.data);
         }
 
-        if(entities[i].logic.state){
+        if (entities[i].logic.state) {
           map[entities[i].tile].state = entities[i].logic.state;
         }
       }
-    }
-    else {
+    } else {
       map[entities[i].tile].render.object = false;
-      map[entities[i].tile].state = {passable: true};
+      map[entities[i].tile].state = { passable: true };
     }
   }
-}
+};
 
-function keysState(key, down){
-  if(down){
+var keysState = (key, down) => {
+  if (down) {
     keys[key] = true;
-  }
-  else{
+  } else {
     keys[key] = false;
 
-    if(screen == 'overworld'){
+    if (screen == "overworld") {
       clearInterval(entities[0].interval);
       entities[0].interval = 0;
     }
   }
-}
+};
 
-function overworldLoop(){
-
-  if (screen == 'overworld') {
+var overworldLoop = () => {
+  if (screen == "overworld") {
     drawGame(map);
 
     animateMove(0, keys.up, keys.down, keys.left, keys.right);
 
-    for(var i = 0; i < entities.length; ++i){
-      if(i && entities[i].type == 'mobile'){
-        animateMove(i, entities[i].dir.up, entities[i].dir.down, entities[i].dir.left, entities[i].dir.right);
+    for (let i = 0; i < entities.length; ++i) {
+      if (i && entities[i].type == "mobile") {
+        animateMove(
+          i,
+          entities[i].dir.up,
+          entities[i].dir.down,
+          entities[i].dir.left,
+          entities[i].dir.right
+        );
       }
     }
 
-    if(checkXP){
+    if (checkXP) {
       xpCheck();
       checkXP = false;
     }
 
-    window.requestAnimationFrame(function(){
-
+    window.requestAnimationFrame(() => {
       var now = performance.now();
       while (times.length > 0 && times[0] <= now - 1000) {
         times.shift();
@@ -948,19 +969,17 @@ function overworldLoop(){
       overworldLoop();
     });
   }
-}
+};
 
-function battleLoop(prevKeyState){
-
-  if (screen == 'battle') {
+var battleLoop = (prevKeyState) => {
+  if (screen == "battle") {
     drawBattle();
 
     battleSelect(prevKeyState);
 
-    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
+    const thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
-    window.requestAnimationFrame(function(){
-
+    window.requestAnimationFrame(() => {
       var now = performance.now();
       while (times.length > 0 && times[0] <= now - 1000) {
         times.shift();
@@ -970,31 +989,28 @@ function battleLoop(prevKeyState){
 
       battleLoop(thisPrevKeyState);
     });
-  }
-  else{
+  } else {
     battleSelect(prevKeyState);
-    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
+    const thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
-    if(battleData.players.length){
-      window.requestAnimationFrame(function(){
+    if (battleData.players.length) {
+      window.requestAnimationFrame(() => {
         battleLoop(thisPrevKeyState);
       });
     }
   }
-}
+};
 
-function menuLoop(prevKeyState){
-
-  if (screen == 'menu') {
+var menuLoop = (prevKeyState) => {
+  if (screen == "menu") {
     drawMenu();
 
     menuSelect(prevKeyState);
 
-    var thisPrevKeyState = JSON.parse(JSON.stringify(keys));
+    const thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
-    window.requestAnimationFrame(function(){
-
-      var now = performance.now();
+    window.requestAnimationFrame(() => {
+      const now = performance.now();
       while (times.length > 0 && times[0] <= now - 1000) {
         times.shift();
       }
@@ -1004,26 +1020,23 @@ function menuLoop(prevKeyState){
       menuLoop(thisPrevKeyState);
     });
   }
-}
+};
 
-function getBonusedStats(playerID) {
-  var playerBonuses = stats[0][playerID].experience.bonuses;
-  var statsSorted = Object.keys(playerBonuses).sort(
-    function(a,b){
-      return playerBonuses[a]-playerBonuses[b];
-    }
-  );
+var getBonusedStats = (playerID) => {
+  const playerBonuses = stats[0][playerID].experience.bonuses;
+  const statsSorted = Object.keys(playerBonuses).sort((a, b) => {
+    return playerBonuses[a] - playerBonuses[b];
+  });
 
-  var result = {};
+  let result = {};
   result.primary = statsSorted[statsSorted.length - 1];
   result.secondary = statsSorted[statsSorted.length - 2];
 
   return result;
-}
+};
 
-function abbrevs(text){
-  switch(text){
-
+var abbrevs = (text) => {
+  switch (text) {
     case "Str":
       return "strength";
       break;
@@ -1055,169 +1068,888 @@ function abbrevs(text){
     case "focus":
       return "Foc";
       break;
-  };
-}
+  }
+};
 
-function canvasWrite(posX, posY, text){
-
+var canvasWrite = (posX, posY, text) => {
   ctx.font = fontSize + "px Courier";
   ctx.fillStyle = "white";
-  var lines = text.split('\n');
+  const lines = text.split("\n");
 
-  for (var i = 0; i < lines.length; i++){
-    ctx.fillText(lines[i], posX, posY + (i*fontSize) + fontSize);
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], posX, posY + i * fontSize + fontSize);
   }
-}
+};
 
 // textData: [{text, disabled, id}, {text, disabled, id}, ...]
-function canvasWriteData(posX, posY, textData){
+var canvasWriteData = (posX, posY, textData) => {
   ctx.font = fontSize + "px Courier";
-  for (var i = 0; i < textData.length; i++){
-    ctx.fillStyle = (textData[i].disabled) ? "gray" : "white";
-    ctx.fillText(textData[i].text, posX, posY + (i*fontSize) + fontSize);
+  for (let i = 0; i < textData.length; i++) {
+    ctx.fillStyle = textData[i].disabled ? "gray" : "white";
+    ctx.fillText(textData[i].text, posX, posY + i * fontSize + fontSize);
   }
-}
+};
 
-function toColor(colorObj){
-  return 'rgb(' + colorValLimit(colorObj.r) + ',' + colorValLimit(colorObj.g) + ',' + colorValLimit(colorObj.b) + ')';
-}
+var toColor = (colorObj) => {
+  return (
+    "rgb(" +
+    colorValLimit(colorObj.r) +
+    "," +
+    colorValLimit(colorObj.g) +
+    "," +
+    colorValLimit(colorObj.b) +
+    ")"
+  );
+};
 
-function colorValLimit(color){
-  if(color >= 255){
+var colorValLimit = (color) => {
+  if (color >= 255) {
     color = 255;
   }
 
-  if(color <= 0){
+  if (color <= 0) {
     color = 0;
   }
 
   return Math.round(color);
-}
+};
 
-function colorSet(color){
-
-  var colorCool = {
-    r:color.r - 90,
-    g:color.g - 20,
-    b:color.b - 10
+var colorSet = (color) => {
+  const colorCool = {
+    r: color.r - 90,
+    g: color.g - 20,
+    b: color.b - 10,
   };
 
-  var colorWarm = {
-    r:color.r - 10,
-    g:color.g - 20,
-    b:color.b - 90
+  const colorWarm = {
+    r: color.r - 10,
+    g: color.g - 20,
+    b: color.b - 90,
   };
 
   var colorObj = {
     base: color,
     cool: colorCool,
-    warm: colorWarm
+    warm: colorWarm,
   };
 
   return colorObj;
-}
-function centeredBoxAnimate(step, size, callback, callbackData){
+};
+
+var battleIntro = (step) => {
+  screen = "battle";
+
   step = step + 4;
 
-  ctx.fillStyle = '#FFF';
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, step);
+
+  if (step >= canvas.height) {
+    battleBg(60);
+    return;
+  } else {
+    window.requestAnimationFrame(() => {
+      battleIntro(step);
+    });
+  }
+};
+
+var battleBg = (step) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  step = step - 2;
+
+  ctx.globalAlpha = 1;
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  ctx.globalAlpha = (step / 60).toFixed(2);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  if (step <= 0) {
+    ctx.globalAlpha = 1;
+    battleSet(0);
+    return;
+  } else {
+    window.requestAnimationFrame(() => {
+      battleBg(step);
+    });
+  }
+};
+
+var battleSet = (step) => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  step = step + 2;
+
+  // Draw BG
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  // Draw top display
+  ctx.fillStyle = "#FFF";
   ctx.fillRect(
-    (canvas.width / 2) - step, 
-    (canvas.height / 2) - step, 
-    step * 2, 
-    step * 2
+    0,
+    -UISpacing.displayHeight + step,
+    canvas.width,
+    UISpacing.displayHeight
   );
-  ctx.fillStyle = '#225';
+  ctx.fillStyle = "#225";
   ctx.fillRect(
-    (canvas.width / 2) - step + UISpacing.displayBorders, 
-    (canvas.height / 2) - step + UISpacing.displayBorders, 
-    (step * 2) - UISpacing.displayBorders, 
-    (step * 2) - UISpacing.displayBorders
+    UISpacing.displayBorders,
+    -UISpacing.displayHeight + step + UISpacing.displayBorders,
+    canvas.width - UISpacing.displayBorders * 2,
+    UISpacing.displayHeight - UISpacing.displayBorders * 2
   );
 
-  if(step >= size){
+  // Draw bottom display
+  ctx.fillStyle = "#FFF";
+  ctx.fillRect(0, canvas.height - step, canvas.width, UISpacing.displayHeight);
+  ctx.fillStyle = "#225";
+  ctx.fillRect(
+    UISpacing.displayBorders,
+    canvas.height - step + UISpacing.displayBorders,
+    canvas.width - UISpacing.displayBorders * 2,
+    UISpacing.displayHeight - UISpacing.displayBorders * 2
+  );
+
+  // Draw player
+  const playerWidth = 20;
+  ctx.fillStyle = "#FFF";
+  for (let i = 0; i < battleData.players.length; ++i) {
+    ctx.fillRect(
+      -playerWidth + step * 1.5,
+      (canvas.height / (battleData.players.length + 1)) * (i + 1),
+      playerWidth,
+      30
+    );
+  }
+
+  // Draw enemies
+  const enemyWidth = 20;
+  ctx.fillStyle = "#000";
+  for (let i = 0; i < battleData.enemies.length; ++i) {
+    ctx.fillRect(
+      canvas.width - step * 1.5,
+      (canvas.height / (battleData.enemies.length + 1)) * (i + 1),
+      enemyWidth,
+      30
+    );
+  }
+
+  if (step >= UISpacing.displayHeight) {
+    const keyState = JSON.parse(JSON.stringify(keys));
+    battleLoop(keyState);
+    return;
+  } else {
+    window.requestAnimationFrame(() => {
+      battleSet(step);
+    });
+  }
+};
+
+var battleEnd = (step) => {
+  screen = "overworld"; // start listening for OK button confirmation
+  centeredBoxAnimate(step, 40, "battleEndText");
+};
+
+var battleEndText = () => {
+  const battleXP = xpEarned();
+  const displaySize = 40;
+
+  centeredBox(displaySize);
+
+  canvasWrite(
+    canvas.width / 2 -
+      displaySize +
+      UISpacing.displayBorders +
+      UISpacing.displayPadding,
+    canvas.height / 2 -
+      displaySize +
+      UISpacing.displayBorders +
+      UISpacing.displayPadding,
+    `You win!\nRewards\nXP:    ${battleXP}`
+  );
+
+  const buttonWidth = 20;
+  const positionBottomCenter =
+    canvas.height / 2 +
+    displaySize -
+    fontSize -
+    UISpacing.displayBorders -
+    UISpacing.displayPadding;
+  ctx.fillStyle = "#F00";
+  ctx.fillRect(
+    canvas.width / 2 - buttonWidth / 2,
+    positionBottomCenter,
+    buttonWidth,
+    fontSize
+  );
+
+  canvasWrite(canvas.width / 2 - 6, positionBottomCenter, "OK");
+};
+
+var drawBattle = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBattleBG();
+  drawTopDisplay();
+  drawBottomDisplay();
+  drawPlayerBattle();
+  drawEnemiesBattle();
+  drawBattleCursor();
+};
+
+var drawBattleBG = () => {
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+};
+
+var drawTopDisplay = () => {
+  // [Jadle 100/100] -> [ATK or target desc]
+  var charText = battleData.UI.top.left;
+  var descriptionText = battleData.UI.top.right;
+
+  // Borders
+  ctx.fillStyle = "#FFF";
+  ctx.fillRect(0, 0, canvas.width, UISpacing.displayHeight);
+
+  // Box
+  ctx.fillStyle = "#225";
+  ctx.fillRect(
+    UISpacing.displayBorders,
+    UISpacing.displayBorders,
+    canvas.width - UISpacing.displayBorders * 2,
+    UISpacing.displayHeight - UISpacing.displayBorders * 2
+  );
+
+  // Left Text
+  canvasWrite(
+    UISpacing.displayBorders + UISpacing.displayPadding,
+    UISpacing.displayBorders,
+    charText
+  );
+
+  // Right Text
+  canvasWrite(
+    UISpacing.displayBorders + UISpacing.displayPadding + canvas.width / 3,
+    UISpacing.displayBorders,
+    descriptionText
+  );
+};
+
+var drawBottomDisplay = () => {
+  const currentPlayer = getCurrentPlayer();
+
+  const drawBottomDisplayTextData = (data) => {
+    let returnData = "";
+    if (data.length) {
+      for (let i = 0; i < data.length; ++i) {
+        returnData += data.text + "\n";
+      }
+    }
+    return returnData;
+  };
+
+  const playersText = battleData.UI.bottom[0];
+  const actionText = battleData.UI.bottom[1];
+  const optionsText = battleData.UI.bottom[2];
+  const targetText = battleData.UI.bottom[3];
+
+  // Borders
+  ctx.fillStyle = "#FFF";
+  ctx.fillRect(
+    0,
+    canvas.height - UISpacing.displayHeight,
+    canvas.width,
+    UISpacing.displayHeight
+  );
+
+  // Box
+  ctx.fillStyle = "#225";
+  ctx.fillRect(
+    UISpacing.displayBorders,
+    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders,
+    canvas.width - UISpacing.displayBorders * 2,
+    UISpacing.displayHeight - UISpacing.displayBorders * 2
+  );
+
+  // Highlight current player selection
+  ctx.fillStyle = "#F00";
+  ctx.fillRect(
+    UISpacing.displayBorders + UISpacing.displayPadding,
+    canvas.height -
+      UISpacing.displayHeight +
+      UISpacing.displayBorders +
+      currentPlayer * fontSize,
+    UISpacing.displayBorders +
+      UISpacing.displayPadding +
+      (canvas.width / 4 - 10),
+    fontSize
+  );
+
+  // Player names
+  canvasWriteData(
+    UISpacing.displayBorders + UISpacing.displayPadding,
+    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders,
+    playersText
+  );
+
+  // Player actions
+  canvasWriteData(
+    UISpacing.displayBorders +
+      UISpacing.displayPadding +
+      (canvas.width / 4) * 1,
+    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders,
+    actionText
+  );
+
+  // Contextual options
+  canvasWriteData(
+    UISpacing.displayBorders +
+      UISpacing.displayPadding +
+      (canvas.width / 4) * 2,
+    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders,
+    optionsText
+  );
+
+  // Contextual targets
+  canvasWriteData(
+    UISpacing.displayBorders +
+      UISpacing.displayPadding +
+      (canvas.width / 4) * 3,
+    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders,
+    targetText
+  );
+};
+
+var drawPlayerBattle = () => {
+  const playerWidth = 20;
+  ctx.fillStyle = "#FFF";
+
+  for (let i = 0; i < battleData.players.length; ++i) {
+    ctx.fillRect(
+      -playerWidth + 48,
+      (canvas.height / (battleData.players.length + 1)) * (i + 1),
+      playerWidth,
+      30
+    );
+  }
+};
+
+var drawEnemiesBattle = () => {
+  const enemyWidth = 20;
+  ctx.fillStyle = "#000";
+
+  for (let i = 0; i < battleData.enemies.length; ++i) {
+    if (battleData.enemies[i].currentHP) {
+      ctx.fillRect(
+        canvas.width - 48,
+        (canvas.height / (battleData.enemies.length + 1)) * (i + 1),
+        enemyWidth,
+        30
+      );
+    }
+  }
+};
+
+var drawBattleCursor = () => {
+  ctx.fillStyle = "#F00";
+
+  const thisX =
+    UISpacing.displayBorders + (canvas.width / 4) * battleData.selStage;
+  const thisY =
+    canvas.height -
+    UISpacing.displayHeight +
+    UISpacing.displayBorders +
+    fontSize * battleData.selSlot +
+    fontSize / 2;
+
+  ctx.fillRect(thisX, thisY, 2, 2);
+};
+
+var battleDataInit = (players, enemies, enemiesID) => {
+  const thesePlayersNames = [];
+  const thesePlayersHealth = [];
+  let currentStack = {};
+  for (let i = 0; i < players.length; ++i) {
+    if (!players[i].currentHP) {
+      currentStack[players[i].name] = false;
+      thesePlayersNames.push({
+        text: players[i].name,
+        disabled: true,
+        id: players[i].id,
+      });
+    } else {
+      thesePlayersNames.push({
+        text: players[i].name,
+        disabled: false,
+        id: players[i].id,
+      });
+    }
+    thesePlayersHealth.push(
+      `${players[i].name}: ${players[i].currentHP}/${players[i].maxHP}`
+    );
+  }
+
+  const theseEnemiesHealth = [];
+  let aliveEnemies = enemies.length;
+  for (let i = 0; i < enemies.length; ++i) {
+    theseEnemiesHealth.push(
+      `${enemies[i].name}: ${enemies[i].currentHP}/${enemies[i].maxHP}`
+    );
+    if (!enemies[i].currentHP) {
+      aliveEnemies--;
+    }
+  }
+
+  battleData = {
+    UI: {
+      top: {
+        left: thesePlayersHealth.join("\n"),
+        right: theseEnemiesHealth.join("\n"),
+      },
+      bottom: [
+        thesePlayersNames,
+        [
+          { text: "Attack", disabled: false, id: 0 },
+          { text: "Magic", disabled: false, id: 1 },
+          { text: "Defense", disabled: false, id: 2 },
+        ],
+        [],
+        [],
+      ],
+    },
+    players: players,
+    enemies: enemies,
+    enemiesID: enemiesID,
+    selStage: 1,
+    selSlot: 0,
+    currentSel: [],
+    stack: currentStack,
+  };
+
+  if (!aliveEnemies) {
+    setTimeout(function () {
+      battleEnd(0);
+    }, 500);
+  }
+};
+
+var battleSelect = (prevKeyState) => {
+  if (screen == "battle") {
+    // Cursor up
+    if (keys.up && !prevKeyState.up) {
+      const prevSlot =
+        battleData.selSlot - 1 < 0
+          ? battleData.selSlot
+          : battleData.selSlot - 1;
+      for (let i = prevSlot; i >= 0; i--) {
+        if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
+          battleData.selSlot = i;
+          break;
+        }
+      }
+    }
+
+    // Cursor down
+    else if (keys.down && !prevKeyState.down) {
+      const nextSlot =
+        battleData.selSlot + 1 >=
+        battleData.UI.bottom[battleData.selStage].length
+          ? battleData.selSlot
+          : battleData.selSlot + 1;
+      for (
+        let i = nextSlot;
+        i < battleData.UI.bottom[battleData.selStage].length;
+        i++
+      ) {
+        if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
+          battleData.selSlot = i;
+          break;
+        }
+      }
+    }
+
+    // Next selection
+    else if (keys.enter && !prevKeyState.enter && battleData.selStage <= 4) {
+      battleData.selStage = battleData.selStage + 1;
+
+      let options = [];
+
+      if (battleData.selStage == 2) {
+        switch (battleData.selSlot) {
+          case 0:
+            const attackNames = Object.keys(battleAttackMenu);
+            for (let i = 0; i < attackNames.length; ++i) {
+              options.push({ text: attackNames[i], disabled: false, id: i });
+            }
+            break;
+
+          case 1:
+            options = [
+              { text: "Fire", disabled: false, id: 0 },
+              { text: "Heal", disabled: false, id: 1 },
+            ];
+            break;
+
+          case 2:
+            const defenseNames = Object.keys(battleDefenseMenu);
+            for (let i = 0; i < defenseNames.length; ++i) {
+              options.push({ text: defenseNames[i], disabled: false, id: i });
+            }
+            break;
+        }
+      } else if (battleData.selStage == 3) {
+        for (let i = 0; i < battleData.enemies.length; ++i) {
+          if (battleData.enemies[i].currentHP) {
+            options.push({
+              text: battleData.enemies[i].name,
+              disabled: false,
+              id: battleData.enemies[i].id,
+            });
+          } else {
+            options.push({
+              text: battleData.enemies[i].name,
+              disabled: true,
+              id: battleData.enemies[i].id,
+            });
+          }
+        }
+      }
+
+      battleData.UI.bottom[battleData.selStage] = options;
+      battleTurnStack(battleData.selStage, battleData.selSlot, true);
+      battleData.selSlot = getFirstAvailableSlot();
+    }
+
+    // Go back a selection
+    else if (
+      keys.shift &&
+      !prevKeyState.shift &&
+      battleData.selStage - 1 >= 1
+    ) {
+      battleData.UI.bottom[battleData.selStage] = [];
+      battleData.selStage = battleData.selStage - 1;
+      battleTurnStack(battleData.selStage, battleData.selSlot, false);
+      battleData.selSlot = getFirstAvailableSlot();
+    }
+  }
+
+  // End of battle button state
+  else {
+    if (keys.enter && !prevKeyState.enter) {
+      stopBattle(true);
+    }
+  }
+};
+
+var getFirstAvailableSlot = () => {
+  for (let i = 0; i < battleData.UI.bottom[battleData.selStage].length; i++) {
+    if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
+      return i;
+    }
+  }
+};
+
+var battleTurnStack = (stage, slot, advance) => {
+  const currentPlayer = getCurrentPlayer();
+
+  if (advance) {
+    if (battleData.currentSel.length < 2) {
+      battleData.currentSel.push(slot);
+    } else {
+      battleData.currentSel.push(slot);
+
+      battleData.stack[battleData.players[currentPlayer].name] =
+        battleData.currentSel;
+      battleData.currentSel = [];
+
+      if (Object.keys(battleData.stack).length >= battleData.players.length) {
+        initiateTurn();
+      } else {
+        battleData.UI.bottom[2] = [];
+        battleData.UI.bottom[3] = [];
+        battleData.selStage = 1;
+        battleData.selSlot = getFirstAvailableSlot();
+      }
+    }
+  } else {
+    battleData.currentSel.pop();
+  }
+};
+
+var initiateTurn = () => {
+  const turnStack = [];
+  const playerTargets = [];
+
+  // set up unordered player actions
+  for (let i = 0; i < battleData.players.length; ++i) {
+    // Check if the player can take action (not 0 currentHP)
+    if (battleData.stack[battleData.players[i].name]) {
+      turnStack.push({
+        id: battleData.players[i].id,
+        action: [
+          battleData.stack[battleData.players[i].name][0],
+          battleData.stack[battleData.players[i].name][1],
+        ],
+        target: battleData.stack[battleData.players[i].name][2],
+        type: "players",
+        agility: battleData.players[i].agility,
+      });
+      playerTargets.push(battleData.players[i].id);
+    }
+  }
+
+  const aiAtkOptions = Object.keys(battleAttackMenu);
+  // set up unordered enemy actions
+  for (let i = 0; i < battleData.enemies.length; ++i) {
+    // Check if the enemy has currentHP
+    if (battleData.enemies[i].currentHP) {
+      turnStack.push({
+        id: battleData.enemies[i].id,
+        action: [0, Math.floor(Math.random() * aiAtkOptions.length)],
+        target: playerTargets[Math.floor(Math.random() * playerTargets.length)],
+        type: "enemies",
+        agility: battleData.enemies[i].agility,
+      });
+    }
+  }
+
+  // Order turn stack based on agility stat
+  turnStack
+    .sort(function (a, b) {
+      return a.agility - b.agility;
+    })
+    .reverse();
+
+  battleData.stack = turnStack;
+  executeTurn();
+};
+
+var executeTurn = () => {
+  for (let i = 0; i < battleData.stack.length; ++i) {
+    // Does current actor (type and id) have HP
+    if (
+      battleData[battleData.stack[i].type][battleData.stack[i].id].currentHP
+    ) {
+      switch (battleData.stack[i].action[0]) {
+        case 0:
+          executeAttack(i);
+          break;
+
+        case 1:
+          // Magic stuff
+          break;
+
+        case 2:
+          // Defense stuff
+          break;
+      }
+    }
+  }
+
+  // Reset menu selections at end of all turns
+  battleDataInit(battleData.players, battleData.enemies, battleData.enemiesID);
+};
+
+var executeAttack = (stackIndex) => {
+  const current = battleData.stack[stackIndex];
+  const attacks = Object.keys(battleAttackMenu);
+  let targetType = "players";
+  const attackingStat = battleAttackMenu[attacks[current.action[1]]];
+  if (current.type == "players") {
+    targetType = "enemies";
+
+    // Add experience bonuses for using a stat
+    stats[0][current.id].experience.bonuses[attackingStat]++;
+  }
+
+  dealPhysicalDamage(
+    current.type,
+    current.id,
+    current.type == "players" ? "enemies" : "players",
+    current.target,
+    battleAttackMenu[attacks[current.action[1]]]
+  );
+};
+
+var findCharacterStat = (name, stat) => {
+  const battlers = battleData.players.concat(battleData.enemies);
+  for (let i = 0; i < battlers.length; i++) {
+    if (battlers[i].name == name) {
+      return battlers[i][stat];
+    }
+  }
+  return false;
+};
+
+// attackerType: string, battleData key, either players or enemies
+// attackerID: int, array index of battleData.{{attackerType}}
+// targetType: string, battleData key, either players or enemies
+// targetID: int, array index of battleData.{{targetType}}
+// stat: string, object key for atk stat
+
+var dealPhysicalDamage = (
+  attackerType,
+  attackerID,
+  targetType,
+  targetID,
+  stat
+) => {
+  const atkStat = battleData[attackerType][attackerID][stat];
+  const defenseStat = 0;
+  const weapon = 0;
+  const dmgFormulaRaw = atkStat * 0.5 + weapon - defenseStat;
+  const dmgFormula = dmgFormulaRaw <= 0 ? 1 : Math.round(dmgFormulaRaw);
+
+  battleData[targetType][targetID].currentHP =
+    battleData[targetType][targetID].currentHP - dmgFormula < 0
+      ? 0
+      : battleData[targetType][targetID].currentHP - dmgFormula;
+};
+
+var getCurrentPlayer = () => {
+  for (
+    let playerIndex = 0;
+    playerIndex < battleData.players.length;
+    ++playerIndex
+  ) {
+    if (
+      !battleData.stack.hasOwnProperty(battleData.players[playerIndex].name) &&
+      battleData.players[playerIndex].currentHP
+    ) {
+      return playerIndex;
+    }
+  }
+};
+
+var stopBattle = (win) => {
+  if (win) {
+    delete stats[battleData.enemiesID];
+    for (let i = 0; i < entities.length; ++i) {
+      if (entities[i].type && entities[i].id == battleData.enemiesID) {
+        entities[i] = { type: false, tile: entities[i].tile };
+      }
+    }
+
+    const battleXP = xpEarned();
+    for (let i = 0; i < battleData.players.length; ++i) {
+      battleData.players[i].experience.points += battleXP;
+    }
+    checkXP = true;
+  }
+
+  stats[0] = battleData.players;
+  battleData = {};
+  entityDataToMap();
+
+  overworldLoop();
+};
+
+var xpEarned = () => {
+  let battleXP = 0;
+  for (let i = 0; i < battleData.enemies.length; ++i) {
+    battleXP += battleData.enemies[i].maxHP;
+  }
+  return battleXP;
+};
+
+var centeredBoxAnimate = (step, size, callback, callbackData) => {
+  step = step + 4;
+
+  ctx.fillStyle = "#FFF";
+  ctx.fillRect(
+    canvas.width / 2 - step,
+    canvas.height / 2 - step,
+    step * 2,
+    step * 2
+  );
+  ctx.fillStyle = "#225";
+  ctx.fillRect(
+    canvas.width / 2 - step + UISpacing.displayBorders,
+    canvas.height / 2 - step + UISpacing.displayBorders,
+    step * 2 - UISpacing.displayBorders,
+    step * 2 - UISpacing.displayBorders
+  );
+
+  if (step >= size) {
     window[callback].apply(null, callbackData);
     return;
-  }
-  else{
-    window.requestAnimationFrame(function(){
+  } else {
+    window.requestAnimationFrame(() => {
       centeredBoxAnimate(step, size, callback, callbackData);
     });
   }
-}
-function drawMenu(){
+};
 
+var drawMenu = () => {
   ctx.clearRect(
-    (canvas.width / 2) - menuData.size, 
-    (canvas.height / 2) - menuData.size, 
-    menuData.size * 2, 
+    canvas.width / 2 - menuData.size,
+    canvas.height / 2 - menuData.size,
+    menuData.size * 2,
     menuData.size * 2
   );
 
-  var menuText = menuData.head + "\n" + menuData.body;
-  var boxX = (canvas.width / 2) - menuData.size;
-  var boxY = (canvas.height / 2) - menuData.size;
+  const menuText = menuData.head + "\n" + menuData.body;
+  const boxX = canvas.width / 2 - menuData.size;
+  const boxY = canvas.height / 2 - menuData.size;
 
   centeredBox(menuData.size);
 
   canvasWrite(
-    boxX + UISpacing.displayBorders + UISpacing.displayPadding, 
-    boxY + UISpacing.displayBorders + UISpacing.displayPadding, 
+    boxX + UISpacing.displayBorders + UISpacing.displayPadding,
+    boxY + UISpacing.displayBorders + UISpacing.displayPadding,
     menuText
   );
 
   drawOptions();
   drawMenuCursor();
-}
+};
 
-function drawOptions(){
-  for(var i = 0; i < menuData.options.length; i++){
-    if(menuData.options[i].effects){
-      window[menuData.options[i].effects.func].apply(null, menuData.options[i].effects.data);
+var drawOptions = () => {
+  for (let i = 0; i < menuData.options.length; i++) {
+    if (menuData.options[i].effects) {
+      window[menuData.options[i].effects.func].apply(
+        null,
+        menuData.options[i].effects.data
+      );
     }
   }
-  for(var i = 0; i < menuData.options.length; i++){
+  for (let i = 0; i < menuData.options.length; i++) {
     canvasWrite(
-      menuData.options[i].x, 
-      menuData.options[i].y, 
+      menuData.options[i].x,
+      menuData.options[i].y,
       menuData.options[i].text
     );
   }
-}
+};
 
-function centeredBox(size){
-
-  var displaySize = size;
-
-  ctx.fillStyle = '#FFF';
+var centeredBox = (size) => {
+  ctx.fillStyle = "#FFF";
   ctx.fillRect(
-    (canvas.width / 2) - displaySize, 
-    (canvas.height / 2) - displaySize, 
-    displaySize * 2, 
-    displaySize * 2
+    canvas.width / 2 - size,
+    canvas.height / 2 - size,
+    size * 2,
+    size * 2
   );
-  ctx.fillStyle = '#225';
+  ctx.fillStyle = "#225";
   ctx.fillRect(
-    (canvas.width / 2) - displaySize + UISpacing.displayBorders, 
-    (canvas.height / 2) - displaySize + UISpacing.displayBorders, 
-    (displaySize * 2) - (UISpacing.displayBorders * 2), 
-    (displaySize * 2) - (UISpacing.displayBorders * 2)
+    canvas.width / 2 - size + UISpacing.displayBorders,
+    canvas.height / 2 - size + UISpacing.displayBorders,
+    size * 2 - UISpacing.displayBorders * 2,
+    size * 2 - UISpacing.displayBorders * 2
   );
-}
+};
 
-function drawMenuCursor(){
-  ctx.fillStyle = '#F00';
+var drawMenuCursor = () => {
+  ctx.fillStyle = "#F00";
 
-  var thisX = menuData.options[menuData.currentSel].x - 2,
-      thisY = menuData.options[menuData.currentSel].y + (fontSize / 2) + 1;
+  const thisX = menuData.options[menuData.currentSel].x - 2;
+  const thisY = menuData.options[menuData.currentSel].y + fontSize / 2 + 1;
 
   ctx.fillRect(thisX, thisY, 2, 2);
-}
+};
 
-function statHighlight(color, optionID){
+var statHighlight = (color, optionID) => {
   ctx.fillStyle = color;
-
-  var thisX = menuData.options[optionID].x,
-      thisY = menuData.options[optionID].y;
 
   ctx.fillRect(
     menuData.options[optionID].x,
@@ -1225,27 +1957,32 @@ function statHighlight(color, optionID){
     fontCharWidth * 3,
     fontSize
   );
-}
-function xpCheck(){
-  var playerParty = stats[0];
-  for(var i = 0; i < playerParty.length; i++){
-    var levelUp = baseXP * (playerParty[i].experience.level / 10);
-    if(playerParty[i].experience.points >= levelUp){
-      stats[0][i].experience.points = playerParty[i].experience.points - levelUp;
-      screen = 'menu';
-      centeredBoxAnimate(0, 48, 'levelUpUI', [i]);
+};
+
+var xpCheck = () => {
+  const playerParty = stats[0];
+  for (let i = 0; i < playerParty.length; i++) {
+    const levelUp = baseXP * (playerParty[i].experience.level / 10);
+    if (playerParty[i].experience.points >= levelUp) {
+      stats[0][i].experience.points =
+        playerParty[i].experience.points - levelUp;
+      screen = "menu";
+      centeredBoxAnimate(0, 48, "levelUpUI", [i]);
     }
   }
-}
+};
 
-function recalcMaxHP(statsID){
+var recalcMaxHP = (statsID) => {
   stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
-}
+};
 
-function levelUpUI(statsID){
-  var statPointsOnLvl = (Math.floor(stats[0][statsID].experience.level / 2) < 2) ? 2 : Math.floor(stats[0][statsID].experience.level / 2);
-  var boxSize = 50;
-  var pointBonuses = getBonusedStats(statsID);
+var levelUpUI = (statsID) => {
+  const statPointsOnLvl =
+    Math.floor(stats[0][statsID].experience.level / 2) < 2
+      ? 2
+      : Math.floor(stats[0][statsID].experience.level / 2);
+  const boxSize = 50;
+  const pointBonuses = getBonusedStats(statsID);
 
   menuData = {
     playerID: statsID,
@@ -1255,11 +1992,11 @@ function levelUpUI(statsID){
     body: "Points: " + statPointsOnLvl,
     enter: {
       func: "xpMenuAdd",
-      data: [0]
+      data: [0],
     },
     shift: {
       func: "xpMenuSubtract",
-      data: [0]
+      data: [0],
     },
     returnScreen: "overworld",
     options: [
@@ -1268,149 +2005,161 @@ function levelUpUI(statsID){
         text: "Str:" + stats[0][statsID].strength + "+0",
         x: 0,
         y: 0,
-        effects: false
+        effects: false,
       },
       {
         id: 1,
         text: "Agl:" + stats[0][statsID].agility + "+0",
         x: 0,
         y: 0,
-        effects: false
+        effects: false,
       },
       {
         id: 2,
         text: "Int:" + stats[0][statsID].intuition + "+0",
         x: 0,
         y: 0,
-        effects: false
+        effects: false,
       },
       {
         id: 3,
         text: "Foc:" + stats[0][statsID].focus + "+0",
         x: 0,
         y: 0,
-        effects: false
-      }
+        effects: false,
+      },
     ],
-    extra: pointBonuses
+    extra: pointBonuses,
   };
 
-  var boxX = (canvas.width / 2) - boxSize;
-  var boxY = (canvas.height / 2) - boxSize;
-  var optionsY = boxY + fontSize + UISpacing.displayBorders + (UISpacing.displayPadding * 2);
-  var optionsX = boxX + UISpacing.displayBorders + UISpacing.displayPadding;
+  const boxX = canvas.width / 2 - boxSize;
+  const boxY = canvas.height / 2 - boxSize;
+  let optionsY =
+    boxY + fontSize + UISpacing.displayBorders + UISpacing.displayPadding * 2;
+  const optionsX = boxX + UISpacing.displayBorders + UISpacing.displayPadding;
 
-  if(menuData.body.length){
-    var lines = menuData.body.split('\n');
-    for (var i = 0; i < lines.length; i++){
+  if (menuData.body.length) {
+    const lines = menuData.body.split("\n");
+    for (var i = 0; i < lines.length; i++) {
       optionsY += fontSize;
     }
   }
 
-  for(var i = 0; i < menuData.options.length; i++){
-
-    var uiBonusedStat = menuData.options[i].text.split(":");
-    var bonusedStat = abbrevs(uiBonusedStat[0]);
-    if(menuData.extra.primary == bonusedStat){
+  for (let i = 0; i < menuData.options.length; i++) {
+    const uiBonusedStat = menuData.options[i].text.split(":");
+    const bonusedStat = abbrevs(uiBonusedStat[0]);
+    if (menuData.extra.primary == bonusedStat) {
       menuData.options[i].effects = {
         func: "statHighlight",
-        data: ["#193", menuData.options[i].id]
-      }
+        data: ["#193", menuData.options[i].id],
+      };
     }
-    if(menuData.extra.secondary == bonusedStat){
+    if (menuData.extra.secondary == bonusedStat) {
       menuData.options[i].effects = {
         func: "statHighlight",
-        data: ["#A05", menuData.options[i].id]
-      }
+        data: ["#A05", menuData.options[i].id],
+      };
     }
 
     // Calc text placements (2 columns)
-    var row = (i % 2) ? (fontSize * ((i - 1) / 2)) : (fontSize * (i / 2));
-    var col = (i % 2) ? menuData.size : 0;
+    const row = i % 2 ? fontSize * ((i - 1) / 2) : fontSize * (i / 2);
+    const col = i % 2 ? menuData.size : 0;
 
     menuData.options[i].x = optionsX + col;
     menuData.options[i].y = optionsY + row;
   }
 
-  var keyState = JSON.parse(JSON.stringify(keys));
+  const keyState = JSON.parse(JSON.stringify(keys));
   menuLoop(keyState);
-}
+};
 
-function menuSelect(prevKeyState){
-
-  if (screen == 'menu') {
-
+var menuSelect = (prevKeyState) => {
+  if (screen == "menu") {
     // Cursor up
-    if(keys.up && !prevKeyState.up){
-      menuData.currentSel = (menuData.currentSel - 2 >= 0) ? menuData.currentSel - 2 : menuData.currentSel;
+    if (keys.up && !prevKeyState.up) {
+      menuData.currentSel =
+        menuData.currentSel - 2 >= 0
+          ? menuData.currentSel - 2
+          : menuData.currentSel;
     }
 
     // Cursor down
-    else if(keys.down && !prevKeyState.down){
-      menuData.currentSel = (menuData.currentSel + 2 < menuData.options.length) ? menuData.currentSel + 2 : menuData.currentSel;
+    else if (keys.down && !prevKeyState.down) {
+      menuData.currentSel =
+        menuData.currentSel + 2 < menuData.options.length
+          ? menuData.currentSel + 2
+          : menuData.currentSel;
     }
 
     // Cursor left
-    else if(keys.left && !prevKeyState.left){
-      menuData.currentSel = (menuData.currentSel - 1 >= 0) ? menuData.currentSel - 1 : menuData.currentSel;
+    else if (keys.left && !prevKeyState.left) {
+      menuData.currentSel =
+        menuData.currentSel - 1 >= 0
+          ? menuData.currentSel - 1
+          : menuData.currentSel;
     }
 
     // Cursor right
-    else if(keys.right && !prevKeyState.right){
-      menuData.currentSel = (menuData.currentSel + 1 < menuData.options.length) ? menuData.currentSel + 1 : menuData.currentSel;
+    else if (keys.right && !prevKeyState.right) {
+      menuData.currentSel =
+        menuData.currentSel + 1 < menuData.options.length
+          ? menuData.currentSel + 1
+          : menuData.currentSel;
     }
 
     // Next selection
-    else if(keys.enter && !prevKeyState.enter){
+    else if (keys.enter && !prevKeyState.enter) {
       window[menuData.enter.func].apply(null, menuData.enter.data);
     }
 
     // Go back a selection
-    else if(keys.shift && !prevKeyState.shift){
+    else if (keys.shift && !prevKeyState.shift) {
       window[menuData.shift.func].apply(null, menuData.shift.data);
     }
   }
-}
+};
 
-function xpMenuAdd(data){
-  var uiRemaining = menuData.body.split(": ");
-  var remaining = parseInt(uiRemaining[1]);
+var xpMenuAdd = (data) => {
+  const uiRemaining = menuData.body.split(": ");
+  const remaining = parseInt(uiRemaining[1]);
 
-  if(remaining){
-    var prevMenuData = JSON.parse(JSON.stringify(menuData));
-    var newRemaining = remaining - 1;
-    var uiAdded = menuData.options[menuData.currentSel].text.split("+");
-    var added = parseInt(uiAdded[1]);
-    var newAdded = added + 1;
+  if (remaining) {
+    const prevMenuData = JSON.parse(JSON.stringify(menuData));
+    const newRemaining = remaining - 1;
+    const uiAdded = menuData.options[menuData.currentSel].text.split("+");
+    const added = parseInt(uiAdded[1]);
+    const newAdded = added + 1;
 
     menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
     menuData.body = uiRemaining[0] + ": " + newRemaining;
 
-    if(!newRemaining){
-      var selections = "";
-      var selectedPoints = [];
-      for(var i = 0; i < menuData.options.length; i++){
-        var uiSelected = menuData.options[i].text.split("+");
-        var selected = parseInt(uiSelected[1]);
-        if(selected){
-          var uiSelectedStat = menuData.options[i].text.split(":");
-          var uiCurrentPoints = uiSelectedStat[1].split("+");
-          var selectedStat = abbrevs(uiSelectedStat[0]);
+    if (!newRemaining) {
+      let selections = "";
+      const selectedPoints = [];
+      for (let i = 0; i < menuData.options.length; i++) {
+        const uiSelected = menuData.options[i].text.split("+");
+        const selected = parseInt(uiSelected[1]);
+        if (selected) {
+          const uiSelectedStat = menuData.options[i].text.split(":");
+          const uiCurrentPoints = uiSelectedStat[1].split("+");
+          const selectedStat = abbrevs(uiSelectedStat[0]);
 
           // Add Bonus Multiplier
-          var bonusMultiplier = 1;
-          if(menuData.extra.primary == selectedStat){
+          let bonusMultiplier = 1;
+          if (menuData.extra.primary == selectedStat) {
             bonusMultiplier = 1.5;
           }
-          if(menuData.extra.secondary == selectedStat){
+          if (menuData.extra.secondary == selectedStat) {
             bonusMultiplier = 1.2;
           }
 
-          var finalStat = parseInt(uiCurrentPoints[0]) + (Math.ceil(selected * bonusMultiplier));
+          const finalStat =
+            parseInt(uiCurrentPoints[0]) +
+            Math.ceil(selected * bonusMultiplier);
           selections += selectedStat + ":" + finalStat + "\n";
           selectedPoints.push({
             stat: selectedStat,
-            points: finalStat
+            points: finalStat,
           });
         }
       }
@@ -1425,38 +2174,47 @@ function xpMenuAdd(data){
         {
           id: 0,
           text: "OK",
-          x: (canvas.width / 2) - menuData.size + UISpacing.displayBorders + UISpacing.displayPadding,
-          y: (canvas.height / 2) + menuData.size - UISpacing.displayBorders - UISpacing.displayPadding - (fontSize * 2)
-        }
+          x:
+            canvas.width / 2 -
+            menuData.size +
+            UISpacing.displayBorders +
+            UISpacing.displayPadding,
+          y:
+            canvas.height / 2 +
+            menuData.size -
+            UISpacing.displayBorders -
+            UISpacing.displayPadding -
+            fontSize * 2,
+        },
       ];
     }
   }
-}
+};
 
-function xpMenuSubtract(data){
-  var uiAdded = menuData.options[menuData.currentSel].text.split("+");
-  var added = parseInt(uiAdded[1]);
+var xpMenuSubtract = (data) => {
+  const uiAdded = menuData.options[menuData.currentSel].text.split("+");
+  const added = parseInt(uiAdded[1]);
 
-  if(added){
-    var uiRemaining = menuData.body.split(": ");
-    var remaining = parseInt(uiRemaining[1]);
-    var newRemaining = remaining + 1;
-    var newAdded = added - 1;
+  if (added) {
+    const uiRemaining = menuData.body.split(": ");
+    const remaining = parseInt(uiRemaining[1]);
+    const newRemaining = remaining + 1;
+    const newAdded = added - 1;
 
     menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
     menuData.body = uiRemaining[0] + ": " + newRemaining;
   }
-}
+};
 
-function xpMenuClose(points){
-
-  for(var i = 0; i < points.length; i++){
+var xpMenuClose = (points) => {
+  for (let i = 0; i < points.length; i++) {
     stats[0][menuData.playerID][points[i].stat] = points[i].points;
   }
 
   recalcMaxHP(menuData.playerID);
 
-  stats[0][menuData.playerID].experience.level = stats[0][menuData.playerID].experience.level + 1;
+  stats[0][menuData.playerID].experience.level =
+    stats[0][menuData.playerID].experience.level + 1;
   stats[0][menuData.playerID].experience.bonuses.strength = 0;
   stats[0][menuData.playerID].experience.bonuses.agility = 0;
   stats[0][menuData.playerID].experience.bonuses.focus = 0;
@@ -1465,87 +2223,96 @@ function xpMenuClose(points){
   screen = menuData.returnScreen;
   menuData = {};
   overworldLoop();
-}
+};
 
-function xpMenuReturn(prevData){
+var xpMenuReturn = (prevData) => {
   menuData = prevData;
-}
+};
 
-function animateMove(id, up, down, left, right){
+var animateMove = (id, up, down, left, right) => {
+  const prevTile = entities[id].tile;
 
-  var prevTile = entities[id].tile;
+  if (up) {
+    const topLeft = { x: entities[id].xy.x, y: entities[id].xy.y };
+    const topRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y,
+    };
 
-  if(up){
+    checkBounding(id, topLeft, topRight, 0, -1, "speedY", [2, 3]);
+  } else if (down) {
+    const bottomLeft = {
+      x: entities[id].xy.x,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
+    const bottomRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
 
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, topLeft, topRight, 0, -1, 'speedY', [2,3]);
-  }
-  else if(down){
-
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-
-    checkBounding(id, bottomLeft, bottomRight, 0, 1, 'speedY', [0,1]);
-  }
-  else{
+    checkBounding(id, bottomLeft, bottomRight, 0, 1, "speedY", [0, 1]);
+  } else {
     entities[id].speedY = 0;
   }
 
-  if(left){
+  if (left) {
+    const bottomLeft = {
+      x: entities[id].xy.x,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
+    const topLeft = { x: entities[id].xy.x, y: entities[id].xy.y };
 
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+    checkBounding(id, bottomLeft, topLeft, -1, 0, "speedX", [4, 5]);
+  } else if (right) {
+    const bottomRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
+    const topRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y,
+    };
 
-    checkBounding(id, bottomLeft, topLeft, -1, 0, 'speedX', [4,5]);
-  }
-  else if(right){
-
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, bottomRight, topRight, 1, 0, 'speedX', [6,7]);
-  }
-  else{
+    checkBounding(id, bottomRight, topRight, 1, 0, "speedX", [6, 7]);
+  } else {
     entities[id].speedX = 0;
   }
 
-  entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
+  entities[id].tile = coordsToTile(
+    entities[id].xy.x + entities[id].sprite.width / 2,
+    entities[id].xy.y + tileSize / 2
+  );
   map[entities[id].tile].render.object = id;
-  if(entities[id].logic.state){
+  if (entities[id].logic.state) {
     map[entities[id].tile].state = entities[id].logic.state;
   }
 
-  if(prevTile !== entities[id].tile){
+  if (prevTile !== entities[id].tile) {
     map[prevTile].render.object = false;
-    map[prevTile].state = {passable: true};
+    map[prevTile].state = { passable: true };
   }
-}
+};
 
-function spriteLoop(id, frames, rate){
-  var i = 0;
-  var thisAnim = setInterval(function(){
-
+// Unused function
+var spriteLoop = (id, frames, rate) => {
+  let i = 0;
+  const thisAnim = setInterval(() => {
     entities[id].frame = i;
     i++;
-    if(i >= frames.length){
+    if (i >= frames.length) {
       i = 0;
     }
   }, rate);
-}
+};
 
-function setPath(id, path, originPoint, originTime, step){
-
-  if (path[step] != 'wait' && path[step] != 'stop') {
-
-    var destX = Math.abs(entities[id].xy.x - originPoint.x);
-    var destY = Math.abs(entities[id].xy.y - originPoint.y);
+var setPath = (id, path, originPoint, originTime, step) => {
+  if (path[step] != "wait" && path[step] != "stop") {
+    const destX = Math.abs(entities[id].xy.x - originPoint.x);
+    const destY = Math.abs(entities[id].xy.y - originPoint.y);
 
     if (destX >= tileSize || destY >= tileSize) {
-
       step = step + 1;
-      if(step >= path.length){
+      if (step >= path.length) {
         step = 0;
       }
 
@@ -1553,13 +2320,12 @@ function setPath(id, path, originPoint, originTime, step){
       clearInterval(entities[id].interval);
       entities[id].interval = 0;
     }
-  }
-  else{
+  } else {
     originTime = originTime + 1;
-    if(originTime == 60){
+    if (originTime == 60) {
       originTime = 0;
       step = step + 1;
-      if(step >= path.length){
+      if (step >= path.length) {
         step = 0;
       }
       clearInterval(entities[id].interval);
@@ -1567,152 +2333,153 @@ function setPath(id, path, originPoint, originTime, step){
     }
   }
 
-  switch(path[step]) {
-
-    case 'up':
+  switch (path[step]) {
+    case "up":
       entities[id].dir.up = true;
       entities[id].dir.down = false;
       entities[id].dir.left = false;
       entities[id].dir.right = false;
       break;
 
-    case 'down':
+    case "down":
       entities[id].dir.up = false;
       entities[id].dir.down = true;
       entities[id].dir.left = false;
       entities[id].dir.right = false;
       break;
 
-    case 'left':
+    case "left":
       entities[id].dir.up = false;
       entities[id].dir.down = false;
       entities[id].dir.left = true;
       entities[id].dir.right = false;
       break;
 
-    case 'right':
+    case "right":
       entities[id].dir.up = false;
       entities[id].dir.down = false;
       entities[id].dir.left = false;
       entities[id].dir.right = true;
       break;
 
-    case 'wait':
+    case "wait":
       entities[id].dir.up = false;
       entities[id].dir.down = false;
       entities[id].dir.left = false;
       entities[id].dir.right = false;
-      break
+      break;
 
-    case 'stop':
+    case "stop":
       return;
-      break
-  };
+  }
 
-  window.requestAnimationFrame(function(){
+  window.requestAnimationFrame(() => {
     setPath(id, path, originPoint, originTime, step);
   });
-}
+};
 
-function walkLoop(id, frames){
+var walkLoop = (id, frames) => {
+  let i = 1;
 
-  var i = 1;
-
-  if(entities[id].interval == 0){
-
+  if (entities[id].interval == 0) {
     entities[id].frame = frames[0];
-    entities[id].interval = setInterval(function(){
+    entities[id].interval = setInterval(() => {
       entities[id].frame = frames[i];
       i++;
-      if(i >= frames.length){
+      if (i >= frames.length) {
         i = 0;
       }
     }, 200);
   }
-}
+};
 
-function drawGame(map){
+var drawGame = (map) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  var tileObjData = [];
+  const tileObjData = [];
 
-  for(var y = 0; y < mapH; ++y){
-    for(var x = 0; x < mapW; ++x){
-
-      var currentPos = ((y*mapW)+x);
+  for (let y = 0; y < mapH; ++y) {
+    for (let x = 0; x < mapW; ++x) {
+      const currentPos = y * mapW + x;
 
       ctx.fillStyle = map[currentPos].render.base;
 
-      var thisObj = map[currentPos].render.object;
+      let thisObj = map[currentPos].render.object;
 
-      if(thisObj !== false){
-
-        ctx.fillStyle = '#00F';
+      if (thisObj !== false) {
+        ctx.fillStyle = "#00F";
 
         thisObj = entities[thisObj];
-        var originX = (x*tileSize);
-        var originY = ((y*tileSize) + tileSize) - thisObj.sprite.height;
-        if(thisObj.type == 'mobile'){
+        let originX = x * tileSize;
+        let originY = y * tileSize + tileSize - thisObj.sprite.height;
+        if (thisObj.type == "mobile") {
           originX = thisObj.xy.x;
           originY = thisObj.xy.y;
         }
-        tileObjData.push(
-          {
-            id: thisObj.id,
-            type: thisObj.type,
-            originX: originX, 
-            originY: originY, 
-            width: thisObj.sprite.width, 
-            height: thisObj.sprite.height,
-            render: thisObj.sprite.render[thisObj.frame]
-          }
-        );
+        tileObjData.push({
+          id: thisObj.id,
+          type: thisObj.type,
+          originX: originX,
+          originY: originY,
+          width: thisObj.sprite.width,
+          height: thisObj.sprite.height,
+          render: thisObj.sprite.render[thisObj.frame],
+        });
       }
 
-      if(currentPos == entities[0].tile){
-        ctx.fillStyle = '#FF0';
+      if (currentPos == entities[0].tile) {
+        ctx.fillStyle = "#FF0";
       }
 
-      ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
-
+      ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
   }
 
-  for(var i = 0; i < tileObjData.length; ++i){
-    if(tileObjData[i].type == 'mobile'){
-      drawEntity(tileObjData[i].id, tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
-    }
-    else{
-      drawSprite(tileObjData[i].originX, tileObjData[i].originY, tileObjData[i].width, tileObjData[i].height, tileObjData[i].render);
+  for (let i = 0; i < tileObjData.length; ++i) {
+    if (tileObjData[i].type == "mobile") {
+      drawEntity(
+        tileObjData[i].id,
+        tileObjData[i].originX,
+        tileObjData[i].originY,
+        tileObjData[i].width,
+        tileObjData[i].height,
+        tileObjData[i].render
+      );
+    } else {
+      drawSprite(
+        tileObjData[i].originX,
+        tileObjData[i].originY,
+        tileObjData[i].width,
+        tileObjData[i].height,
+        tileObjData[i].render
+      );
     }
   }
-}
+};
 
-function drawSprite(posX, posY, sizeX, sizeY, thisSprite){
-  var k = 0;
+var drawSprite = (posX, posY, sizeX, sizeY, thisSprite) => {
+  let k = 0;
 
-  for(var y = posY; y < posY + sizeY; ++y){
-    for(var x = posX; x < posX + sizeX; ++x){
-
-      if(thisSprite[k]){
+  for (let y = posY; y < posY + sizeY; ++y) {
+    for (let x = posX; x < posX + sizeX; ++x) {
+      if (thisSprite[k]) {
         ctx.fillStyle = thisSprite[k];
         ctx.fillRect(x, y, 1, 1);
       }
       k++;
     }
   }
-}
+};
 
-function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
-
-  var offX = posX + entities[id].speedX;
-  var offY = posY + entities[id].speedY;
+var drawEntity = (id, posX, posY, sizeX, sizeY, thisSprite) => {
+  const offX = posX + entities[id].speedX;
+  const offY = posY + entities[id].speedY;
 
   drawSprite(offX, offY + sizeX - sizeY, sizeX, sizeY, thisSprite);
 
   entities[id].xy.x = offX;
   entities[id].xy.y = offY;
-}
+};
 
 // Check collision between two entities
 // id: int value of entities table id
@@ -1722,113 +2489,94 @@ function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite){
 // yPolarity: int that determines how the entity is moving vertically (0, 1, -1)
 // axis: string that corresponds to an obj key from the entity to set it's vertical or horizontal speed ('speedX', or 'speedY')
 // loop: array of ints that determine the sprite frames to pass to walkLoop() for animation
-function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
-
-  var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
-  var tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
+var checkBounding = (
+  id,
+  cornerA,
+  cornerB,
+  xPolarity,
+  yPolarity,
+  axis,
+  loop
+) => {
+  const tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
+  const tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
 
   // if either of the dest tiles aren't passable, stop movement
-  if(
-    !tileA.state.passable || 
-    !tileB.state.passable
-  ){
+  if (!tileA.state.passable || !tileB.state.passable) {
     entities[id][axis] = 0;
   }
 
   // if the entity id is the player (0) and either of the dest tiles have enemies, start battle
-  else if(
-    !id && (
-      tileA.state.battle || 
-      tileB.state.battle
-    )
-  ){
+  else if (!id && (tileA.state.battle || tileB.state.battle)) {
     entities[id][axis] = 0;
 
-    var players = stats[0];
-    var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
-    var enemiesID = tileA.render.object ? tileA.render.object : tileB.render.object;
+    const players = stats[0];
+    const enemies = stats[tileA.render.object]
+      ? stats[tileA.render.object]
+      : stats[tileB.render.object];
+    const enemiesID = tileA.render.object
+      ? tileA.render.object
+      : tileB.render.object;
 
     battleIntro(0);
     battleDataInit(players, enemies, enemiesID);
   }
-
-
-
-
-
 
   // if the entity id is NOT the player (1+) and either of the dest tiles have the player, start battle
-  else if(
-    id && (
-      tileA.state.player || 
-      tileB.state.player
-    )
-  ){
+  else if (id && (tileA.state.player || tileB.state.player)) {
     entities[id][axis] = 0;
 
-    var players = stats[0];
-    var enemies = stats[id];
-    var enemiesID = id;
+    const players = stats[0];
+    const enemies = stats[id];
+    const enemiesID = id;
 
     battleIntro(0);
     battleDataInit(players, enemies, enemiesID);
   }
 
-
-
-
-
-
-
-
-
   // set the entity's speed and start the animation
-  else{
+  else {
     entities[id][axis] = xPolarity ? xPolarity : yPolarity;
     walkLoop(id, loop);
   }
-}
+};
 
-function tileToCoords(tile){
+var tileToCoords = (tile) => {
+  const yIndex = Math.floor(tile / mapW);
+  const xIndex = tile - yIndex * mapW;
 
-  var yIndex = Math.floor(tile / mapW);
-  var xIndex = tile - (yIndex * mapW);
+  const y = yIndex * tileSize;
+  const x = xIndex * tileSize;
+  return { x, y };
+};
 
-  var y = yIndex * tileSize;
-  var x = xIndex * tileSize;
-  return {x:x, y:y};
-}
-
-function coordsToTile(x, y){
-
-  var tile = ((Math.floor(y / tileSize)) * mapW) + (Math.floor(x / tileSize));
+var coordsToTile = (x, y) => {
+  const tile = Math.floor(y / tileSize) * mapW + Math.floor(x / tileSize);
   return tile;
-}
+};
 
-function adjacentTiles(tile){
+var adjacentTiles = (tile) => {
+  const obj = { far: {}, close: {}, all: {} };
 
-  var obj = { "far":{}, "close":{}, "all":{} };
-
-  var adj = {
-    nw: (tile - (mapW + 1)),
-    ne: (tile - (mapW - 1)),
-    sw: (tile + (mapW - 1)),
-    se: (tile + (mapW + 1)),
-    n: (tile - mapW),
-    e: (tile - 1),
-    w: (tile + 1),
-    s: (tile + mapW)
+  const adj = {
+    nw: tile - (mapW + 1),
+    ne: tile - (mapW - 1),
+    sw: tile + (mapW - 1),
+    se: tile + (mapW + 1),
+    n: tile - mapW,
+    e: tile - 1,
+    w: tile + 1,
+    s: tile + mapW,
   };
 
-  var bounds = Object.values(adj);
-  var dir = Object.keys(adj);
+  const bounds = Object.values(adj);
+  const dir = Object.keys(adj);
 
-  for (var i = 0; i < bounds.length; i++) {
-    if (bounds[i] > -1 && bounds[i] <= (mapW * mapH)) {
+  for (let i = 0; i < bounds.length; i++) {
+    if (bounds[i] > -1 && bounds[i] <= mapW * mapH) {
       if (dir[i].length > 1) {
         obj["far"][dir[i]] = bounds[i];
-      }
-      else{
+      } else {
         obj["close"][dir[i]] = bounds[i];
       }
       obj["all"][dir[i]] = bounds[i];
@@ -1836,708 +2584,47 @@ function adjacentTiles(tile){
   }
 
   return obj;
-}
+};
 
-function testMap(){
-  for(var i = 0; i < (mapH * mapW); ++i){
-
+var testMap = () => {
+  for (let i = 0; i < mapH * mapW; ++i) {
     // Edges
 
     if (
       // top
-      i < mapW || 
+      i < mapW ||
       // left
-      (i % mapW) == 0 || 
+      i % mapW == 0 ||
       // right
-      ((i + 1) % mapW) == 0 || 
+      (i + 1) % mapW == 0 ||
       // bottom
-      i > ((mapW * mapH) - mapW)
+      i > mapW * mapH - mapW
     ) {
-
-      map.push(
-        {
-          id: i,
-          render: {
-            base: '#D35',
-            object: false,
-            sprite: false
-          },
-          state: {
-            passable: false
-          }
+      map.push({
+        id: i,
+        render: {
+          base: "#D35",
+          object: false,
+          sprite: false,
         },
-      );
-
-    }
-    else{
-
+        state: {
+          passable: false,
+        },
+      });
+    } else {
       // Grass
 
-      map.push(
-        {
-          id: i,
-          render: {
-            base: '#0C3',
-            object: false,
-            sprite: false
-          },
-          state: {
-            passable: true
-          }
+      map.push({
+        id: i,
+        render: {
+          base: "#0C3",
+          object: false,
+          sprite: false,
         },
-      );
-
+        state: {
+          passable: true,
+        },
+      });
     }
   }
-}
-function battleIntro(step){
-
-  screen = 'battle';
-
-  step = step + 4;
-
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, canvas.width, step);
-
-  if(step >= canvas.height){
-    battleBg(60);
-    return;
-  }
-  else{
-    window.requestAnimationFrame(function(){
-      battleIntro(step);
-    });
-  }
-}
-
-function battleBg(step){
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  step = step - 2;
-
-  ctx.globalAlpha = 1;
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-  ctx.globalAlpha = (step / 60).toFixed(2);
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  if(step <= 0){
-    ctx.globalAlpha = 1;
-    battleSet(0);
-    return;
-  }
-  else{
-    window.requestAnimationFrame(function(){
-      battleBg(step);
-    });
-  }
-}
-
-function battleSet(step){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  step = step + 2;
-
-  // Draw BG
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-  // Draw top display
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(0, -(UISpacing.displayHeight) + step, canvas.width, UISpacing.displayHeight);
-  ctx.fillStyle = '#225';
-  ctx.fillRect(UISpacing.displayBorders, (-(UISpacing.displayHeight) + step) + UISpacing.displayBorders, canvas.width - (UISpacing.displayBorders * 2), UISpacing.displayHeight - (UISpacing.displayBorders * 2));
-
-  // Draw bottom display
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(0, canvas.height - step, canvas.width, UISpacing.displayHeight);
-  ctx.fillStyle = '#225';
-  ctx.fillRect(UISpacing.displayBorders, canvas.height - step + UISpacing.displayBorders, canvas.width - (UISpacing.displayBorders * 2), UISpacing.displayHeight - (UISpacing.displayBorders * 2));
-
-  // Draw player
-  var playerWidth = 20;
-  ctx.fillStyle = '#FFF';
-  for(var i = 0; i < battleData.players.length; ++i){
-    ctx.fillRect(-(playerWidth) + (step * 1.5), (canvas.height / (battleData.players.length + 1)) * (i + 1), playerWidth, 30);
-  }
-
-  // Draw enemies
-  var enemyWidth = 20;
-  ctx.fillStyle = '#000';
-  for(var i = 0; i < battleData.enemies.length; ++i){
-    ctx.fillRect(canvas.width - (step * 1.5), (canvas.height / (battleData.enemies.length + 1)) * (i + 1), enemyWidth, 30);
-  }
-
-  if(step >= UISpacing.displayHeight){
-    var keyState = JSON.parse(JSON.stringify(keys));
-    battleLoop(keyState);
-    return;
-  }
-  else{
-    window.requestAnimationFrame(function(){
-      battleSet(step);
-    });
-  }
-}
-
-function battleEnd(step){
-  screen = 'overworld'; // start listening for OK button confirmation
-  centeredBoxAnimate(step, 40, 'battleEndText');
-}
-
-function battleEndText(){
-
-  var battleXP = xpEarned();
-  var displaySize = 40;
-
-  centeredBox(displaySize);
-
-  canvasWrite(
-    (canvas.width / 2) - displaySize + UISpacing.displayBorders + UISpacing.displayPadding, 
-    (canvas.height / 2) - displaySize + UISpacing.displayBorders + UISpacing.displayPadding, 
-    "You win!\nRewards\nXP:    " + battleXP
-  );
-
-  var buttonWidth = 20;
-  ctx.fillStyle = '#F00';
-  ctx.fillRect(
-    (canvas.width / 2) - (buttonWidth / 2), 
-    (canvas.height / 2) + displaySize - fontSize - UISpacing.displayBorders - UISpacing.displayPadding, 
-    buttonWidth, 
-    fontSize
-  );
-
-  canvasWrite(
-    (canvas.width / 2) - 6, 
-    (canvas.height / 2) + displaySize - fontSize - UISpacing.displayBorders - UISpacing.displayPadding, 
-    "OK"
-  );
-}
-function drawBattle(){
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawBattleBG();
-  drawTopDisplay();
-  drawBottomDisplay();
-  drawPlayerBattle();
-  drawEnemiesBattle();
-  drawBattleCursor();
-}
-
-function drawBattleBG(){
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-}
-
-function drawTopDisplay(){
-
-  // [Jadle 100/100] -> [ATK or target desc]
-  var charText = battleData.UI.top.left;
-  var descriptionText = battleData.UI.top.right;
-
-  // Borders
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(0, 0, canvas.width, UISpacing.displayHeight);
-
-  // Box
-  ctx.fillStyle = '#225';
-  ctx.fillRect(
-    UISpacing.displayBorders, 
-    UISpacing.displayBorders, 
-    canvas.width - (UISpacing.displayBorders * 2), 
-    UISpacing.displayHeight - (UISpacing.displayBorders * 2)
-  );
-
-  // Left Text
-  canvasWrite(
-    UISpacing.displayBorders + UISpacing.displayPadding, 
-    UISpacing.displayBorders, 
-    charText
-  );
-
-  // Right Text
-  canvasWrite(
-    UISpacing.displayBorders + UISpacing.displayPadding + (canvas.width / 3), 
-    UISpacing.displayBorders, 
-    descriptionText
-  );
-}
-
-function drawBottomDisplay(){
-
-  var currentPlayer = getCurrentPlayer();
-
-  function drawBottomDisplayTextData(data){
-    var returnData = '';
-    if(data.length){
-      for(var i = 0; i < data.length; ++i){
-        returnData += data.text + '\n';
-      }
-    }
-    return returnData;
-  }
-
-  var playersText = battleData.UI.bottom[0];
-  var actionText = battleData.UI.bottom[1];
-  var optionsText = battleData.UI.bottom[2];
-  var targetText = battleData.UI.bottom[3];
-
-  // Borders
-  ctx.fillStyle = '#FFF';
-  ctx.fillRect(
-    0, 
-    canvas.height - UISpacing.displayHeight, 
-    canvas.width, 
-    UISpacing.displayHeight
-  );
-
-  // Box
-  ctx.fillStyle = '#225';
-  ctx.fillRect(
-    UISpacing.displayBorders, 
-    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
-    canvas.width - (UISpacing.displayBorders * 2), 
-    UISpacing.displayHeight - (UISpacing.displayBorders * 2)
-  );
-
-  // Highlight current player selection
-  ctx.fillStyle = '#F00';
-  ctx.fillRect(
-    UISpacing.displayBorders + UISpacing.displayPadding, 
-    (canvas.height - UISpacing.displayHeight + UISpacing.displayBorders) + (currentPlayer * fontSize), 
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) - 10), 
-    fontSize
-  );
-
-  // Player names
-  canvasWriteData(
-    UISpacing.displayBorders + UISpacing.displayPadding, 
-    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
-    playersText
-  );
-
-  // Player actions
-  canvasWriteData(
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 1),
-    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
-    actionText
-  );
-
-  // Contextual options
-  canvasWriteData(
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 2), 
-    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
-    optionsText
-  );
-
-  // Contextual targets
-  canvasWriteData(
-    UISpacing.displayBorders + UISpacing.displayPadding + ((canvas.width / 4) * 3), 
-    canvas.height - UISpacing.displayHeight + UISpacing.displayBorders, 
-    targetText
-  );
-}
-
-function drawPlayerBattle(){
-
-  var playerWidth = 20;
-  ctx.fillStyle = '#FFF';
-
-  for(var i = 0; i < battleData.players.length; ++i){
-    ctx.fillRect(
-      -(playerWidth) + 48, 
-      (canvas.height / (battleData.players.length + 1)) * (i + 1), 
-      playerWidth, 
-      30
-    );
-  }
-}
-
-function drawEnemiesBattle(){
-
-  var enemyWidth = 20;
-  ctx.fillStyle = '#000';
-
-  for(var i = 0; i < battleData.enemies.length; ++i){
-    if (battleData.enemies[i].currentHP) {
-      ctx.fillRect(
-        canvas.width - 48, 
-        (canvas.height / (battleData.enemies.length + 1)) * (i + 1), 
-        enemyWidth, 
-        30
-      );
-    }
-  }
-}
-
-function drawBattleCursor(){
-  ctx.fillStyle = '#F00';
-
-  var thisX = UISpacing.displayBorders + ((canvas.width / 4) * battleData.selStage),
-      thisY = canvas.height - UISpacing.displayHeight + UISpacing.displayBorders + (fontSize * battleData.selSlot) + (fontSize / 2);
-
-  ctx.fillRect(thisX, thisY, 2, 2);
-}
-function battleDataInit(players, enemies, enemiesID){
-
-  var thesePlayersNames = [];
-  var thesePlayersHealth = [];
-  var currentStack = {};
-  for(var i = 0; i < players.length; ++i){
-    if(!players[i].currentHP){
-      currentStack[players[i].name] = false;
-      thesePlayersNames.push({text: players[i].name, disabled: true, id: players[i].id});
-    }
-    else{
-      thesePlayersNames.push({text: players[i].name, disabled: false, id: players[i].id});
-    }
-    thesePlayersHealth.push(players[i].name + ': ' + players[i].currentHP + '/' + players[i].maxHP);
-  }
-
-  var theseEnemiesHealth = [];
-  var aliveEnemies = enemies.length;
-  for(var i = 0; i < enemies.length; ++i){
-    theseEnemiesHealth.push(enemies[i].name + ': ' + enemies[i].currentHP + '/' + enemies[i].maxHP);
-    if(!enemies[i].currentHP){
-      aliveEnemies--;
-    }
-  }
-
-  battleData = {
-    UI:{
-      top: {
-        left: thesePlayersHealth.join('\n'),
-        right: theseEnemiesHealth.join('\n')
-      },
-      bottom: [
-        thesePlayersNames,
-        [
-          {text: 'Attack', disabled: false, id: 0},
-          {text: 'Magic', disabled: false, id: 1},
-          {text: 'Defense', disabled: false, id: 2}
-        ],
-        [],
-        [],
-      ],
-    },
-    players: players,
-    enemies: enemies,
-    enemiesID: enemiesID,
-    selStage: 1,
-    selSlot: 0,
-    currentSel: [],
-    stack: currentStack
-  };
-
-  if(!aliveEnemies){
-    setTimeout(function(){
-      battleEnd(0);
-    }, 500);
-  }
-}
-
-function battleSelect(prevKeyState){
-
-  if (screen == 'battle') {
-
-    // Cursor up
-    if(keys.up && !prevKeyState.up){
-      var prevSlot = ((battleData.selSlot - 1) < 0) ? battleData.selSlot : battleData.selSlot - 1;
-      for(var i = prevSlot; i >= 0; i--){
-        if(!battleData.UI.bottom[battleData.selStage][i].disabled){
-          battleData.selSlot = i;
-          break;
-        }
-      }
-    }
-
-    // Cursor down
-    else if(keys.down && !prevKeyState.down){
-      var nextSlot = ((battleData.selSlot + 1) >= battleData.UI.bottom[battleData.selStage].length) ? battleData.selSlot : battleData.selSlot + 1;
-      for(var i = nextSlot; i < battleData.UI.bottom[battleData.selStage].length; i++){
-        if(!battleData.UI.bottom[battleData.selStage][i].disabled){
-          battleData.selSlot = i;
-          break;
-        }
-      }
-    }
-
-    // Next selection
-    else if(keys.enter && !prevKeyState.enter && battleData.selStage <= 4){
-      battleData.selStage = battleData.selStage + 1;
-
-      var options = [];
-
-      if(battleData.selStage == 2){
-
-        switch(battleData.selSlot){
-
-          case 0:
-            var attackNames = Object.keys(battleAttackMenu);
-            for(var i = 0; i < attackNames.length; ++i){
-              options.push({text: attackNames[i], disabled: false, id: i});
-            }
-            break;
-
-          case 1:
-            options = [
-              {text: 'Fire', disabled: false, id: 0},
-              {text: 'Heal', disabled: false, id: 1}
-            ];
-            break;
-
-          case 2:
-            var defenseNames = Object.keys(battleDefenseMenu);
-            for(var i = 0; i < defenseNames.length; ++i){
-              options.push({text: defenseNames[i], disabled: false, id: i});
-            }
-            break;
-        };
-      } else if(battleData.selStage == 3){
-        for(var i = 0; i < battleData.enemies.length; ++i){
-          if(battleData.enemies[i].currentHP){
-            options.push({
-              text: battleData.enemies[i].name, 
-              disabled: false, 
-              id: battleData.enemies[i].id
-            });
-          }
-          else{
-            options.push({
-              text: battleData.enemies[i].name, 
-              disabled: true, 
-              id: battleData.enemies[i].id
-            });
-          }
-        }
-      }
-
-      battleData.UI.bottom[battleData.selStage] = options;
-      battleTurnStack(battleData.selStage, battleData.selSlot, true);
-      battleData.selSlot = getFirstAvailableSlot();
-    }
-
-    // Go back a selection
-    else if(keys.shift && !prevKeyState.shift && battleData.selStage - 1 >= 1){
-      battleData.UI.bottom[battleData.selStage] = [];
-      battleData.selStage = battleData.selStage - 1;
-      battleTurnStack(battleData.selStage, battleData.selSlot, false);
-      battleData.selSlot = getFirstAvailableSlot();
-    }
-  }
-
-  // End of battle button state
-  else {
-    if(keys.enter && !prevKeyState.enter){
-
-      stopBattle(true);
-    }
-  }
-}
-
-function getFirstAvailableSlot(){
-  for(var i = 0; i < battleData.UI.bottom[battleData.selStage].length; i++){
-    if(!battleData.UI.bottom[battleData.selStage][i].disabled){
-      return i;
-    }
-  }
-}
-
-function battleTurnStack(stage, slot, advance){
-
-  var currentPlayer = getCurrentPlayer();
-
-  if(advance){
-    if(battleData.currentSel.length < 2){
-      battleData.currentSel.push(slot);
-    }
-    else{
-      battleData.currentSel.push(slot);
-
-      battleData.stack[battleData.players[currentPlayer].name] = battleData.currentSel;
-      battleData.currentSel = [];
-
-      if(Object.keys(battleData.stack).length >= battleData.players.length){
-        initiateTurn();
-      }
-      else {
-        battleData.UI.bottom[2] = [];
-        battleData.UI.bottom[3] = [];
-        battleData.selStage = 1;
-        battleData.selSlot = getFirstAvailableSlot();
-      }
-    }
-  }
-  else{
-    battleData.currentSel.pop();
-  }
-}
-
-function initiateTurn(){
-
-  var turnStack = [];
-  var playerTargets = [];
-  for(var i = 0; i < battleData.players.length; ++i){
-
-    // Check if the player can take action (not 0 currentHP)
-    if(battleData.stack[battleData.players[i].name]){
-      turnStack.push(
-        {
-          id: battleData.players[i].id,
-          action: [
-            battleData.stack[battleData.players[i].name][0],
-            battleData.stack[battleData.players[i].name][1]
-          ],
-          target: battleData.stack[battleData.players[i].name][2],
-          type: 'players',
-          agility: battleData.players[i].agility
-        }
-      );
-      playerTargets.push(battleData.players[i].id);
-    }
-  }
-
-  var aiAtkOptions = Object.keys(battleAttackMenu);
-  for(var i = 0; i < battleData.enemies.length; ++i){
-
-    // Check if the enemy has currentHP
-    if(battleData.enemies[i].currentHP){
-      turnStack.push(
-        {
-          id: battleData.enemies[i].id,
-          action: [
-            0,
-            Math.floor(Math.random() * aiAtkOptions.length)
-          ],
-          target: playerTargets[Math.floor(Math.random() * playerTargets.length)],
-          type: 'enemies',
-          agility: battleData.enemies[i].agility
-        }
-      );
-    }
-  }
-
-  turnStack.sort(function(a,b){
-    return a.agility - b.agility;
-  }).reverse();
-
-  battleData.stack = turnStack;
-  executeTurn();
-}
-
-function executeTurn(){
-
-  for(var i = 0; i < battleData.stack.length; ++i){
-    if(battleData[battleData.stack[i].type][battleData.stack[i].id].currentHP){
-      switch(battleData.stack[i].action[0]) {
-
-        case 0:
-          executeAttack(i);
-          break;
-
-        case 1:
-          // Magic stuff
-          break;
-
-        case 2:
-          // Defense stuff
-          break;
-      };
-    }
-  }
-
-  battleDataInit(battleData.players, battleData.enemies, battleData.enemiesID);
-}
-
-function executeAttack(stackIndex){
-
-  var current = battleData.stack[stackIndex];
-  var attacks = Object.keys(battleAttackMenu);
-  var targetType = 'players';
-  var attackingStat = battleAttackMenu[attacks[current.action[1]]];
-  if(current.type == 'players'){
-    targetType = 'enemies';
-
-    // Add experience bonuses for using a stat
-    stats[0][current.id].experience.bonuses[attackingStat]++;
-  }
-
-  dealPhysicalDamage(
-    current.type, 
-    current.id, 
-    (current.type == 'players') ? 'enemies' : 'players',
-    current.target,
-    battleAttackMenu[attacks[current.action[1]]]
-  );
-}
-
-function findCharacterStat(name, stat) {
-  var battlers = battleData.players.concat(battleData.enemies);
-  for (var i = 0; i < battlers.length; i++) {
-    if(battlers[i].name == name){
-      return battlers[i][stat];
-    }
-  }
-  return false;
-}
-
-// attackerType: string, battleData key, either players or enemies
-// attackerID: int, array index of battleData.{{attackerType}}
-// targetType: string, battleData key, either players or enemies
-// targetID: int, array index of battleData.{{targetType}}
-// stat: string, object key for atk stat
-
-function dealPhysicalDamage(attackerType, attackerID, targetType, targetID, stat){
-
-  var atkStat = battleData[attackerType][attackerID][stat];
-  var defenseStat = 0;
-  var weapon = 0;
-  var dmgFormulaRaw = ((atkStat * 0.5) + (weapon)) - (defenseStat);
-  var dmgFormula = (dmgFormulaRaw <= 0) ? 1 : Math.round(dmgFormulaRaw);
-
-  battleData[targetType][targetID].currentHP = (
-    (battleData[targetType][targetID].currentHP - dmgFormula) < 0
-  ) ? 0 : battleData[targetType][targetID].currentHP - dmgFormula;
-}
-
-function getCurrentPlayer(){
-  for(var playerIndex = 0; playerIndex < battleData.players.length; ++playerIndex){
-    if(
-      !battleData.stack.hasOwnProperty(battleData.players[playerIndex].name) && 
-      battleData.players[playerIndex].currentHP
-    ){
-      return playerIndex;
-    }
-  }
-}
-
-function stopBattle(win){
-
-  if(win){
-    delete stats[battleData.enemiesID];
-    for(var i = 0; i < entities.length; ++i){
-      if(entities[i].type && entities[i].id == battleData.enemiesID){
-        entities[i] = {type: false, tile: entities[i].tile};
-      }
-    }
-
-    var battleXP = xpEarned();
-    for(var i = 0; i < battleData.players.length; ++i){
-      battleData.players[i].experience.points += battleXP;
-    }
-    checkXP = true;
-  }
-
-  stats[0] = battleData.players;
-  battleData = {};
-  entityDataToMap();
-
-  overworldLoop();
-}
-
-function xpEarned(){
-  var battleXP = 0;
-  for(var i = 0; i < battleData.enemies.length; ++i){
-    battleXP += battleData.enemies[i].maxHP;
-  }
-  return battleXP;
-}
+};

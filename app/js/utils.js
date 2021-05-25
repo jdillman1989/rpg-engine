@@ -1,4 +1,4 @@
-const getBonusedStats = (playerID) => {
+var getBonusedStats = (playerID) => {
   const playerBonuses = stats[0][playerID].experience.bonuses;
   const statsSorted = Object.keys(playerBonuses).sort((a, b) => {
     return playerBonuses[a] - playerBonuses[b];
@@ -11,7 +11,7 @@ const getBonusedStats = (playerID) => {
   return result;
 };
 
-const abbrevs = (text) => {
+var abbrevs = (text) => {
   switch (text) {
     case "Str":
       return "strength";
@@ -47,7 +47,7 @@ const abbrevs = (text) => {
   }
 };
 
-const canvasWrite = (posX, posY, text) => {
+var canvasWrite = (posX, posY, text) => {
   ctx.font = fontSize + "px Courier";
   ctx.fillStyle = "white";
   const lines = text.split("\n");
@@ -58,7 +58,7 @@ const canvasWrite = (posX, posY, text) => {
 };
 
 // textData: [{text, disabled, id}, {text, disabled, id}, ...]
-const canvasWriteData = (posX, posY, textData) => {
+var canvasWriteData = (posX, posY, textData) => {
   ctx.font = fontSize + "px Courier";
   for (let i = 0; i < textData.length; i++) {
     ctx.fillStyle = textData[i].disabled ? "gray" : "white";
@@ -66,7 +66,7 @@ const canvasWriteData = (posX, posY, textData) => {
   }
 };
 
-const toColor = (colorObj) => {
+var toColor = (colorObj) => {
   return (
     "rgb(" +
     colorValLimit(colorObj.r) +
@@ -78,7 +78,7 @@ const toColor = (colorObj) => {
   );
 };
 
-const colorValLimit = (color) => {
+var colorValLimit = (color) => {
   if (color >= 255) {
     color = 255;
   }
@@ -90,7 +90,7 @@ const colorValLimit = (color) => {
   return Math.round(color);
 };
 
-const colorSet = (color) => {
+var colorSet = (color) => {
   const colorCool = {
     r: color.r - 90,
     g: color.g - 20,

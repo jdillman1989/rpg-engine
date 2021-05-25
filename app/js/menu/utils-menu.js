@@ -1,4 +1,4 @@
-const xpCheck = () => {
+var xpCheck = () => {
   const playerParty = stats[0];
   for (let i = 0; i < playerParty.length; i++) {
     const levelUp = baseXP * (playerParty[i].experience.level / 10);
@@ -11,11 +11,11 @@ const xpCheck = () => {
   }
 };
 
-const recalcMaxHP = (statsID) => {
+var recalcMaxHP = (statsID) => {
   stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
 };
 
-const levelUpUI = (statsID) => {
+var levelUpUI = (statsID) => {
   const statPointsOnLvl =
     Math.floor(stats[0][statsID].experience.level / 2) < 2
       ? 2
@@ -112,7 +112,7 @@ const levelUpUI = (statsID) => {
   menuLoop(keyState);
 };
 
-const menuSelect = (prevKeyState) => {
+var menuSelect = (prevKeyState) => {
   if (screen == "menu") {
     // Cursor up
     if (keys.up && !prevKeyState.up) {
@@ -158,7 +158,7 @@ const menuSelect = (prevKeyState) => {
   }
 };
 
-const xpMenuAdd = (data) => {
+var xpMenuAdd = (data) => {
   const uiRemaining = menuData.body.split(": ");
   const remaining = parseInt(uiRemaining[1]);
 
@@ -230,7 +230,7 @@ const xpMenuAdd = (data) => {
   }
 };
 
-const xpMenuSubtract = (data) => {
+var xpMenuSubtract = (data) => {
   const uiAdded = menuData.options[menuData.currentSel].text.split("+");
   const added = parseInt(uiAdded[1]);
 
@@ -245,7 +245,7 @@ const xpMenuSubtract = (data) => {
   }
 };
 
-const xpMenuClose = (points) => {
+var xpMenuClose = (points) => {
   for (let i = 0; i < points.length; i++) {
     stats[0][menuData.playerID][points[i].stat] = points[i].points;
   }
@@ -264,6 +264,6 @@ const xpMenuClose = (points) => {
   overworldLoop();
 };
 
-const xpMenuReturn = (prevData) => {
+var xpMenuReturn = (prevData) => {
   menuData = prevData;
 };

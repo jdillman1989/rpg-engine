@@ -74,7 +74,7 @@ window.onload = () => {
   }, 700);
 };
 
-const entityDataToMap = () => {
+var entityDataToMap = () => {
   for (let i = 0; i < entities.length; ++i) {
     if (entities[i].type) {
       map[entities[i].tile].render.object = entities[i].id;
@@ -95,7 +95,7 @@ const entityDataToMap = () => {
   }
 };
 
-const keysState = (key, down) => {
+var keysState = (key, down) => {
   if (down) {
     keys[key] = true;
   } else {
@@ -108,7 +108,7 @@ const keysState = (key, down) => {
   }
 };
 
-const overworldLoop = () => {
+var overworldLoop = () => {
   if (screen == "overworld") {
     drawGame(map);
 
@@ -144,7 +144,7 @@ const overworldLoop = () => {
   }
 };
 
-const battleLoop = (prevKeyState) => {
+var battleLoop = (prevKeyState) => {
   if (screen == "battle") {
     drawBattle();
 
@@ -174,7 +174,7 @@ const battleLoop = (prevKeyState) => {
   }
 };
 
-const menuLoop = (prevKeyState) => {
+var menuLoop = (prevKeyState) => {
   if (screen == "menu") {
     drawMenu();
 

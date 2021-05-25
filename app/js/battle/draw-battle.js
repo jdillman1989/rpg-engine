@@ -1,4 +1,4 @@
-const drawBattle = () => {
+var drawBattle = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
   drawTopDisplay();
@@ -8,11 +8,11 @@ const drawBattle = () => {
   drawBattleCursor();
 };
 
-const drawBattleBG = () => {
+var drawBattleBG = () => {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 };
 
-const drawTopDisplay = () => {
+var drawTopDisplay = () => {
   // [Jadle 100/100] -> [ATK or target desc]
   var charText = battleData.UI.top.left;
   var descriptionText = battleData.UI.top.right;
@@ -45,7 +45,7 @@ const drawTopDisplay = () => {
   );
 };
 
-const drawBottomDisplay = () => {
+var drawBottomDisplay = () => {
   const currentPlayer = getCurrentPlayer();
 
   const drawBottomDisplayTextData = (data) => {
@@ -130,7 +130,7 @@ const drawBottomDisplay = () => {
   );
 };
 
-const drawPlayerBattle = () => {
+var drawPlayerBattle = () => {
   const playerWidth = 20;
   ctx.fillStyle = "#FFF";
 
@@ -144,7 +144,7 @@ const drawPlayerBattle = () => {
   }
 };
 
-const drawEnemiesBattle = () => {
+var drawEnemiesBattle = () => {
   const enemyWidth = 20;
   ctx.fillStyle = "#000";
 
@@ -160,7 +160,7 @@ const drawEnemiesBattle = () => {
   }
 };
 
-const drawBattleCursor = () => {
+var drawBattleCursor = () => {
   ctx.fillStyle = "#F00";
 
   const thisX =

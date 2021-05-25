@@ -1,4 +1,4 @@
-const battleIntro = (step) => {
+var battleIntro = (step) => {
   screen = "battle";
 
   step = step + 4;
@@ -16,7 +16,7 @@ const battleIntro = (step) => {
   }
 };
 
-const battleBg = (step) => {
+var battleBg = (step) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step - 2;
@@ -39,7 +39,7 @@ const battleBg = (step) => {
   }
 };
 
-const battleSet = (step) => {
+var battleSet = (step) => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -109,12 +109,12 @@ const battleSet = (step) => {
   }
 };
 
-const battleEnd = (step) => {
+var battleEnd = (step) => {
   screen = "overworld"; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, "battleEndText");
 };
 
-const battleEndText = () => {
+var battleEndText = () => {
   const battleXP = xpEarned();
   const displaySize = 40;
 
