@@ -1,4 +1,4 @@
-var drawBattle = () => {
+function drawBattle() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
   drawTopDisplay();
@@ -6,16 +6,16 @@ var drawBattle = () => {
   drawPlayerBattle();
   drawEnemiesBattle();
   drawBattleCursor();
-};
+}
 
-var drawBattleBG = () => {
+function drawBattleBG() {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-};
+}
 
-var drawTopDisplay = () => {
+function drawTopDisplay() {
   // [Jadle 100/100] -> [ATK or target desc]
-  var charText = battleData.UI.top.left;
-  var descriptionText = battleData.UI.top.right;
+  const charText = battleData.UI.top.left;
+  const descriptionText = battleData.UI.top.right;
 
   // Borders
   ctx.fillStyle = "#FFF";
@@ -43,9 +43,9 @@ var drawTopDisplay = () => {
     UISpacing.displayBorders,
     descriptionText
   );
-};
+}
 
-var drawBottomDisplay = () => {
+function drawBottomDisplay() {
   const currentPlayer = getCurrentPlayer();
 
   const drawBottomDisplayTextData = (data) => {
@@ -128,9 +128,9 @@ var drawBottomDisplay = () => {
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders,
     targetText
   );
-};
+}
 
-var drawPlayerBattle = () => {
+function drawPlayerBattle() {
   const playerWidth = 20;
   ctx.fillStyle = "#FFF";
 
@@ -142,9 +142,9 @@ var drawPlayerBattle = () => {
       30
     );
   }
-};
+}
 
-var drawEnemiesBattle = () => {
+function drawEnemiesBattle() {
   const enemyWidth = 20;
   ctx.fillStyle = "#000";
 
@@ -158,9 +158,9 @@ var drawEnemiesBattle = () => {
       );
     }
   }
-};
+}
 
-var drawBattleCursor = () => {
+function drawBattleCursor() {
   ctx.fillStyle = "#F00";
 
   const thisX =
@@ -173,4 +173,4 @@ var drawBattleCursor = () => {
     fontSize / 2;
 
   ctx.fillRect(thisX, thisY, 2, 2);
-};
+}

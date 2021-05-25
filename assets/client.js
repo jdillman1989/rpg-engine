@@ -901,7 +901,7 @@ window.onload = () => {
   }, 700);
 };
 
-var entityDataToMap = () => {
+function entityDataToMap() {
   for (let i = 0; i < entities.length; ++i) {
     if (entities[i].type) {
       map[entities[i].tile].render.object = entities[i].id;
@@ -920,9 +920,9 @@ var entityDataToMap = () => {
       map[entities[i].tile].state = { passable: true };
     }
   }
-};
+}
 
-var keysState = (key, down) => {
+function keysState(key, down) {
   if (down) {
     keys[key] = true;
   } else {
@@ -933,9 +933,9 @@ var keysState = (key, down) => {
       entities[0].interval = 0;
     }
   }
-};
+}
 
-var overworldLoop = () => {
+function overworldLoop() {
   if (screen == "overworld") {
     drawGame(map);
 
@@ -959,7 +959,7 @@ var overworldLoop = () => {
     }
 
     window.requestAnimationFrame(() => {
-      var now = performance.now();
+      const now = performance.now();
       while (times.length > 0 && times[0] <= now - 1000) {
         times.shift();
       }
@@ -969,9 +969,9 @@ var overworldLoop = () => {
       overworldLoop();
     });
   }
-};
+}
 
-var battleLoop = (prevKeyState) => {
+function battleLoop(prevKeyState) {
   if (screen == "battle") {
     drawBattle();
 
@@ -980,7 +980,7 @@ var battleLoop = (prevKeyState) => {
     const thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
     window.requestAnimationFrame(() => {
-      var now = performance.now();
+      const now = performance.now();
       while (times.length > 0 && times[0] <= now - 1000) {
         times.shift();
       }
@@ -999,9 +999,9 @@ var battleLoop = (prevKeyState) => {
       });
     }
   }
-};
+}
 
-var menuLoop = (prevKeyState) => {
+function menuLoop(prevKeyState) {
   if (screen == "menu") {
     drawMenu();
 
@@ -1020,9 +1020,9 @@ var menuLoop = (prevKeyState) => {
       menuLoop(thisPrevKeyState);
     });
   }
-};
+}
 
-var getBonusedStats = (playerID) => {
+function getBonusedStats(playerID) {
   const playerBonuses = stats[0][playerID].experience.bonuses;
   const statsSorted = Object.keys(playerBonuses).sort((a, b) => {
     return playerBonuses[a] - playerBonuses[b];
@@ -1033,9 +1033,9 @@ var getBonusedStats = (playerID) => {
   result.secondary = statsSorted[statsSorted.length - 2];
 
   return result;
-};
+}
 
-var abbrevs = (text) => {
+function abbrevs(text) {
   switch (text) {
     case "Str":
       return "strength";
@@ -1069,9 +1069,9 @@ var abbrevs = (text) => {
       return "Foc";
       break;
   }
-};
+}
 
-var canvasWrite = (posX, posY, text) => {
+function canvasWrite(posX, posY, text) {
   ctx.font = fontSize + "px Courier";
   ctx.fillStyle = "white";
   const lines = text.split("\n");
@@ -1079,18 +1079,18 @@ var canvasWrite = (posX, posY, text) => {
   for (let i = 0; i < lines.length; i++) {
     ctx.fillText(lines[i], posX, posY + i * fontSize + fontSize);
   }
-};
+}
 
 // textData: [{text, disabled, id}, {text, disabled, id}, ...]
-var canvasWriteData = (posX, posY, textData) => {
+function canvasWriteData(posX, posY, textData) {
   ctx.font = fontSize + "px Courier";
   for (let i = 0; i < textData.length; i++) {
     ctx.fillStyle = textData[i].disabled ? "gray" : "white";
     ctx.fillText(textData[i].text, posX, posY + i * fontSize + fontSize);
   }
-};
+}
 
-var toColor = (colorObj) => {
+function toColor(colorObj) {
   return (
     "rgb(" +
     colorValLimit(colorObj.r) +
@@ -1100,9 +1100,9 @@ var toColor = (colorObj) => {
     colorValLimit(colorObj.b) +
     ")"
   );
-};
+}
 
-var colorValLimit = (color) => {
+function colorValLimit(color) {
   if (color >= 255) {
     color = 255;
   }
@@ -1112,9 +1112,9 @@ var colorValLimit = (color) => {
   }
 
   return Math.round(color);
-};
+}
 
-var colorSet = (color) => {
+function colorSet(color) {
   const colorCool = {
     r: color.r - 90,
     g: color.g - 20,
@@ -1127,16 +1127,16 @@ var colorSet = (color) => {
     b: color.b - 90,
   };
 
-  var colorObj = {
+  const colorObj = {
     base: color,
     cool: colorCool,
     warm: colorWarm,
   };
 
   return colorObj;
-};
+}
 
-var battleIntro = (step) => {
+function battleIntro (step) {
   screen = "battle";
 
   step = step + 4;
@@ -1154,7 +1154,7 @@ var battleIntro = (step) => {
   }
 };
 
-var battleBg = (step) => {
+function battleBg (step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step - 2;
@@ -1177,7 +1177,7 @@ var battleBg = (step) => {
   }
 };
 
-var battleSet = (step) => {
+function battleSet (step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -1247,12 +1247,12 @@ var battleSet = (step) => {
   }
 };
 
-var battleEnd = (step) => {
+function battleEnd (step) {
   screen = "overworld"; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, "battleEndText");
 };
 
-var battleEndText = () => {
+function battleEndText () {
   const battleXP = xpEarned();
   const displaySize = 40;
 
@@ -1288,7 +1288,7 @@ var battleEndText = () => {
   canvasWrite(canvas.width / 2 - 6, positionBottomCenter, "OK");
 };
 
-var drawBattle = () => {
+function drawBattle() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
   drawTopDisplay();
@@ -1296,16 +1296,16 @@ var drawBattle = () => {
   drawPlayerBattle();
   drawEnemiesBattle();
   drawBattleCursor();
-};
+}
 
-var drawBattleBG = () => {
+function drawBattleBG() {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-};
+}
 
-var drawTopDisplay = () => {
+function drawTopDisplay() {
   // [Jadle 100/100] -> [ATK or target desc]
-  var charText = battleData.UI.top.left;
-  var descriptionText = battleData.UI.top.right;
+  const charText = battleData.UI.top.left;
+  const descriptionText = battleData.UI.top.right;
 
   // Borders
   ctx.fillStyle = "#FFF";
@@ -1333,9 +1333,9 @@ var drawTopDisplay = () => {
     UISpacing.displayBorders,
     descriptionText
   );
-};
+}
 
-var drawBottomDisplay = () => {
+function drawBottomDisplay() {
   const currentPlayer = getCurrentPlayer();
 
   const drawBottomDisplayTextData = (data) => {
@@ -1418,9 +1418,9 @@ var drawBottomDisplay = () => {
     canvas.height - UISpacing.displayHeight + UISpacing.displayBorders,
     targetText
   );
-};
+}
 
-var drawPlayerBattle = () => {
+function drawPlayerBattle() {
   const playerWidth = 20;
   ctx.fillStyle = "#FFF";
 
@@ -1432,9 +1432,9 @@ var drawPlayerBattle = () => {
       30
     );
   }
-};
+}
 
-var drawEnemiesBattle = () => {
+function drawEnemiesBattle() {
   const enemyWidth = 20;
   ctx.fillStyle = "#000";
 
@@ -1448,9 +1448,9 @@ var drawEnemiesBattle = () => {
       );
     }
   }
-};
+}
 
-var drawBattleCursor = () => {
+function drawBattleCursor() {
   ctx.fillStyle = "#F00";
 
   const thisX =
@@ -1463,9 +1463,9 @@ var drawBattleCursor = () => {
     fontSize / 2;
 
   ctx.fillRect(thisX, thisY, 2, 2);
-};
+}
 
-var battleDataInit = (players, enemies, enemiesID) => {
+function battleDataInit(players, enemies, enemiesID) {
   const thesePlayersNames = [];
   const thesePlayersHealth = [];
   let currentStack = {};
@@ -1531,9 +1531,9 @@ var battleDataInit = (players, enemies, enemiesID) => {
       battleEnd(0);
     }, 500);
   }
-};
+}
 
-var battleSelect = (prevKeyState) => {
+function battleSelect(prevKeyState) {
   if (screen == "battle") {
     // Cursor up
     if (keys.up && !prevKeyState.up) {
@@ -1639,17 +1639,17 @@ var battleSelect = (prevKeyState) => {
       stopBattle(true);
     }
   }
-};
+}
 
-var getFirstAvailableSlot = () => {
+function getFirstAvailableSlot() {
   for (let i = 0; i < battleData.UI.bottom[battleData.selStage].length; i++) {
     if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
       return i;
     }
   }
-};
+}
 
-var battleTurnStack = (stage, slot, advance) => {
+function battleTurnStack(stage, slot, advance) {
   const currentPlayer = getCurrentPlayer();
 
   if (advance) {
@@ -1674,9 +1674,9 @@ var battleTurnStack = (stage, slot, advance) => {
   } else {
     battleData.currentSel.pop();
   }
-};
+}
 
-var initiateTurn = () => {
+function initiateTurn() {
   const turnStack = [];
   const playerTargets = [];
 
@@ -1722,9 +1722,9 @@ var initiateTurn = () => {
 
   battleData.stack = turnStack;
   executeTurn();
-};
+}
 
-var executeTurn = () => {
+function executeTurn() {
   for (let i = 0; i < battleData.stack.length; ++i) {
     // Does current actor (type and id) have HP
     if (
@@ -1748,9 +1748,9 @@ var executeTurn = () => {
 
   // Reset menu selections at end of all turns
   battleDataInit(battleData.players, battleData.enemies, battleData.enemiesID);
-};
+}
 
-var executeAttack = (stackIndex) => {
+function executeAttack(stackIndex) {
   const current = battleData.stack[stackIndex];
   const attacks = Object.keys(battleAttackMenu);
   let targetType = "players";
@@ -1769,9 +1769,9 @@ var executeAttack = (stackIndex) => {
     current.target,
     battleAttackMenu[attacks[current.action[1]]]
   );
-};
+}
 
-var findCharacterStat = (name, stat) => {
+function findCharacterStat(name, stat) {
   const battlers = battleData.players.concat(battleData.enemies);
   for (let i = 0; i < battlers.length; i++) {
     if (battlers[i].name == name) {
@@ -1779,7 +1779,7 @@ var findCharacterStat = (name, stat) => {
     }
   }
   return false;
-};
+}
 
 // attackerType: string, battleData key, either players or enemies
 // attackerID: int, array index of battleData.{{attackerType}}
@@ -1787,13 +1787,13 @@ var findCharacterStat = (name, stat) => {
 // targetID: int, array index of battleData.{{targetType}}
 // stat: string, object key for atk stat
 
-var dealPhysicalDamage = (
+function dealPhysicalDamage(
   attackerType,
   attackerID,
   targetType,
   targetID,
   stat
-) => {
+) {
   const atkStat = battleData[attackerType][attackerID][stat];
   const defenseStat = 0;
   const weapon = 0;
@@ -1804,9 +1804,9 @@ var dealPhysicalDamage = (
     battleData[targetType][targetID].currentHP - dmgFormula < 0
       ? 0
       : battleData[targetType][targetID].currentHP - dmgFormula;
-};
+}
 
-var getCurrentPlayer = () => {
+function getCurrentPlayer() {
   for (
     let playerIndex = 0;
     playerIndex < battleData.players.length;
@@ -1819,9 +1819,9 @@ var getCurrentPlayer = () => {
       return playerIndex;
     }
   }
-};
+}
 
-var stopBattle = (win) => {
+function stopBattle(win) {
   if (win) {
     delete stats[battleData.enemiesID];
     for (let i = 0; i < entities.length; ++i) {
@@ -1842,17 +1842,17 @@ var stopBattle = (win) => {
   entityDataToMap();
 
   overworldLoop();
-};
+}
 
-var xpEarned = () => {
+function xpEarned() {
   let battleXP = 0;
   for (let i = 0; i < battleData.enemies.length; ++i) {
     battleXP += battleData.enemies[i].maxHP;
   }
   return battleXP;
-};
+}
 
-var centeredBoxAnimate = (step, size, callback, callbackData) => {
+function centeredBoxAnimate (step, size, callback, callbackData) {
   step = step + 4;
 
   ctx.fillStyle = "#FFF";
@@ -1880,7 +1880,7 @@ var centeredBoxAnimate = (step, size, callback, callbackData) => {
   }
 };
 
-var drawMenu = () => {
+function drawMenu () {
   ctx.clearRect(
     canvas.width / 2 - menuData.size,
     canvas.height / 2 - menuData.size,
@@ -1904,7 +1904,7 @@ var drawMenu = () => {
   drawMenuCursor();
 };
 
-var drawOptions = () => {
+function drawOptions () {
   for (let i = 0; i < menuData.options.length; i++) {
     if (menuData.options[i].effects) {
       window[menuData.options[i].effects.func].apply(
@@ -1922,7 +1922,7 @@ var drawOptions = () => {
   }
 };
 
-var centeredBox = (size) => {
+function centeredBox (size) {
   ctx.fillStyle = "#FFF";
   ctx.fillRect(
     canvas.width / 2 - size,
@@ -1939,7 +1939,7 @@ var centeredBox = (size) => {
   );
 };
 
-var drawMenuCursor = () => {
+function drawMenuCursor () {
   ctx.fillStyle = "#F00";
 
   const thisX = menuData.options[menuData.currentSel].x - 2;
@@ -1948,7 +1948,7 @@ var drawMenuCursor = () => {
   ctx.fillRect(thisX, thisY, 2, 2);
 };
 
-var statHighlight = (color, optionID) => {
+function statHighlight (color, optionID) {
   ctx.fillStyle = color;
 
   ctx.fillRect(
@@ -1959,7 +1959,7 @@ var statHighlight = (color, optionID) => {
   );
 };
 
-var xpCheck = () => {
+function xpCheck() {
   const playerParty = stats[0];
   for (let i = 0; i < playerParty.length; i++) {
     const levelUp = baseXP * (playerParty[i].experience.level / 10);
@@ -1970,13 +1970,13 @@ var xpCheck = () => {
       centeredBoxAnimate(0, 48, "levelUpUI", [i]);
     }
   }
-};
+}
 
-var recalcMaxHP = (statsID) => {
+function recalcMaxHP(statsID) {
   stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
-};
+}
 
-var levelUpUI = (statsID) => {
+function levelUpUI(statsID) {
   const statPointsOnLvl =
     Math.floor(stats[0][statsID].experience.level / 2) < 2
       ? 2
@@ -2040,7 +2040,7 @@ var levelUpUI = (statsID) => {
 
   if (menuData.body.length) {
     const lines = menuData.body.split("\n");
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
       optionsY += fontSize;
     }
   }
@@ -2071,9 +2071,9 @@ var levelUpUI = (statsID) => {
 
   const keyState = JSON.parse(JSON.stringify(keys));
   menuLoop(keyState);
-};
+}
 
-var menuSelect = (prevKeyState) => {
+function menuSelect(prevKeyState) {
   if (screen == "menu") {
     // Cursor up
     if (keys.up && !prevKeyState.up) {
@@ -2117,9 +2117,9 @@ var menuSelect = (prevKeyState) => {
       window[menuData.shift.func].apply(null, menuData.shift.data);
     }
   }
-};
+}
 
-var xpMenuAdd = (data) => {
+function xpMenuAdd(data) {
   const uiRemaining = menuData.body.split(": ");
   const remaining = parseInt(uiRemaining[1]);
 
@@ -2189,9 +2189,9 @@ var xpMenuAdd = (data) => {
       ];
     }
   }
-};
+}
 
-var xpMenuSubtract = (data) => {
+function xpMenuSubtract(data) {
   const uiAdded = menuData.options[menuData.currentSel].text.split("+");
   const added = parseInt(uiAdded[1]);
 
@@ -2204,9 +2204,9 @@ var xpMenuSubtract = (data) => {
     menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
     menuData.body = uiRemaining[0] + ": " + newRemaining;
   }
-};
+}
 
-var xpMenuClose = (points) => {
+function xpMenuClose(points) {
   for (let i = 0; i < points.length; i++) {
     stats[0][menuData.playerID][points[i].stat] = points[i].points;
   }
@@ -2223,13 +2223,13 @@ var xpMenuClose = (points) => {
   screen = menuData.returnScreen;
   menuData = {};
   overworldLoop();
-};
+}
 
-var xpMenuReturn = (prevData) => {
+function xpMenuReturn(prevData) {
   menuData = prevData;
-};
+}
 
-var animateMove = (id, up, down, left, right) => {
+function animateMove (id, up, down, left, right) {
   const prevTile = entities[id].tile;
 
   if (up) {
@@ -2294,7 +2294,7 @@ var animateMove = (id, up, down, left, right) => {
 };
 
 // Unused function
-var spriteLoop = (id, frames, rate) => {
+function spriteLoop (id, frames, rate) {
   let i = 0;
   const thisAnim = setInterval(() => {
     entities[id].frame = i;
@@ -2305,7 +2305,7 @@ var spriteLoop = (id, frames, rate) => {
   }, rate);
 };
 
-var setPath = (id, path, originPoint, originTime, step) => {
+function setPath (id, path, originPoint, originTime, step) {
   if (path[step] != "wait" && path[step] != "stop") {
     const destX = Math.abs(entities[id].xy.x - originPoint.x);
     const destY = Math.abs(entities[id].xy.y - originPoint.y);
@@ -2378,7 +2378,7 @@ var setPath = (id, path, originPoint, originTime, step) => {
   });
 };
 
-var walkLoop = (id, frames) => {
+function walkLoop (id, frames) {
   let i = 1;
 
   if (entities[id].interval == 0) {
@@ -2393,7 +2393,7 @@ var walkLoop = (id, frames) => {
   }
 };
 
-var drawGame = (map) => {
+function drawGame (map) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const tileObjData = [];
@@ -2457,7 +2457,7 @@ var drawGame = (map) => {
   }
 };
 
-var drawSprite = (posX, posY, sizeX, sizeY, thisSprite) => {
+function drawSprite (posX, posY, sizeX, sizeY, thisSprite) {
   let k = 0;
 
   for (let y = posY; y < posY + sizeY; ++y) {
@@ -2471,7 +2471,7 @@ var drawSprite = (posX, posY, sizeX, sizeY, thisSprite) => {
   }
 };
 
-var drawEntity = (id, posX, posY, sizeX, sizeY, thisSprite) => {
+function drawEntity (id, posX, posY, sizeX, sizeY, thisSprite) {
   const offX = posX + entities[id].speedX;
   const offY = posY + entities[id].speedY;
 
@@ -2489,15 +2489,7 @@ var drawEntity = (id, posX, posY, sizeX, sizeY, thisSprite) => {
 // yPolarity: int that determines how the entity is moving vertically (0, 1, -1)
 // axis: string that corresponds to an obj key from the entity to set it's vertical or horizontal speed ('speedX', or 'speedY')
 // loop: array of ints that determine the sprite frames to pass to walkLoop() for animation
-var checkBounding = (
-  id,
-  cornerA,
-  cornerB,
-  xPolarity,
-  yPolarity,
-  axis,
-  loop
-) => {
+function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop) {
   const tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
   const tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
 
@@ -2539,23 +2531,23 @@ var checkBounding = (
     entities[id][axis] = xPolarity ? xPolarity : yPolarity;
     walkLoop(id, loop);
   }
-};
+}
 
-var tileToCoords = (tile) => {
+function tileToCoords(tile) {
   const yIndex = Math.floor(tile / mapW);
   const xIndex = tile - yIndex * mapW;
 
   const y = yIndex * tileSize;
   const x = xIndex * tileSize;
   return { x, y };
-};
+}
 
-var coordsToTile = (x, y) => {
+function coordsToTile(x, y) {
   const tile = Math.floor(y / tileSize) * mapW + Math.floor(x / tileSize);
   return tile;
-};
+}
 
-var adjacentTiles = (tile) => {
+function adjacentTiles(tile) {
   const obj = { far: {}, close: {}, all: {} };
 
   const adj = {
@@ -2584,9 +2576,9 @@ var adjacentTiles = (tile) => {
   }
 
   return obj;
-};
+}
 
-var testMap = () => {
+function testMap() {
   for (let i = 0; i < mapH * mapW; ++i) {
     // Edges
 
@@ -2627,4 +2619,4 @@ var testMap = () => {
       });
     }
   }
-};
+}

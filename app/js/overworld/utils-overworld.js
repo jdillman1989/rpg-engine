@@ -6,15 +6,7 @@
 // yPolarity: int that determines how the entity is moving vertically (0, 1, -1)
 // axis: string that corresponds to an obj key from the entity to set it's vertical or horizontal speed ('speedX', or 'speedY')
 // loop: array of ints that determine the sprite frames to pass to walkLoop() for animation
-var checkBounding = (
-  id,
-  cornerA,
-  cornerB,
-  xPolarity,
-  yPolarity,
-  axis,
-  loop
-) => {
+function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop) {
   const tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
   const tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
 
@@ -56,23 +48,23 @@ var checkBounding = (
     entities[id][axis] = xPolarity ? xPolarity : yPolarity;
     walkLoop(id, loop);
   }
-};
+}
 
-var tileToCoords = (tile) => {
+function tileToCoords(tile) {
   const yIndex = Math.floor(tile / mapW);
   const xIndex = tile - yIndex * mapW;
 
   const y = yIndex * tileSize;
   const x = xIndex * tileSize;
   return { x, y };
-};
+}
 
-var coordsToTile = (x, y) => {
+function coordsToTile(x, y) {
   const tile = Math.floor(y / tileSize) * mapW + Math.floor(x / tileSize);
   return tile;
-};
+}
 
-var adjacentTiles = (tile) => {
+function adjacentTiles(tile) {
   const obj = { far: {}, close: {}, all: {} };
 
   const adj = {
@@ -101,9 +93,9 @@ var adjacentTiles = (tile) => {
   }
 
   return obj;
-};
+}
 
-var testMap = () => {
+function testMap() {
   for (let i = 0; i < mapH * mapW; ++i) {
     // Edges
 
@@ -144,4 +136,4 @@ var testMap = () => {
       });
     }
   }
-};
+}

@@ -1,4 +1,4 @@
-var battleIntro = (step) => {
+function battleIntro (step) {
   screen = "battle";
 
   step = step + 4;
@@ -16,7 +16,7 @@ var battleIntro = (step) => {
   }
 };
 
-var battleBg = (step) => {
+function battleBg (step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step - 2;
@@ -39,7 +39,7 @@ var battleBg = (step) => {
   }
 };
 
-var battleSet = (step) => {
+function battleSet (step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -109,12 +109,12 @@ var battleSet = (step) => {
   }
 };
 
-var battleEnd = (step) => {
+function battleEnd (step) {
   screen = "overworld"; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, "battleEndText");
 };
 
-var battleEndText = () => {
+function battleEndText () {
   const battleXP = xpEarned();
   const displaySize = 40;
 

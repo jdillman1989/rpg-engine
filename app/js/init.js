@@ -74,7 +74,7 @@ window.onload = () => {
   }, 700);
 };
 
-var entityDataToMap = () => {
+function entityDataToMap() {
   for (let i = 0; i < entities.length; ++i) {
     if (entities[i].type) {
       map[entities[i].tile].render.object = entities[i].id;
@@ -93,9 +93,9 @@ var entityDataToMap = () => {
       map[entities[i].tile].state = { passable: true };
     }
   }
-};
+}
 
-var keysState = (key, down) => {
+function keysState(key, down) {
   if (down) {
     keys[key] = true;
   } else {
@@ -106,9 +106,9 @@ var keysState = (key, down) => {
       entities[0].interval = 0;
     }
   }
-};
+}
 
-var overworldLoop = () => {
+function overworldLoop() {
   if (screen == "overworld") {
     drawGame(map);
 
@@ -132,7 +132,7 @@ var overworldLoop = () => {
     }
 
     window.requestAnimationFrame(() => {
-      var now = performance.now();
+      const now = performance.now();
       while (times.length > 0 && times[0] <= now - 1000) {
         times.shift();
       }
@@ -142,9 +142,9 @@ var overworldLoop = () => {
       overworldLoop();
     });
   }
-};
+}
 
-var battleLoop = (prevKeyState) => {
+function battleLoop(prevKeyState) {
   if (screen == "battle") {
     drawBattle();
 
@@ -153,7 +153,7 @@ var battleLoop = (prevKeyState) => {
     const thisPrevKeyState = JSON.parse(JSON.stringify(keys));
 
     window.requestAnimationFrame(() => {
-      var now = performance.now();
+      const now = performance.now();
       while (times.length > 0 && times[0] <= now - 1000) {
         times.shift();
       }
@@ -172,9 +172,9 @@ var battleLoop = (prevKeyState) => {
       });
     }
   }
-};
+}
 
-var menuLoop = (prevKeyState) => {
+function menuLoop(prevKeyState) {
   if (screen == "menu") {
     drawMenu();
 
@@ -193,4 +193,4 @@ var menuLoop = (prevKeyState) => {
       menuLoop(thisPrevKeyState);
     });
   }
-};
+}

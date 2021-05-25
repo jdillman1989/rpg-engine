@@ -1,4 +1,4 @@
-var centeredBoxAnimate = (step, size, callback, callbackData) => {
+function centeredBoxAnimate (step, size, callback, callbackData) {
   step = step + 4;
 
   ctx.fillStyle = "#FFF";

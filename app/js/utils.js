@@ -1,4 +1,4 @@
-var getBonusedStats = (playerID) => {
+function getBonusedStats(playerID) {
   const playerBonuses = stats[0][playerID].experience.bonuses;
   const statsSorted = Object.keys(playerBonuses).sort((a, b) => {
     return playerBonuses[a] - playerBonuses[b];
@@ -9,9 +9,9 @@ var getBonusedStats = (playerID) => {
   result.secondary = statsSorted[statsSorted.length - 2];
 
   return result;
-};
+}
 
-var abbrevs = (text) => {
+function abbrevs(text) {
   switch (text) {
     case "Str":
       return "strength";
@@ -45,9 +45,9 @@ var abbrevs = (text) => {
       return "Foc";
       break;
   }
-};
+}
 
-var canvasWrite = (posX, posY, text) => {
+function canvasWrite(posX, posY, text) {
   ctx.font = fontSize + "px Courier";
   ctx.fillStyle = "white";
   const lines = text.split("\n");
@@ -55,18 +55,18 @@ var canvasWrite = (posX, posY, text) => {
   for (let i = 0; i < lines.length; i++) {
     ctx.fillText(lines[i], posX, posY + i * fontSize + fontSize);
   }
-};
+}
 
 // textData: [{text, disabled, id}, {text, disabled, id}, ...]
-var canvasWriteData = (posX, posY, textData) => {
+function canvasWriteData(posX, posY, textData) {
   ctx.font = fontSize + "px Courier";
   for (let i = 0; i < textData.length; i++) {
     ctx.fillStyle = textData[i].disabled ? "gray" : "white";
     ctx.fillText(textData[i].text, posX, posY + i * fontSize + fontSize);
   }
-};
+}
 
-var toColor = (colorObj) => {
+function toColor(colorObj) {
   return (
     "rgb(" +
     colorValLimit(colorObj.r) +
@@ -76,9 +76,9 @@ var toColor = (colorObj) => {
     colorValLimit(colorObj.b) +
     ")"
   );
-};
+}
 
-var colorValLimit = (color) => {
+function colorValLimit(color) {
   if (color >= 255) {
     color = 255;
   }
@@ -88,9 +88,9 @@ var colorValLimit = (color) => {
   }
 
   return Math.round(color);
-};
+}
 
-var colorSet = (color) => {
+function colorSet(color) {
   const colorCool = {
     r: color.r - 90,
     g: color.g - 20,
@@ -103,11 +103,11 @@ var colorSet = (color) => {
     b: color.b - 90,
   };
 
-  var colorObj = {
+  const colorObj = {
     base: color,
     cool: colorCool,
     warm: colorWarm,
   };
 
   return colorObj;
-};
+}

@@ -1,4 +1,4 @@
-var xpCheck = () => {
+function xpCheck() {
   const playerParty = stats[0];
   for (let i = 0; i < playerParty.length; i++) {
     const levelUp = baseXP * (playerParty[i].experience.level / 10);
@@ -9,13 +9,13 @@ var xpCheck = () => {
       centeredBoxAnimate(0, 48, "levelUpUI", [i]);
     }
   }
-};
+}
 
-var recalcMaxHP = (statsID) => {
+function recalcMaxHP(statsID) {
   stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
-};
+}
 
-var levelUpUI = (statsID) => {
+function levelUpUI(statsID) {
   const statPointsOnLvl =
     Math.floor(stats[0][statsID].experience.level / 2) < 2
       ? 2
@@ -79,7 +79,7 @@ var levelUpUI = (statsID) => {
 
   if (menuData.body.length) {
     const lines = menuData.body.split("\n");
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
       optionsY += fontSize;
     }
   }
@@ -110,9 +110,9 @@ var levelUpUI = (statsID) => {
 
   const keyState = JSON.parse(JSON.stringify(keys));
   menuLoop(keyState);
-};
+}
 
-var menuSelect = (prevKeyState) => {
+function menuSelect(prevKeyState) {
   if (screen == "menu") {
     // Cursor up
     if (keys.up && !prevKeyState.up) {
@@ -156,9 +156,9 @@ var menuSelect = (prevKeyState) => {
       window[menuData.shift.func].apply(null, menuData.shift.data);
     }
   }
-};
+}
 
-var xpMenuAdd = (data) => {
+function xpMenuAdd(data) {
   const uiRemaining = menuData.body.split(": ");
   const remaining = parseInt(uiRemaining[1]);
 
@@ -228,9 +228,9 @@ var xpMenuAdd = (data) => {
       ];
     }
   }
-};
+}
 
-var xpMenuSubtract = (data) => {
+function xpMenuSubtract(data) {
   const uiAdded = menuData.options[menuData.currentSel].text.split("+");
   const added = parseInt(uiAdded[1]);
 
@@ -243,9 +243,9 @@ var xpMenuSubtract = (data) => {
     menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
     menuData.body = uiRemaining[0] + ": " + newRemaining;
   }
-};
+}
 
-var xpMenuClose = (points) => {
+function xpMenuClose(points) {
   for (let i = 0; i < points.length; i++) {
     stats[0][menuData.playerID][points[i].stat] = points[i].points;
   }
@@ -262,8 +262,8 @@ var xpMenuClose = (points) => {
   screen = menuData.returnScreen;
   menuData = {};
   overworldLoop();
-};
+}
 
-var xpMenuReturn = (prevData) => {
+function xpMenuReturn(prevData) {
   menuData = prevData;
-};
+}

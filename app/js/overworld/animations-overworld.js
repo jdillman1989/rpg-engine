@@ -1,4 +1,4 @@
-var animateMove = (id, up, down, left, right) => {
+function animateMove (id, up, down, left, right) {
   const prevTile = entities[id].tile;
 
   if (up) {
@@ -63,7 +63,7 @@ var animateMove = (id, up, down, left, right) => {
 };
 
 // Unused function
-var spriteLoop = (id, frames, rate) => {
+function spriteLoop (id, frames, rate) {
   let i = 0;
   const thisAnim = setInterval(() => {
     entities[id].frame = i;
@@ -74,7 +74,7 @@ var spriteLoop = (id, frames, rate) => {
   }, rate);
 };
 
-var setPath = (id, path, originPoint, originTime, step) => {
+function setPath (id, path, originPoint, originTime, step) {
   if (path[step] != "wait" && path[step] != "stop") {
     const destX = Math.abs(entities[id].xy.x - originPoint.x);
     const destY = Math.abs(entities[id].xy.y - originPoint.y);
@@ -147,7 +147,7 @@ var setPath = (id, path, originPoint, originTime, step) => {
   });
 };
 
-var walkLoop = (id, frames) => {
+function walkLoop (id, frames) {
   let i = 1;
 
   if (entities[id].interval == 0) {
