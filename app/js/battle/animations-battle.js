@@ -1,4 +1,6 @@
-function battleIntro (step) {
+// Wipe-to-black animation from overworld
+// step: height of the black square being drawn
+function battleIntro(step) {
   screen = "battle";
 
   step = step + 4;
@@ -14,9 +16,11 @@ function battleIntro (step) {
       battleIntro(step);
     });
   }
-};
+}
 
-function battleBg (step) {
+// Fade-in-background animation for battle scene
+// step: transparency of the black background
+function battleBg(step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step - 2;
@@ -37,9 +41,11 @@ function battleBg (step) {
       battleBg(step);
     });
   }
-};
+}
 
-function battleSet (step) {
+// Battle menu and characters slide-in animation
+// step: vertical postions of the menus and horizontal positions of the characters
+function battleSet(step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -107,14 +113,14 @@ function battleSet (step) {
       battleSet(step);
     });
   }
-};
+}
 
-function battleEnd (step) {
+function battleEnd(step) {
   screen = "overworld"; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, "battleEndText");
-};
+}
 
-function battleEndText () {
+function battleEndText() {
   const battleXP = xpEarned();
   const displaySize = 40;
 
@@ -148,4 +154,4 @@ function battleEndText () {
   );
 
   canvasWrite(canvas.width / 2 - 6, positionBottomCenter, "OK");
-};
+}
