@@ -1,40 +1,50 @@
 const battleDataInit = (players, enemies, enemiesID) => {
-
   const thesePlayersNames = [];
   const thesePlayersHealth = [];
   let currentStack = {};
   for (let i = 0; i < players.length; ++i) {
     if (!players[i].currentHP) {
       currentStack[players[i].name] = false;
-      thesePlayersNames.push({ text: players[i].name, disabled: true, id: players[i].id });
+      thesePlayersNames.push({
+        text: players[i].name,
+        disabled: true,
+        id: players[i].id,
+      });
+    } else {
+      thesePlayersNames.push({
+        text: players[i].name,
+        disabled: false,
+        id: players[i].id,
+      });
     }
-    else {
-      thesePlayersNames.push({ text: players[i].name, disabled: false, id: players[i].id });
-    }
-    thesePlayersHealth.push(`${players[i].name}: ${players[i].currentHP}/${players[i].maxHP}`);
+    thesePlayersHealth.push(
+      `${players[i].name}: ${players[i].currentHP}/${players[i].maxHP}`
+    );
   }
 
   const theseEnemiesHealth = [];
   let aliveEnemies = enemies.length;
-  for(let i = 0; i < enemies.length; ++i){
-    theseEnemiesHealth.push(`${enemies[i].name}: ${enemies[i].currentHP}/${enemies[i].maxHP}`);
-    if(!enemies[i].currentHP){
+  for (let i = 0; i < enemies.length; ++i) {
+    theseEnemiesHealth.push(
+      `${enemies[i].name}: ${enemies[i].currentHP}/${enemies[i].maxHP}`
+    );
+    if (!enemies[i].currentHP) {
       aliveEnemies--;
     }
   }
 
   battleData = {
-    UI:{
+    UI: {
       top: {
-        left: thesePlayersHealth.join('\n'),
-        right: theseEnemiesHealth.join('\n')
+        left: thesePlayersHealth.join("\n"),
+        right: theseEnemiesHealth.join("\n"),
       },
       bottom: [
         thesePlayersNames,
         [
-          {text: 'Attack', disabled: false, id: 0},
-          {text: 'Magic', disabled: false, id: 1},
-          {text: 'Defense', disabled: false, id: 2}
+          { text: "Attack", disabled: false, id: 0 },
+          { text: "Magic", disabled: false, id: 1 },
+          { text: "Defense", disabled: false, id: 2 },
         ],
         [],
         [],
@@ -46,25 +56,26 @@ const battleDataInit = (players, enemies, enemiesID) => {
     selStage: 1,
     selSlot: 0,
     currentSel: [],
-    stack: currentStack
+    stack: currentStack,
   };
 
   if (!aliveEnemies) {
-    setTimeout(function(){
+    setTimeout(function () {
       battleEnd(0);
     }, 500);
   }
 };
 
 const battleSelect = (prevKeyState) => {
-
-  if (screen == 'battle') {
-
+  if (screen == "battle") {
     // Cursor up
     if (keys.up && !prevKeyState.up) {
-      const prevSlot = ((battleData.selSlot - 1) < 0) ? battleData.selSlot : battleData.selSlot - 1;
-      for(let i = prevSlot; i >= 0; i--){
-        if(!battleData.UI.bottom[battleData.selStage][i].disabled){
+      const prevSlot =
+        battleData.selSlot - 1 < 0
+          ? battleData.selSlot
+          : battleData.selSlot - 1;
+      for (let i = prevSlot; i >= 0; i--) {
+        if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
           battleData.selSlot = i;
           break;
         }
@@ -73,8 +84,16 @@ const battleSelect = (prevKeyState) => {
 
     // Cursor down
     else if (keys.down && !prevKeyState.down) {
-      const nextSlot = ((battleData.selSlot + 1) >= battleData.UI.bottom[battleData.selStage].length) ? battleData.selSlot : battleData.selSlot + 1;
-      for (let i = nextSlot; i < battleData.UI.bottom[battleData.selStage].length; i++) {
+      const nextSlot =
+        battleData.selSlot + 1 >=
+        battleData.UI.bottom[battleData.selStage].length
+          ? battleData.selSlot
+          : battleData.selSlot + 1;
+      for (
+        let i = nextSlot;
+        i < battleData.UI.bottom[battleData.selStage].length;
+        i++
+      ) {
         if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
           battleData.selSlot = i;
           break;
@@ -89,9 +108,7 @@ const battleSelect = (prevKeyState) => {
       let options = [];
 
       if (battleData.selStage == 2) {
-
-        switch(battleData.selSlot) {
-
+        switch (battleData.selSlot) {
           case 0:
             const attackNames = Object.keys(battleAttackMenu);
             for (let i = 0; i < attackNames.length; ++i) {
@@ -101,32 +118,31 @@ const battleSelect = (prevKeyState) => {
 
           case 1:
             options = [
-              { text: 'Fire', disabled: false, id: 0 },
-              { text: 'Heal', disabled: false, id: 1 }
+              { text: "Fire", disabled: false, id: 0 },
+              { text: "Heal", disabled: false, id: 1 },
             ];
             break;
 
           case 2:
             const defenseNames = Object.keys(battleDefenseMenu);
             for (let i = 0; i < defenseNames.length; ++i) {
-              options.push({text: defenseNames[i], disabled: false, id: i});
+              options.push({ text: defenseNames[i], disabled: false, id: i });
             }
             break;
-        };
+        }
       } else if (battleData.selStage == 3) {
         for (let i = 0; i < battleData.enemies.length; ++i) {
           if (battleData.enemies[i].currentHP) {
             options.push({
-              text: battleData.enemies[i].name, 
-              disabled: false, 
-              id: battleData.enemies[i].id
+              text: battleData.enemies[i].name,
+              disabled: false,
+              id: battleData.enemies[i].id,
             });
-          }
-          else {
+          } else {
             options.push({
-              text: battleData.enemies[i].name, 
-              disabled: true, 
-              id: battleData.enemies[i].id
+              text: battleData.enemies[i].name,
+              disabled: true,
+              id: battleData.enemies[i].id,
             });
           }
         }
@@ -138,7 +154,11 @@ const battleSelect = (prevKeyState) => {
     }
 
     // Go back a selection
-    else if (keys.shift && !prevKeyState.shift && battleData.selStage - 1 >= 1) {
+    else if (
+      keys.shift &&
+      !prevKeyState.shift &&
+      battleData.selStage - 1 >= 1
+    ) {
       battleData.UI.bottom[battleData.selStage] = [];
       battleData.selStage = battleData.selStage - 1;
       battleTurnStack(battleData.selStage, battleData.selSlot, false);
@@ -163,57 +183,50 @@ const getFirstAvailableSlot = () => {
 };
 
 const battleTurnStack = (stage, slot, advance) => {
-
   const currentPlayer = getCurrentPlayer();
 
   if (advance) {
     if (battleData.currentSel.length < 2) {
       battleData.currentSel.push(slot);
-    }
-    else {
+    } else {
       battleData.currentSel.push(slot);
 
-      battleData.stack[battleData.players[currentPlayer].name] = battleData.currentSel;
+      battleData.stack[battleData.players[currentPlayer].name] =
+        battleData.currentSel;
       battleData.currentSel = [];
 
       if (Object.keys(battleData.stack).length >= battleData.players.length) {
         initiateTurn();
-      }
-      else {
+      } else {
         battleData.UI.bottom[2] = [];
         battleData.UI.bottom[3] = [];
         battleData.selStage = 1;
         battleData.selSlot = getFirstAvailableSlot();
       }
     }
-  }
-  else {
+  } else {
     battleData.currentSel.pop();
   }
 };
 
 const initiateTurn = () => {
-
   const turnStack = [];
   const playerTargets = [];
 
   // set up unordered player actions
   for (let i = 0; i < battleData.players.length; ++i) {
-
     // Check if the player can take action (not 0 currentHP)
     if (battleData.stack[battleData.players[i].name]) {
-      turnStack.push(
-        {
-          id: battleData.players[i].id,
-          action: [
-            battleData.stack[battleData.players[i].name][0],
-            battleData.stack[battleData.players[i].name][1]
-          ],
-          target: battleData.stack[battleData.players[i].name][2],
-          type: 'players',
-          agility: battleData.players[i].agility
-        }
-      );
+      turnStack.push({
+        id: battleData.players[i].id,
+        action: [
+          battleData.stack[battleData.players[i].name][0],
+          battleData.stack[battleData.players[i].name][1],
+        ],
+        target: battleData.stack[battleData.players[i].name][2],
+        type: "players",
+        agility: battleData.players[i].agility,
+      });
       playerTargets.push(battleData.players[i].id);
     }
   }
@@ -221,41 +234,36 @@ const initiateTurn = () => {
   const aiAtkOptions = Object.keys(battleAttackMenu);
   // set up unordered enemy actions
   for (let i = 0; i < battleData.enemies.length; ++i) {
-
     // Check if the enemy has currentHP
     if (battleData.enemies[i].currentHP) {
-      turnStack.push(
-        {
-          id: battleData.enemies[i].id,
-          action: [
-            0,
-            Math.floor(Math.random() * aiAtkOptions.length)
-          ],
-          target: playerTargets[Math.floor(Math.random() * playerTargets.length)],
-          type: 'enemies',
-          agility: battleData.enemies[i].agility
-        }
-      );
+      turnStack.push({
+        id: battleData.enemies[i].id,
+        action: [0, Math.floor(Math.random() * aiAtkOptions.length)],
+        target: playerTargets[Math.floor(Math.random() * playerTargets.length)],
+        type: "enemies",
+        agility: battleData.enemies[i].agility,
+      });
     }
   }
 
   // Order turn stack based on agility stat
-  turnStack.sort(function(a,b){
-    return a.agility - b.agility;
-  }).reverse();
+  turnStack
+    .sort(function (a, b) {
+      return a.agility - b.agility;
+    })
+    .reverse();
 
   battleData.stack = turnStack;
   executeTurn();
 };
 
 const executeTurn = () => {
-
   for (let i = 0; i < battleData.stack.length; ++i) {
-
-    // Does current actor (type and id) have HP 
-    if (battleData[battleData.stack[i].type][battleData.stack[i].id].currentHP) {
-      switch(battleData.stack[i].action[0]) {
-
+    // Does current actor (type and id) have HP
+    if (
+      battleData[battleData.stack[i].type][battleData.stack[i].id].currentHP
+    ) {
+      switch (battleData.stack[i].action[0]) {
         case 0:
           executeAttack(i);
           break;
@@ -267,7 +275,7 @@ const executeTurn = () => {
         case 2:
           // Defense stuff
           break;
-      };
+      }
     }
   }
 
@@ -276,22 +284,21 @@ const executeTurn = () => {
 };
 
 const executeAttack = (stackIndex) => {
-
   const current = battleData.stack[stackIndex];
   const attacks = Object.keys(battleAttackMenu);
-  let targetType = 'players';
+  let targetType = "players";
   const attackingStat = battleAttackMenu[attacks[current.action[1]]];
-  if (current.type == 'players') {
-    targetType = 'enemies';
+  if (current.type == "players") {
+    targetType = "enemies";
 
     // Add experience bonuses for using a stat
     stats[0][current.id].experience.bonuses[attackingStat]++;
   }
 
   dealPhysicalDamage(
-    current.type, 
-    current.id, 
-    (current.type == 'players') ? 'enemies' : 'players',
+    current.type,
+    current.id,
+    current.type == "players" ? "enemies" : "players",
     current.target,
     battleAttackMenu[attacks[current.action[1]]]
   );
@@ -313,23 +320,33 @@ const findCharacterStat = (name, stat) => {
 // targetID: int, array index of battleData.{{targetType}}
 // stat: string, object key for atk stat
 
-const dealPhysicalDamage = (attackerType, attackerID, targetType, targetID, stat) => {
-
+const dealPhysicalDamage = (
+  attackerType,
+  attackerID,
+  targetType,
+  targetID,
+  stat
+) => {
   const atkStat = battleData[attackerType][attackerID][stat];
   const defenseStat = 0;
   const weapon = 0;
-  const dmgFormulaRaw = ((atkStat * 0.5) + (weapon)) - (defenseStat);
-  const dmgFormula = (dmgFormulaRaw <= 0) ? 1 : Math.round(dmgFormulaRaw);
+  const dmgFormulaRaw = atkStat * 0.5 + weapon - defenseStat;
+  const dmgFormula = dmgFormulaRaw <= 0 ? 1 : Math.round(dmgFormulaRaw);
 
-  battleData[targetType][targetID].currentHP = (
-    (battleData[targetType][targetID].currentHP - dmgFormula) < 0
-  ) ? 0 : battleData[targetType][targetID].currentHP - dmgFormula;
+  battleData[targetType][targetID].currentHP =
+    battleData[targetType][targetID].currentHP - dmgFormula < 0
+      ? 0
+      : battleData[targetType][targetID].currentHP - dmgFormula;
 };
 
 const getCurrentPlayer = () => {
-  for (let playerIndex = 0; playerIndex < battleData.players.length; ++playerIndex) {
+  for (
+    let playerIndex = 0;
+    playerIndex < battleData.players.length;
+    ++playerIndex
+  ) {
     if (
-      !battleData.stack.hasOwnProperty(battleData.players[playerIndex].name) && 
+      !battleData.stack.hasOwnProperty(battleData.players[playerIndex].name) &&
       battleData.players[playerIndex].currentHP
     ) {
       return playerIndex;
@@ -338,12 +355,11 @@ const getCurrentPlayer = () => {
 };
 
 const stopBattle = (win) => {
-
   if (win) {
     delete stats[battleData.enemiesID];
     for (let i = 0; i < entities.length; ++i) {
       if (entities[i].type && entities[i].id == battleData.enemiesID) {
-        entities[i] = {type: false, tile: entities[i].tile};
+        entities[i] = { type: false, tile: entities[i].tile };
       }
     }
 
