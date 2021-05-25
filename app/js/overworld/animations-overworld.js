@@ -1,78 +1,87 @@
-function animateMove(id, up, down, left, right){
+const animateMove = (id, up, down, left, right) => {
+  const prevTile = entities[id].tile;
 
-  var prevTile = entities[id].tile;
+  if (up) {
+    const topLeft = { x: entities[id].xy.x, y: entities[id].xy.y };
+    const topRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y,
+    };
 
-  if(up){
+    checkBounding(id, topLeft, topRight, 0, -1, "speedY", [2, 3]);
+  } else if (down) {
+    const bottomLeft = {
+      x: entities[id].xy.x,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
+    const bottomRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
 
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, topLeft, topRight, 0, -1, 'speedY', [2,3]);
-  }
-  else if(down){
-
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-
-    checkBounding(id, bottomLeft, bottomRight, 0, 1, 'speedY', [0,1]);
-  }
-  else{
+    checkBounding(id, bottomLeft, bottomRight, 0, 1, "speedY", [0, 1]);
+  } else {
     entities[id].speedY = 0;
   }
 
-  if(left){
+  if (left) {
+    const bottomLeft = {
+      x: entities[id].xy.x,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
+    const topLeft = { x: entities[id].xy.x, y: entities[id].xy.y };
 
-    var bottomLeft = {x: entities[id].xy.x, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topLeft = {x: entities[id].xy.x, y: entities[id].xy.y};
+    checkBounding(id, bottomLeft, topLeft, -1, 0, "speedX", [4, 5]);
+  } else if (right) {
+    const bottomRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y + entities[id].sprite.width - 1,
+    };
+    const topRight = {
+      x: entities[id].xy.x + entities[id].sprite.width - 1,
+      y: entities[id].xy.y,
+    };
 
-    checkBounding(id, bottomLeft, topLeft, -1, 0, 'speedX', [4,5]);
-  }
-  else if(right){
-
-    var bottomRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y + entities[id].sprite.width - 1};
-    var topRight = {x: entities[id].xy.x + entities[id].sprite.width - 1, y: entities[id].xy.y};
-
-    checkBounding(id, bottomRight, topRight, 1, 0, 'speedX', [6,7]);
-  }
-  else{
+    checkBounding(id, bottomRight, topRight, 1, 0, "speedX", [6, 7]);
+  } else {
     entities[id].speedX = 0;
   }
 
-  entities[id].tile = coordsToTile(entities[id].xy.x + (entities[id].sprite.width / 2), entities[id].xy.y + (tileSize / 2));
+  entities[id].tile = coordsToTile(
+    entities[id].xy.x + entities[id].sprite.width / 2,
+    entities[id].xy.y + tileSize / 2
+  );
   map[entities[id].tile].render.object = id;
-  if(entities[id].logic.state){
+  if (entities[id].logic.state) {
     map[entities[id].tile].state = entities[id].logic.state;
   }
 
-  if(prevTile !== entities[id].tile){
+  if (prevTile !== entities[id].tile) {
     map[prevTile].render.object = false;
-    map[prevTile].state = {passable: true};
+    map[prevTile].state = { passable: true };
   }
-}
+};
 
-function spriteLoop(id, frames, rate){
-  var i = 0;
-  var thisAnim = setInterval(function(){
-
+// Unused function
+const spriteLoop = (id, frames, rate) => {
+  let i = 0;
+  const thisAnim = setInterval(() => {
     entities[id].frame = i;
     i++;
-    if(i >= frames.length){
+    if (i >= frames.length) {
       i = 0;
     }
   }, rate);
-}
+};
 
-function setPath(id, path, originPoint, originTime, step){
-
-  if (path[step] != 'wait' && path[step] != 'stop') {
-
-    var destX = Math.abs(entities[id].xy.x - originPoint.x);
-    var destY = Math.abs(entities[id].xy.y - originPoint.y);
+const setPath = (id, path, originPoint, originTime, step) => {
+  if (path[step] != "wait" && path[step] != "stop") {
+    const destX = Math.abs(entities[id].xy.x - originPoint.x);
+    const destY = Math.abs(entities[id].xy.y - originPoint.y);
 
     if (destX >= tileSize || destY >= tileSize) {
-
       step = step + 1;
-      if(step >= path.length){
+      if (step >= path.length) {
         step = 0;
       }
 
@@ -80,13 +89,12 @@ function setPath(id, path, originPoint, originTime, step){
       clearInterval(entities[id].interval);
       entities[id].interval = 0;
     }
-  }
-  else{
+  } else {
     originTime = originTime + 1;
-    if(originTime == 60){
+    if (originTime == 60) {
       originTime = 0;
       step = step + 1;
-      if(step >= path.length){
+      if (step >= path.length) {
         step = 0;
       }
       clearInterval(entities[id].interval);
@@ -94,66 +102,62 @@ function setPath(id, path, originPoint, originTime, step){
     }
   }
 
-  switch(path[step]) {
-
-    case 'up':
+  switch (path[step]) {
+    case "up":
       entities[id].dir.up = true;
       entities[id].dir.down = false;
       entities[id].dir.left = false;
       entities[id].dir.right = false;
       break;
 
-    case 'down':
+    case "down":
       entities[id].dir.up = false;
       entities[id].dir.down = true;
       entities[id].dir.left = false;
       entities[id].dir.right = false;
       break;
 
-    case 'left':
+    case "left":
       entities[id].dir.up = false;
       entities[id].dir.down = false;
       entities[id].dir.left = true;
       entities[id].dir.right = false;
       break;
 
-    case 'right':
+    case "right":
       entities[id].dir.up = false;
       entities[id].dir.down = false;
       entities[id].dir.left = false;
       entities[id].dir.right = true;
       break;
 
-    case 'wait':
+    case "wait":
       entities[id].dir.up = false;
       entities[id].dir.down = false;
       entities[id].dir.left = false;
       entities[id].dir.right = false;
-      break
+      break;
 
-    case 'stop':
+    case "stop":
       return;
-      break
-  };
+  }
 
-  window.requestAnimationFrame(function(){
+  window.requestAnimationFrame(() => {
     setPath(id, path, originPoint, originTime, step);
   });
-}
+};
 
-function walkLoop(id, frames){
+const walkLoop = (id, frames) => {
+  let i = 1;
 
-  var i = 1;
-
-  if(entities[id].interval == 0){
-
+  if (entities[id].interval == 0) {
     entities[id].frame = frames[0];
-    entities[id].interval = setInterval(function(){
+    entities[id].interval = setInterval(() => {
       entities[id].frame = frames[i];
       i++;
-      if(i >= frames.length){
+      if (i >= frames.length) {
         i = 0;
       }
     }, 200);
   }
-}
+};

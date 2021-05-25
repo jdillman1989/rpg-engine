@@ -6,113 +6,94 @@
 // yPolarity: int that determines how the entity is moving vertically (0, 1, -1)
 // axis: string that corresponds to an obj key from the entity to set it's vertical or horizontal speed ('speedX', or 'speedY')
 // loop: array of ints that determine the sprite frames to pass to walkLoop() for animation
-function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop){
-
-  var tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
-  var tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
+const checkBounding = (
+  id,
+  cornerA,
+  cornerB,
+  xPolarity,
+  yPolarity,
+  axis,
+  loop
+) => {
+  const tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
+  const tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
 
   // if either of the dest tiles aren't passable, stop movement
-  if(
-    !tileA.state.passable || 
-    !tileB.state.passable
-  ){
+  if (!tileA.state.passable || !tileB.state.passable) {
     entities[id][axis] = 0;
   }
 
   // if the entity id is the player (0) and either of the dest tiles have enemies, start battle
-  else if(
-    !id && (
-      tileA.state.battle || 
-      tileB.state.battle
-    )
-  ){
+  else if (!id && (tileA.state.battle || tileB.state.battle)) {
     entities[id][axis] = 0;
 
-    var players = stats[0];
-    var enemies = stats[tileA.render.object] ? stats[tileA.render.object] : stats[tileB.render.object];
-    var enemiesID = tileA.render.object ? tileA.render.object : tileB.render.object;
+    const players = stats[0];
+    const enemies = stats[tileA.render.object]
+      ? stats[tileA.render.object]
+      : stats[tileB.render.object];
+    const enemiesID = tileA.render.object
+      ? tileA.render.object
+      : tileB.render.object;
 
     battleIntro(0);
     battleDataInit(players, enemies, enemiesID);
   }
-
-
-
-
-
 
   // if the entity id is NOT the player (1+) and either of the dest tiles have the player, start battle
-  else if(
-    id && (
-      tileA.state.player || 
-      tileB.state.player
-    )
-  ){
+  else if (id && (tileA.state.player || tileB.state.player)) {
     entities[id][axis] = 0;
 
-    var players = stats[0];
-    var enemies = stats[id];
-    var enemiesID = id;
+    const players = stats[0];
+    const enemies = stats[id];
+    const enemiesID = id;
 
     battleIntro(0);
     battleDataInit(players, enemies, enemiesID);
   }
 
-
-
-
-
-
-
-
-
   // set the entity's speed and start the animation
-  else{
+  else {
     entities[id][axis] = xPolarity ? xPolarity : yPolarity;
     walkLoop(id, loop);
   }
-}
+};
 
-function tileToCoords(tile){
+const tileToCoords = (tile) => {
+  const yIndex = Math.floor(tile / mapW);
+  const xIndex = tile - yIndex * mapW;
 
-  var yIndex = Math.floor(tile / mapW);
-  var xIndex = tile - (yIndex * mapW);
+  const y = yIndex * tileSize;
+  const x = xIndex * tileSize;
+  return { x, y };
+};
 
-  var y = yIndex * tileSize;
-  var x = xIndex * tileSize;
-  return {x:x, y:y};
-}
-
-function coordsToTile(x, y){
-
-  var tile = ((Math.floor(y / tileSize)) * mapW) + (Math.floor(x / tileSize));
+const coordsToTile = (x, y) => {
+  const tile = Math.floor(y / tileSize) * mapW + Math.floor(x / tileSize);
   return tile;
-}
+};
 
-function adjacentTiles(tile){
+const adjacentTiles = (tile) => {
+  const obj = { far: {}, close: {}, all: {} };
 
-  var obj = { "far":{}, "close":{}, "all":{} };
-
-  var adj = {
-    nw: (tile - (mapW + 1)),
-    ne: (tile - (mapW - 1)),
-    sw: (tile + (mapW - 1)),
-    se: (tile + (mapW + 1)),
-    n: (tile - mapW),
-    e: (tile - 1),
-    w: (tile + 1),
-    s: (tile + mapW)
+  const adj = {
+    nw: tile - (mapW + 1),
+    ne: tile - (mapW - 1),
+    sw: tile + (mapW - 1),
+    se: tile + (mapW + 1),
+    n: tile - mapW,
+    e: tile - 1,
+    w: tile + 1,
+    s: tile + mapW,
   };
 
-  var bounds = Object.values(adj);
-  var dir = Object.keys(adj);
+  const bounds = Object.values(adj);
+  const dir = Object.keys(adj);
 
-  for (var i = 0; i < bounds.length; i++) {
-    if (bounds[i] > -1 && bounds[i] <= (mapW * mapH)) {
+  for (let i = 0; i < bounds.length; i++) {
+    if (bounds[i] > -1 && bounds[i] <= mapW * mapH) {
       if (dir[i].length > 1) {
         obj["far"][dir[i]] = bounds[i];
-      }
-      else{
+      } else {
         obj["close"][dir[i]] = bounds[i];
       }
       obj["all"][dir[i]] = bounds[i];
@@ -120,57 +101,47 @@ function adjacentTiles(tile){
   }
 
   return obj;
-}
+};
 
-function testMap(){
-  for(var i = 0; i < (mapH * mapW); ++i){
-
+const testMap = () => {
+  for (let i = 0; i < mapH * mapW; ++i) {
     // Edges
 
     if (
       // top
-      i < mapW || 
+      i < mapW ||
       // left
-      (i % mapW) == 0 || 
+      i % mapW == 0 ||
       // right
-      ((i + 1) % mapW) == 0 || 
+      (i + 1) % mapW == 0 ||
       // bottom
-      i > ((mapW * mapH) - mapW)
+      i > mapW * mapH - mapW
     ) {
-
-      map.push(
-        {
-          id: i,
-          render: {
-            base: '#D35',
-            object: false,
-            sprite: false
-          },
-          state: {
-            passable: false
-          }
+      map.push({
+        id: i,
+        render: {
+          base: "#D35",
+          object: false,
+          sprite: false,
         },
-      );
-
-    }
-    else{
-
+        state: {
+          passable: false,
+        },
+      });
+    } else {
       // Grass
 
-      map.push(
-        {
-          id: i,
-          render: {
-            base: '#0C3',
-            object: false,
-            sprite: false
-          },
-          state: {
-            passable: true
-          }
+      map.push({
+        id: i,
+        render: {
+          base: "#0C3",
+          object: false,
+          sprite: false,
         },
-      );
-
+        state: {
+          passable: true,
+        },
+      });
     }
   }
-}
+};
