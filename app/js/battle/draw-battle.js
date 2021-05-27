@@ -1,3 +1,4 @@
+// Main draw loop for a battle scene in order from bottom to top layers
 function drawBattle() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
@@ -8,10 +9,12 @@ function drawBattle() {
   drawBattleCursor();
 }
 
+// Battle scene layer 1: backdrop image
 function drawBattleBG() {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 }
 
+// Battle scene layer 2: Top UI Box
 function drawTopDisplay() {
   // [Jadle 100/100] -> [ATK or target desc]
   const charText = battleData.UI.top.left;
@@ -45,6 +48,7 @@ function drawTopDisplay() {
   );
 }
 
+// Battle scene layer 3: Bottom UI Box
 function drawBottomDisplay() {
   const currentPlayer = getCurrentPlayer();
 
@@ -130,6 +134,7 @@ function drawBottomDisplay() {
   );
 }
 
+// Battle scene layer 4: Player sprites
 function drawPlayerBattle() {
   const playerWidth = 20;
   ctx.fillStyle = "#FFF";
@@ -144,6 +149,7 @@ function drawPlayerBattle() {
   }
 }
 
+// Battle scene layer 5: Enemy sprites
 function drawEnemiesBattle() {
   const enemyWidth = 20;
   ctx.fillStyle = "#000";
@@ -160,6 +166,7 @@ function drawEnemiesBattle() {
   }
 }
 
+// Battle scene layer 6: Bottom UI cursor
 function drawBattleCursor() {
   ctx.fillStyle = "#F00";
 
