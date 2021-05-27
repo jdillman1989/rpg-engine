@@ -115,11 +115,14 @@ function battleSet(step) {
   }
 }
 
+// Queue overworld map and animate the end results of the battle
+// step: size of the battle results UI box
 function battleEnd(step) {
   screen = "overworld"; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, "battleEndText");
 }
 
+// Instructions for battle end results box content
 function battleEndText() {
   const battleXP = xpEarned();
   const displaySize = 40;
