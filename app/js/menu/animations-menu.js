@@ -1,4 +1,9 @@
-function centeredBoxAnimate (step, size, callback, callbackData) {
+// Expand animation for a centered box
+// step (int): height / width of the box for the current frame
+// size (int): final height / width of the box
+// callback (string): function name to execute once the animation is complete
+// callbackData (array): function params to apply to callback
+function centeredBoxAnimate(step, size, callback, callbackData) {
   step = step + 4;
 
   ctx.fillStyle = "#FFF";
@@ -24,4 +29,4 @@ function centeredBoxAnimate (step, size, callback, callbackData) {
       centeredBoxAnimate(step, size, callback, callbackData);
     });
   }
-};
+}
