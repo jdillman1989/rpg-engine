@@ -5,9 +5,13 @@ let canvas = null;
 let ctx = null;
 
 // Static Globals
-const tileSize = 16,
-  mapW = 10,
-  mapH = 10;
+
+// width / height of all overworld tiles
+const tileSize = 16;
+
+// width / height of an overworld
+const mapW = 10;
+const mapH = 10;
 
 let camera = {
   x: 0,
@@ -16,6 +20,7 @@ let camera = {
   height: 10,
 };
 
+// current state of all playable keys
 let keys = {
   up: false,
   down: false,
@@ -25,8 +30,10 @@ let keys = {
   shift: false,
 };
 
+// current state of the screen
 let screen = "overworld";
 
+// current state of overworld entities
 let entities = [
   {
     id: 0,
@@ -138,6 +145,7 @@ let entities = [
   },
 ];
 
+// current state of battle stats
 let stats = {
   0: [
     {
@@ -222,9 +230,13 @@ let stats = {
   ],
 };
 
+// base value for calculating levelups
 const baseXP = 500; // 500
+
+// state to determine if levelup should be checked
 let checkXP = false;
 
+// current overworld tiles state
 let map = [];
 
 let img;
@@ -232,19 +244,26 @@ let img;
 let times = [];
 let fps;
 
+// current state of a battle
 let battleData = {};
+
+// battle attack options
 const battleAttackMenu = {
   Aggressive: "strength",
   Fancy: "agility",
   Precise: "intuition",
 };
+
+// battle defense options
 const battleDefenseMenu = {
   Defend: "self",
   Escape: "allies",
 };
 
+// current state of a menu
 let menuData = {};
 
+// defaults used for drawing UI boxes
 const UISpacing = {
   displayBorders: 1,
   displayHeight: 32,
