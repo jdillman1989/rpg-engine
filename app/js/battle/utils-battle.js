@@ -1,7 +1,13 @@
+// Set up the current battle data state object using existing player/enemy data
+// players (array): player objects
+// enemies (array): enemy objects
+// enemiesID (int): ID for the overworld object representing enemies in this battle
 function battleDataInit(players, enemies, enemiesID) {
+  let currentStack = {}; // Shows if an action can be added to the stack for a given player (ie are the alive and has their turn action been chosen yet)
   const thesePlayersNames = [];
   const thesePlayersHealth = [];
-  let currentStack = {};
+
+  // Set up Top UI player text
   for (let i = 0; i < players.length; ++i) {
     if (!players[i].currentHP) {
       currentStack[players[i].name] = false;
@@ -24,6 +30,7 @@ function battleDataInit(players, enemies, enemiesID) {
 
   const theseEnemiesHealth = [];
   let aliveEnemies = enemies.length;
+  // Set up Top UI enemy text
   for (let i = 0; i < enemies.length; ++i) {
     theseEnemiesHealth.push(
       `${enemies[i].name}: ${enemies[i].currentHP}/${enemies[i].maxHP}`
@@ -36,27 +43,29 @@ function battleDataInit(players, enemies, enemiesID) {
   battleData = {
     UI: {
       top: {
-        left: thesePlayersHealth.join("\n"),
-        right: theseEnemiesHealth.join("\n"),
+        left: thesePlayersHealth.join("\n"), // Top bar player side text
+        right: theseEnemiesHealth.join("\n"), // Top bar enemy side text
       },
       bottom: [
-        thesePlayersNames,
+        // Bottom bar turn selection flow
+        thesePlayersNames, // Stage 1: select player
         [
+          // Stage 2: select action
           { text: "Attack", disabled: false, id: 0 },
           { text: "Magic", disabled: false, id: 1 },
           { text: "Defense", disabled: false, id: 2 },
         ],
-        [],
-        [],
+        [], // Stage 3: select action options
+        [], // Stage 4: select target
       ],
     },
-    players: players,
-    enemies: enemies,
-    enemiesID: enemiesID,
-    selStage: 1,
-    selSlot: 0,
-    currentSel: [],
-    stack: currentStack,
+    players: players, // Array of player objects
+    enemies: enemies, // Array of enemy objects
+    enemiesID: enemiesID, // ID of overworld object representing enemies in this battle
+    selStage: 1, // X Cursor position for the current stage
+    selSlot: 0, // Y Cursor position for the slot
+    currentSel: [], // Transient state of the current bottom menu
+    stack: currentStack, // Object of all participants and their complete set of turn actions
   };
 
   if (!aliveEnemies) {
@@ -66,6 +75,8 @@ function battleDataInit(players, enemies, enemiesID) {
   }
 }
 
+// Set bottom UI cursor position and battle data state from key input
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function battleSelect(prevKeyState) {
   if (screen == "battle") {
     // Cursor up
@@ -174,6 +185,7 @@ function battleSelect(prevKeyState) {
   }
 }
 
+// Provides default cursor position at the top of a list
 function getFirstAvailableSlot() {
   for (let i = 0; i < battleData.UI.bottom[battleData.selStage].length; i++) {
     if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
@@ -182,22 +194,32 @@ function getFirstAvailableSlot() {
   }
 }
 
+// Add or remove player turn flow selections to the transient currentSel state. Copy the currentSel transient over to the stack for processing once a turn flow selection is complete
+// stage (int): Battle menu stage ID (cursor X pos)
+// slot (int): Battle menu stage slot ID (cursore Y pos)
+// advance (bool): Add selection to currentSel (Enter). Remove the last entry on currentSel (Shift).
 function battleTurnStack(stage, slot, advance) {
   const currentPlayer = getCurrentPlayer();
 
+  // Enter key: selected slot confirmed for the current stage
   if (advance) {
+    // Is this the last stage that needs a slot confirmation?
     if (battleData.currentSel.length < 2) {
       battleData.currentSel.push(slot);
     } else {
       battleData.currentSel.push(slot);
 
+      // Push the full turn selection flow to the final turn stack for this player
       battleData.stack[battleData.players[currentPlayer].name] =
         battleData.currentSel;
+      // reset the currentSel transient for the next turn or player
       battleData.currentSel = [];
 
+      // Is this the last player that needs a turn stack confirmed?
       if (Object.keys(battleData.stack).length >= battleData.players.length) {
         initiateTurn();
       } else {
+        // reset the bottom UI box
         battleData.UI.bottom[2] = [];
         battleData.UI.bottom[3] = [];
         battleData.selStage = 1;
@@ -205,10 +227,12 @@ function battleTurnStack(stage, slot, advance) {
       }
     }
   } else {
+    // Shift key: selected slot deconfirmed for the current stage
     battleData.currentSel.pop();
   }
 }
 
+// Process the results of battleData.stack object. Converts battleData.stack to an array to loop over in order
 function initiateTurn() {
   const turnStack = [];
   const playerTargets = [];
@@ -257,6 +281,7 @@ function initiateTurn() {
   executeTurn();
 }
 
+// Execute the results of a turn based on the processed battleData.stack array
 function executeTurn() {
   for (let i = 0; i < battleData.stack.length; ++i) {
     // Does current actor (type and id) have HP
@@ -283,6 +308,8 @@ function executeTurn() {
   battleDataInit(battleData.players, battleData.enemies, battleData.enemiesID);
 }
 
+// Starts an attack in a turn
+// stackIndex (int): array key of battleData.stack processed array
 function executeAttack(stackIndex) {
   const current = battleData.stack[stackIndex];
   const attacks = Object.keys(battleAttackMenu);
@@ -304,6 +331,9 @@ function executeAttack(stackIndex) {
   );
 }
 
+// Search for a given state value for a name of any current battle participant
+// name (str): name of the battle participant
+// stat (str): name of the stat to return a value for
 function findCharacterStat(name, stat) {
   const battlers = battleData.players.concat(battleData.enemies);
   for (let i = 0; i < battlers.length; i++) {
@@ -314,12 +344,12 @@ function findCharacterStat(name, stat) {
   return false;
 }
 
-// attackerType: string, battleData key, either players or enemies
-// attackerID: int, array index of battleData.{{attackerType}}
-// targetType: string, battleData key, either players or enemies
-// targetID: int, array index of battleData.{{targetType}}
-// stat: string, object key for atk stat
-
+// Calculate damage and apply to target HP
+// attackerType (str): battleData key, either players or enemies
+// attackerID (int): array index of battleData.{{attackerType}}
+// targetType (str): battleData key, either players or enemies
+// targetID (int): array index of battleData.{{targetType}}
+// stat (str): object key for atk stat
 function dealPhysicalDamage(
   attackerType,
   attackerID,
@@ -339,6 +369,7 @@ function dealPhysicalDamage(
       : battleData[targetType][targetID].currentHP - dmgFormula;
 }
 
+// Get the first player in battle that has HP and is not completed on the current turn stack
 function getCurrentPlayer() {
   for (
     let playerIndex = 0;
@@ -354,15 +385,21 @@ function getCurrentPlayer() {
   }
 }
 
+// End the battle state and apply the results to the overworld
+// win (bool): if all enemies were defeated
 function stopBattle(win) {
   if (win) {
+    // remove the stats data for the enemies references by the overworld ID
     delete stats[battleData.enemiesID];
+
+    //
     for (let i = 0; i < entities.length; ++i) {
       if (entities[i].type && entities[i].id == battleData.enemiesID) {
         entities[i] = { type: false, tile: entities[i].tile };
       }
     }
 
+    // apply XP earned in this battle to the player state and prep for a possible levelup
     const battleXP = xpEarned();
     for (let i = 0; i < battleData.players.length; ++i) {
       battleData.players[i].experience.points += battleXP;
@@ -370,13 +407,20 @@ function stopBattle(win) {
     checkXP = true;
   }
 
+  // apply all stats from the battle state to the stats state
   stats[0] = battleData.players;
+
+  // reset battle state
   battleData = {};
+
+  // redraw entity state to the overworld and apply their AI
   entityDataToMap();
 
+  // return to rendering the overworld
   overworldLoop();
 }
 
+// Calculate XP earned from this battle
 function xpEarned() {
   let battleXP = 0;
   for (let i = 0; i < battleData.enemies.length; ++i) {

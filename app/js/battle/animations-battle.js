@@ -1,5 +1,5 @@
 // Wipe-to-black animation from overworld
-// step: height of the black square being drawn
+// step (int): height of the black square being drawn
 function battleIntro(step) {
   screen = "battle";
 
@@ -19,7 +19,7 @@ function battleIntro(step) {
 }
 
 // Fade-in-background animation for battle scene
-// step: transparency of the black background
+// step (int): transparency of the black background
 function battleBg(step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -44,7 +44,7 @@ function battleBg(step) {
 }
 
 // Battle menu and characters slide-in animation
-// step: vertical postions of the menus and horizontal positions of the characters
+// step (int): vertical postions of the menus and horizontal positions of the characters
 function battleSet(step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -116,7 +116,7 @@ function battleSet(step) {
 }
 
 // Queue overworld map and animate the end results of the battle
-// step: size of the battle results UI box
+// step (int): size of the battle results UI box
 function battleEnd(step) {
   screen = "overworld"; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, "battleEndText");
