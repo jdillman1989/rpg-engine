@@ -1,3 +1,4 @@
+// Check all player party members in the stats table for their experience value greater than their levelup value and start a new menu if they levelup
 function xpCheck() {
   const playerParty = stats[0];
   for (let i = 0; i < playerParty.length; i++) {
@@ -11,10 +12,14 @@ function xpCheck() {
   }
 }
 
+// Reset the max HP value of a given player based on their current strength stat
+// statsID (int): ID of an individual player in the first entry of the stats table
 function recalcMaxHP(statsID) {
   stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
 }
 
+// Menu callback that sets the menu state for a level up UI and starts the main draw loop
+// statsID (int): ID of an individual player in the first entry of the stats table
 function levelUpUI(statsID) {
   const statPointsOnLvl =
     Math.floor(stats[0][statsID].experience.level / 2) < 2
@@ -23,6 +28,7 @@ function levelUpUI(statsID) {
   const boxSize = 50;
   const pointBonuses = getBonusedStats(statsID);
 
+  // set the state for the menu box
   menuData = {
     playerID: statsID,
     size: boxSize,
@@ -71,6 +77,7 @@ function levelUpUI(statsID) {
     extra: pointBonuses,
   };
 
+  // Set the positioning for the menu options draw
   const boxX = canvas.width / 2 - boxSize;
   const boxY = canvas.height / 2 - boxSize;
   let optionsY =
@@ -84,6 +91,7 @@ function levelUpUI(statsID) {
     }
   }
 
+  // render the effects for each menu option
   for (let i = 0; i < menuData.options.length; i++) {
     const uiBonusedStat = menuData.options[i].text.split(":");
     const bonusedStat = abbrevs(uiBonusedStat[0]);
@@ -112,6 +120,8 @@ function levelUpUI(statsID) {
   menuLoop(keyState);
 }
 
+// Set the cursor state from key input
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function menuSelect(prevKeyState) {
   if (screen == "menu") {
     // Cursor up
@@ -158,12 +168,19 @@ function menuSelect(prevKeyState) {
   }
 }
 
+// Sets up the Enter key functionality for a levelup UI. Adds 1 point to the selected stat from the pool of remaining points.
+// data (obj): placeholder for the menu state data key
 function xpMenuAdd(data) {
+  // points left to allocate
   const uiRemaining = menuData.body.split(": ");
   const remaining = parseInt(uiRemaining[1]);
 
+  // if there are points left to allocate
   if (remaining) {
+    // clone the previous menu state so it could be reapplied on a future deconfirm
     const prevMenuData = JSON.parse(JSON.stringify(menuData));
+
+    // allocate a point by removing one from remaining and adding to the option text
     const newRemaining = remaining - 1;
     const uiAdded = menuData.options[menuData.currentSel].text.split("+");
     const added = parseInt(uiAdded[1]);
@@ -172,7 +189,9 @@ function xpMenuAdd(data) {
     menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
     menuData.body = uiRemaining[0] + ": " + newRemaining;
 
+    // Are there any points left after allocating?
     if (!newRemaining) {
+      // Set up a new menu for confirmation
       let selections = "";
       const selectedPoints = [];
       for (let i = 0; i < menuData.options.length; i++) {
@@ -230,6 +249,8 @@ function xpMenuAdd(data) {
   }
 }
 
+// Sets up the Shift key functionality for a levelup UI. Subtracts 1 point from the selected stat and returns it to the remaining pool.
+// data (obj): placeholder for the menu state data key
 function xpMenuSubtract(data) {
   const uiAdded = menuData.options[menuData.currentSel].text.split("+");
   const added = parseInt(uiAdded[1]);
@@ -245,6 +266,8 @@ function xpMenuSubtract(data) {
   }
 }
 
+// Sets up the Enter key functionality for a levelup confirmation UI. Applies point allocations to the stats table
+// points (array): objects that have the name of a stat and its new value
 function xpMenuClose(points) {
   for (let i = 0; i < points.length; i++) {
     stats[0][menuData.playerID][points[i].stat] = points[i].points;
@@ -252,6 +275,7 @@ function xpMenuClose(points) {
 
   recalcMaxHP(menuData.playerID);
 
+  // reset the player experience points and accumulated bonuses
   stats[0][menuData.playerID].experience.level =
     stats[0][menuData.playerID].experience.level + 1;
   stats[0][menuData.playerID].experience.bonuses.strength = 0;
@@ -259,11 +283,14 @@ function xpMenuClose(points) {
   stats[0][menuData.playerID].experience.bonuses.focus = 0;
   stats[0][menuData.playerID].experience.bonuses.intuition = 0;
 
+  // Reset the main draw loop to the overworld
   screen = menuData.returnScreen;
   menuData = {};
   overworldLoop();
 }
 
+// Sets up the Shift key functionality for a levelup confirmation UI. Returns the menu to the levelup UI
+// prevData (obj): the state of the levelup UI just before the last point was allocated
 function xpMenuReturn(prevData) {
   menuData = prevData;
 }
