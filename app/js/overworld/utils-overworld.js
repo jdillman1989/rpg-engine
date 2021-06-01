@@ -1,11 +1,9 @@
 // Check collision between two entities
-// id: int value of entities table id
-// cornerA: obj of x and y values from entities table, calculated to a current moving bounding corner
-// cornerB: obj of x and y values from entities table, calculated to a current moving bounding corner
-// xPolarity: int that determines how the entity is moving horizontally (0, 1, -1)
-// yPolarity: int that determines how the entity is moving vertically (0, 1, -1)
-// axis: string that corresponds to an obj key from the entity to set it's vertical or horizontal speed ('speedX', or 'speedY')
-// loop: array of ints that determine the sprite frames to pass to walkLoop() for animation
+// id (int): array id reference for an overworld entity
+// cornerA, cornerB (obj): x/y coordinates of a forward moving corner taken from the entity's position
+// xPolarity, yPolarity (int): determines how the entity is moving horizontally or vertically (0, 1, -1)
+// axis (str): speedX or speedY corresponds to an entity obj key to set its vertical or horizontal speed
+// loop (array): ints that determine the sprite frames to loop over
 function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop) {
   const tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
   const tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
@@ -50,6 +48,8 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop) {
   }
 }
 
+// convert a tile ID to screen coordinates
+// tile (int): ID of an overworld tile
 function tileToCoords(tile) {
   const yIndex = Math.floor(tile / mapW);
   const xIndex = tile - yIndex * mapW;
@@ -59,11 +59,15 @@ function tileToCoords(tile) {
   return { x, y };
 }
 
+// convert screen coordinates to a tile ID
+// x, y (int): horizontal and vertical lines of pixels that define a single pixel on the screen
 function coordsToTile(x, y) {
   const tile = Math.floor(y / tileSize) * mapW + Math.floor(x / tileSize);
   return tile;
 }
 
+// Get an object of all cardinal and diagonal tiles adjacent to a given tile
+// tile (int): ID of an overworld tile
 function adjacentTiles(tile) {
   const obj = { far: {}, close: {}, all: {} };
 
@@ -95,6 +99,7 @@ function adjacentTiles(tile) {
   return obj;
 }
 
+// Generate a map object for a simple room to debug in
 function testMap() {
   for (let i = 0; i < mapH * mapW; ++i) {
     // Edges
