@@ -1,4 +1,5 @@
-function drawGame (map) {
+// Main draw loop for the overworld in order from bottom to top layers
+function drawGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const tileObjData = [];
@@ -60,9 +61,13 @@ function drawGame (map) {
       );
     }
   }
-};
+}
 
-function drawSprite (posX, posY, sizeX, sizeY, thisSprite) {
+// Draw a given sprite on the screen at a given position
+// posX, posY (int): x/y screen coordinates
+// sizeX, sizeY (int): width/height of the sprite
+// thisSprite (array): sequence of pixels to fill in that draws the full sprite
+function drawSprite(posX, posY, sizeX, sizeY, thisSprite) {
   let k = 0;
 
   for (let y = posY; y < posY + sizeY; ++y) {
@@ -74,9 +79,14 @@ function drawSprite (posX, posY, sizeX, sizeY, thisSprite) {
       k++;
     }
   }
-};
+}
 
-function drawEntity (id, posX, posY, sizeX, sizeY, thisSprite) {
+// Draw a given dynamic sprite on the screen at a given position
+// id (int): array id reference for an overworld entity
+// posX, posY (int): x/y screen coordinates
+// sizeX, sizeY (int): width/height of the sprite
+// thisSprite (array): sequence of pixels to fill in that draws the full sprite
+function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite) {
   const offX = posX + entities[id].speedX;
   const offY = posY + entities[id].speedY;
 
@@ -84,4 +94,4 @@ function drawEntity (id, posX, posY, sizeX, sizeY, thisSprite) {
 
   entities[id].xy.x = offX;
   entities[id].xy.y = offY;
-};
+}
