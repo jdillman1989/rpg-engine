@@ -1,4 +1,7 @@
-function animateMove (id, up, down, left, right) {
+// Move an entity across tiles according to their movement and speed properties
+// id (int): array id reference for an overworld entity
+// up, down, left, right (bool): directions that the entity should move
+function animateMove(id, up, down, left, right) {
   const prevTile = entities[id].tile;
 
   if (up) {
@@ -60,10 +63,13 @@ function animateMove (id, up, down, left, right) {
     map[prevTile].render.object = false;
     map[prevTile].state = { passable: true };
   }
-};
+}
 
-// Unused function
-function spriteLoop (id, frames, rate) {
+// Entity callback to redraw sprite frames at a given rate
+// id (int): array id reference for an overworld entity
+// frames (array): sprite draw data
+// rate (int): number of milliseconds between redraws
+function spriteLoop(id, frames, rate) {
   let i = 0;
   const thisAnim = setInterval(() => {
     entities[id].frame = i;
@@ -72,9 +78,15 @@ function spriteLoop (id, frames, rate) {
       i = 0;
     }
   }, rate);
-};
+}
 
-function setPath (id, path, originPoint, originTime, step) {
+// Entity callback to set its move state
+// id (int): array id reference for an overworld entity
+// path (array): strings that determine ordered directions to take (up, down, left, right, wait, or stop)
+// originPoint (obj): x/y coordinates of where the path should start
+// originTime (int): tracks the time spent for wait or stop commands
+// step (int): index of the current path array command
+function setPath(id, path, originPoint, originTime, step) {
   if (path[step] != "wait" && path[step] != "stop") {
     const destX = Math.abs(entities[id].xy.x - originPoint.x);
     const destY = Math.abs(entities[id].xy.y - originPoint.y);
@@ -145,9 +157,12 @@ function setPath (id, path, originPoint, originTime, step) {
   window.requestAnimationFrame(() => {
     setPath(id, path, originPoint, originTime, step);
   });
-};
+}
 
-function walkLoop (id, frames) {
+// Set a given entity's animation loop interval and loop through its frames for redraw
+// id (int): array id reference for an overworld entity
+// frames (array): ints that determine the sprite frames to loop over
+function walkLoop(id, frames) {
   let i = 1;
 
   if (entities[id].interval == 0) {
@@ -160,4 +175,4 @@ function walkLoop (id, frames) {
       }
     }, 200);
   }
-};
+}
