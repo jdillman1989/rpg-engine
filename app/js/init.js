@@ -1,3 +1,4 @@
+// Initialize the map state, canvas context, keystate, and animation frame loop
 window.onload = () => {
   testMap();
 
@@ -74,6 +75,7 @@ window.onload = () => {
   }, 700);
 };
 
+// Join the entity state table to the map state table and apply each entity's logic
 function entityDataToMap() {
   for (let i = 0; i < entities.length; ++i) {
     if (entities[i].type) {
@@ -95,6 +97,7 @@ function entityDataToMap() {
   }
 }
 
+// Change keystates
 function keysState(key, down) {
   if (down) {
     keys[key] = true;
@@ -108,6 +111,7 @@ function keysState(key, down) {
   }
 }
 
+// Handle the loop for when screen state is overworld
 function overworldLoop() {
   if (screen == "overworld") {
     drawGame(map);
@@ -144,6 +148,7 @@ function overworldLoop() {
   }
 }
 
+// Handle the loop for when screen state is battle
 function battleLoop(prevKeyState) {
   if (screen == "battle") {
     drawBattle();
@@ -174,6 +179,7 @@ function battleLoop(prevKeyState) {
   }
 }
 
+// Handle the loop for when screen state is menu
 function menuLoop(prevKeyState) {
   if (screen == "menu") {
     drawMenu();
