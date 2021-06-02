@@ -98,12 +98,15 @@ function entityDataToMap() {
 }
 
 // Change keystates
+// key (str): name of the key references in the keys state object
+// down (bool): whether the keycode corresponding to the keys state is pressed
 function keysState(key, down) {
   if (down) {
     keys[key] = true;
   } else {
     keys[key] = false;
 
+    // reset the sprite animation loop for the player in the overworld
     if (screen == "overworld") {
       clearInterval(entities[0].interval);
       entities[0].interval = 0;
@@ -149,6 +152,7 @@ function overworldLoop() {
 }
 
 // Handle the loop for when screen state is battle
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function battleLoop(prevKeyState) {
   if (screen == "battle") {
     drawBattle();
@@ -180,6 +184,7 @@ function battleLoop(prevKeyState) {
 }
 
 // Handle the loop for when screen state is menu
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function menuLoop(prevKeyState) {
   if (screen == "menu") {
     drawMenu();
