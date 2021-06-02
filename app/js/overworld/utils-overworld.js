@@ -172,6 +172,13 @@ function checkAI(id, dir) {
   const fieldOfViewObj = adjacentTiles(originViewTile).all;
   const fieldOfViewArr = Object.values(fieldOfViewObj);
   fieldOfViewArr.push(originViewTile);
+  if (entities[id].ai.canChase) {
+    console.log("checkAI fieldOfViewArr", fieldOfViewArr);
+    console.log(
+      "checkAI fieldOfViewArr.includes(entities[0].tile)",
+      fieldOfViewArr.includes(entities[0].tile)
+    );
+  }
   if (fieldOfViewArr.includes(entities[0].tile)) {
     if (entities[id].ai.canChase) {
       entities[id].currentAction = "chase";

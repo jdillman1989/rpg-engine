@@ -577,9 +577,13 @@ let canvas = null;
 let ctx = null;
 
 // Static Globals
-const tileSize = 16,
-  mapW = 10,
-  mapH = 10;
+
+// width / height of all overworld tiles
+const tileSize = 16;
+
+// width / height of an overworld
+const mapW = 10;
+const mapH = 10;
 
 let camera = {
   x: 0,
@@ -588,6 +592,7 @@ let camera = {
   height: 10,
 };
 
+// current state of all playable keys
 let keys = {
   up: false,
   down: false,
@@ -597,8 +602,10 @@ let keys = {
   shift: false,
 };
 
+// current state of the screen
 let screen = "overworld";
 
+// current state of overworld entities
 let entities = [
   {
     id: 0,
@@ -615,6 +622,11 @@ let entities = [
       data: false,
       state: { passable: true, player: true },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: false,
   },
   {
@@ -632,6 +644,11 @@ let entities = [
       data: [1, tree.render, 1000],
       state: { passable: false },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: false,
   },
   {
@@ -672,6 +689,11 @@ let entities = [
       ],
       state: { passable: true, battle: true },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: { up: false, down: false, left: false, right: false },
   },
   {
@@ -689,6 +711,11 @@ let entities = [
       data: [3, tree.render, 1500],
       state: { passable: false },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: false,
   },
   {
@@ -706,10 +733,16 @@ let entities = [
       data: [4, ["left", "wait", "right", "wait"], tileToCoords(28), 0, 0],
       state: { passable: true, battle: true },
     },
+    ai: {
+      canChase: true,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: { up: false, down: false, left: false, right: false },
   },
 ];
 
+// current state of battle stats
 let stats = {
   0: [
     {
@@ -794,9 +827,13 @@ let stats = {
   ],
 };
 
+// base value for calculating levelups
 const baseXP = 500; // 500
+
+// state to determine if levelup should be checked
 let checkXP = false;
 
+// current overworld tiles state
 let map = [];
 
 let img;
@@ -804,19 +841,26 @@ let img;
 let times = [];
 let fps;
 
+// current state of a battle
 let battleData = {};
+
+// battle attack options
 const battleAttackMenu = {
   Aggressive: "strength",
   Fancy: "agility",
   Precise: "intuition",
 };
+
+// battle defense options
 const battleDefenseMenu = {
   Defend: "self",
   Escape: "allies",
 };
 
+// current state of a menu
 let menuData = {};
 
+// defaults used for drawing UI boxes
 const UISpacing = {
   displayBorders: 1,
   displayHeight: 32,
@@ -825,6 +869,7 @@ const UISpacing = {
 const fontSize = 9;
 const fontCharWidth = 6;
 
+// Initialize the map state, canvas context, keystate, and animation frame loop
 window.onload = () => {
   testMap();
 
@@ -901,6 +946,7 @@ window.onload = () => {
   }, 700);
 };
 
+// Join the entity state table to the map state table and apply each entity's logic
 function entityDataToMap() {
   for (let i = 0; i < entities.length; ++i) {
     if (entities[i].type) {
@@ -922,12 +968,16 @@ function entityDataToMap() {
   }
 }
 
+// Change keystates
+// key (str): name of the key references in the keys state object
+// down (bool): whether the keycode corresponding to the keys state is pressed
 function keysState(key, down) {
   if (down) {
     keys[key] = true;
   } else {
     keys[key] = false;
 
+    // reset the sprite animation loop for the player in the overworld
     if (screen == "overworld") {
       clearInterval(entities[0].interval);
       entities[0].interval = 0;
@@ -935,6 +985,7 @@ function keysState(key, down) {
   }
 }
 
+// Handle the loop for when screen state is overworld
 function overworldLoop() {
   if (screen == "overworld") {
     drawGame(map);
@@ -971,6 +1022,8 @@ function overworldLoop() {
   }
 }
 
+// Handle the loop for when screen state is battle
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function battleLoop(prevKeyState) {
   if (screen == "battle") {
     drawBattle();
@@ -1001,6 +1054,8 @@ function battleLoop(prevKeyState) {
   }
 }
 
+// Handle the loop for when screen state is menu
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function menuLoop(prevKeyState) {
   if (screen == "menu") {
     drawMenu();
@@ -1022,8 +1077,10 @@ function menuLoop(prevKeyState) {
   }
 }
 
-function getBonusedStats(playerID) {
-  const playerBonuses = stats[0][playerID].experience.bonuses;
+// Get the two highest experience allocation bonus multipliers for a given player from the stats table
+// statsID (int): ID of an individual player in the first entry of the stats table
+function getBonusedStats(statsID) {
+  const playerBonuses = stats[0][statsID].experience.bonuses;
   const statsSorted = Object.keys(playerBonuses).sort((a, b) => {
     return playerBonuses[a] - playerBonuses[b];
   });
@@ -1035,6 +1092,8 @@ function getBonusedStats(playerID) {
   return result;
 }
 
+// Map state names to abbreviations and abbreviations to stat names
+// text (str): comparison text
 function abbrevs(text) {
   switch (text) {
     case "Str":
@@ -1071,6 +1130,9 @@ function abbrevs(text) {
   }
 }
 
+// Write some given text to the screen at a given position
+// posX, posY (int): screen x/y coordinates for where to start writing
+// text (str): the text to write
 function canvasWrite(posX, posY, text) {
   ctx.font = fontSize + "px Courier";
   ctx.fillStyle = "white";
@@ -1081,7 +1143,9 @@ function canvasWrite(posX, posY, text) {
   }
 }
 
-// textData: [{text, disabled, id}, {text, disabled, id}, ...]
+// Write some given text with dynamic state to the screen at a given position
+// posX, posY (int): screen x/y coordinates for where to start writing
+// textData (obj): [{text, disabled, id}, {text, disabled, id}, ...]
 function canvasWriteData(posX, posY, textData) {
   ctx.font = fontSize + "px Courier";
   for (let i = 0; i < textData.length; i++) {
@@ -1090,18 +1154,45 @@ function canvasWriteData(posX, posY, textData) {
   }
 }
 
-function toColor(colorObj) {
-  return (
-    "rgb(" +
-    colorValLimit(colorObj.r) +
-    "," +
-    colorValLimit(colorObj.g) +
-    "," +
-    colorValLimit(colorObj.b) +
-    ")"
-  );
+// Return a given color in an object alongside a cooler and warmer version
+// color (obj): rbg values for a base color
+function createColorSet(color) {
+  const colorCool = {
+    r: colorValLimit(color.r - 90),
+    g: colorValLimit(color.g - 20),
+    b: colorValLimit(color.b - 10),
+  };
+
+  const colorWarm = {
+    r: colorValLimit(color.r - 10),
+    g: colorValLimit(color.g - 20),
+    b: colorValLimit(color.b - 90),
+  };
+
+  const base = {
+    r: colorValLimit(color.r),
+    g: colorValLimit(color.g),
+    b: colorValLimit(color.b),
+  };
+
+  return {
+    base: {
+      obj: base,
+      str: `rgb(${base.r}, ${base.g}, ${base.b})`,
+    },
+    cool: {
+      obj: colorCool,
+      str: `rgb(${colorCool.r}, ${colorCool.g}, ${colorCool.b})`,
+    },
+    warm: {
+      obj: colorWarm,
+      str: `rgb(${colorWarm.r}, ${colorWarm.g}, ${colorWarm.b})`,
+    },
+  };
 }
 
+// Limit a given int to a range 0-255
+// color (int): relates to a r, b, or g color value
 function colorValLimit(color) {
   if (color >= 255) {
     color = 255;
@@ -1114,29 +1205,9 @@ function colorValLimit(color) {
   return Math.round(color);
 }
 
-function colorSet(color) {
-  const colorCool = {
-    r: color.r - 90,
-    g: color.g - 20,
-    b: color.b - 10,
-  };
-
-  const colorWarm = {
-    r: color.r - 10,
-    g: color.g - 20,
-    b: color.b - 90,
-  };
-
-  const colorObj = {
-    base: color,
-    cool: colorCool,
-    warm: colorWarm,
-  };
-
-  return colorObj;
-}
-
-function battleIntro (step) {
+// Wipe-to-black animation from overworld
+// step (int): height of the black square being drawn
+function battleIntro(step) {
   screen = "battle";
 
   step = step + 4;
@@ -1152,9 +1223,11 @@ function battleIntro (step) {
       battleIntro(step);
     });
   }
-};
+}
 
-function battleBg (step) {
+// Fade-in-background animation for battle scene
+// step (int): transparency of the black background
+function battleBg(step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step - 2;
@@ -1175,9 +1248,11 @@ function battleBg (step) {
       battleBg(step);
     });
   }
-};
+}
 
-function battleSet (step) {
+// Battle menu and characters slide-in animation
+// step (int): vertical postions of the menus and horizontal positions of the characters
+function battleSet(step) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   step = step + 2;
@@ -1245,14 +1320,17 @@ function battleSet (step) {
       battleSet(step);
     });
   }
-};
+}
 
-function battleEnd (step) {
+// Queue overworld map and animate the end results of the battle
+// step (int): size of the battle results UI box
+function battleEnd(step) {
   screen = "overworld"; // start listening for OK button confirmation
   centeredBoxAnimate(step, 40, "battleEndText");
-};
+}
 
-function battleEndText () {
+// Instructions for battle end results box content
+function battleEndText() {
   const battleXP = xpEarned();
   const displaySize = 40;
 
@@ -1286,8 +1364,9 @@ function battleEndText () {
   );
 
   canvasWrite(canvas.width / 2 - 6, positionBottomCenter, "OK");
-};
+}
 
+// Main draw loop for a battle scene in order from bottom to top layers
 function drawBattle() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBattleBG();
@@ -1298,10 +1377,12 @@ function drawBattle() {
   drawBattleCursor();
 }
 
+// Battle scene layer 1: backdrop image
 function drawBattleBG() {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 }
 
+// Battle scene layer 2: Top UI Box
 function drawTopDisplay() {
   // [Jadle 100/100] -> [ATK or target desc]
   const charText = battleData.UI.top.left;
@@ -1335,6 +1416,7 @@ function drawTopDisplay() {
   );
 }
 
+// Battle scene layer 3: Bottom UI Box
 function drawBottomDisplay() {
   const currentPlayer = getCurrentPlayer();
 
@@ -1420,6 +1502,7 @@ function drawBottomDisplay() {
   );
 }
 
+// Battle scene layer 4: Player sprites
 function drawPlayerBattle() {
   const playerWidth = 20;
   ctx.fillStyle = "#FFF";
@@ -1434,6 +1517,7 @@ function drawPlayerBattle() {
   }
 }
 
+// Battle scene layer 5: Enemy sprites
 function drawEnemiesBattle() {
   const enemyWidth = 20;
   ctx.fillStyle = "#000";
@@ -1450,6 +1534,7 @@ function drawEnemiesBattle() {
   }
 }
 
+// Battle scene layer 6: Bottom UI cursor
 function drawBattleCursor() {
   ctx.fillStyle = "#F00";
 
@@ -1465,10 +1550,16 @@ function drawBattleCursor() {
   ctx.fillRect(thisX, thisY, 2, 2);
 }
 
+// Set up the current battle data state object using existing player/enemy data
+// players (array): player objects
+// enemies (array): enemy objects
+// enemiesID (int): ID for the overworld object representing enemies in this battle
 function battleDataInit(players, enemies, enemiesID) {
+  let currentStack = {}; // Shows if an action can be added to the stack for a given player (ie are the alive and has their turn action been chosen yet)
   const thesePlayersNames = [];
   const thesePlayersHealth = [];
-  let currentStack = {};
+
+  // Set up Top UI player text
   for (let i = 0; i < players.length; ++i) {
     if (!players[i].currentHP) {
       currentStack[players[i].name] = false;
@@ -1491,6 +1582,7 @@ function battleDataInit(players, enemies, enemiesID) {
 
   const theseEnemiesHealth = [];
   let aliveEnemies = enemies.length;
+  // Set up Top UI enemy text
   for (let i = 0; i < enemies.length; ++i) {
     theseEnemiesHealth.push(
       `${enemies[i].name}: ${enemies[i].currentHP}/${enemies[i].maxHP}`
@@ -1503,27 +1595,29 @@ function battleDataInit(players, enemies, enemiesID) {
   battleData = {
     UI: {
       top: {
-        left: thesePlayersHealth.join("\n"),
-        right: theseEnemiesHealth.join("\n"),
+        left: thesePlayersHealth.join("\n"), // Top bar player side text
+        right: theseEnemiesHealth.join("\n"), // Top bar enemy side text
       },
       bottom: [
-        thesePlayersNames,
+        // Bottom bar turn selection flow
+        thesePlayersNames, // Stage 1: select player
         [
+          // Stage 2: select action
           { text: "Attack", disabled: false, id: 0 },
           { text: "Magic", disabled: false, id: 1 },
           { text: "Defense", disabled: false, id: 2 },
         ],
-        [],
-        [],
+        [], // Stage 3: select action options
+        [], // Stage 4: select target
       ],
     },
-    players: players,
-    enemies: enemies,
-    enemiesID: enemiesID,
-    selStage: 1,
-    selSlot: 0,
-    currentSel: [],
-    stack: currentStack,
+    players: players, // Array of player objects
+    enemies: enemies, // Array of enemy objects
+    enemiesID: enemiesID, // ID of overworld object representing enemies in this battle
+    selStage: 1, // X Cursor position for the current stage
+    selSlot: 0, // Y Cursor position for the slot
+    currentSel: [], // Transient state of the current bottom menu
+    stack: currentStack, // Object of all participants and their complete set of turn actions
   };
 
   if (!aliveEnemies) {
@@ -1533,6 +1627,8 @@ function battleDataInit(players, enemies, enemiesID) {
   }
 }
 
+// Set bottom UI cursor position and battle data state from key input
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function battleSelect(prevKeyState) {
   if (screen == "battle") {
     // Cursor up
@@ -1641,6 +1737,7 @@ function battleSelect(prevKeyState) {
   }
 }
 
+// Provides default cursor position at the top of a list
 function getFirstAvailableSlot() {
   for (let i = 0; i < battleData.UI.bottom[battleData.selStage].length; i++) {
     if (!battleData.UI.bottom[battleData.selStage][i].disabled) {
@@ -1649,22 +1746,32 @@ function getFirstAvailableSlot() {
   }
 }
 
+// Add or remove player turn flow selections to the transient currentSel state. Copy the currentSel transient over to the stack for processing once a turn flow selection is complete
+// stage (int): Battle menu stage ID (cursor X pos)
+// slot (int): Battle menu stage slot ID (cursore Y pos)
+// advance (bool): Add selection to currentSel (Enter). Remove the last entry on currentSel (Shift).
 function battleTurnStack(stage, slot, advance) {
   const currentPlayer = getCurrentPlayer();
 
+  // Enter key: selected slot confirmed for the current stage
   if (advance) {
+    // Is this the last stage that needs a slot confirmation?
     if (battleData.currentSel.length < 2) {
       battleData.currentSel.push(slot);
     } else {
       battleData.currentSel.push(slot);
 
+      // Push the full turn selection flow to the final turn stack for this player
       battleData.stack[battleData.players[currentPlayer].name] =
         battleData.currentSel;
+      // reset the currentSel transient for the next turn or player
       battleData.currentSel = [];
 
+      // Is this the last player that needs a turn stack confirmed?
       if (Object.keys(battleData.stack).length >= battleData.players.length) {
         initiateTurn();
       } else {
+        // reset the bottom UI box
         battleData.UI.bottom[2] = [];
         battleData.UI.bottom[3] = [];
         battleData.selStage = 1;
@@ -1672,10 +1779,12 @@ function battleTurnStack(stage, slot, advance) {
       }
     }
   } else {
+    // Shift key: selected slot deconfirmed for the current stage
     battleData.currentSel.pop();
   }
 }
 
+// Process the results of battleData.stack object. Converts battleData.stack to an array to loop over in order
 function initiateTurn() {
   const turnStack = [];
   const playerTargets = [];
@@ -1724,6 +1833,7 @@ function initiateTurn() {
   executeTurn();
 }
 
+// Execute the results of a turn based on the processed battleData.stack array
 function executeTurn() {
   for (let i = 0; i < battleData.stack.length; ++i) {
     // Does current actor (type and id) have HP
@@ -1750,6 +1860,8 @@ function executeTurn() {
   battleDataInit(battleData.players, battleData.enemies, battleData.enemiesID);
 }
 
+// Starts an attack in a turn
+// stackIndex (int): array key of battleData.stack processed array
 function executeAttack(stackIndex) {
   const current = battleData.stack[stackIndex];
   const attacks = Object.keys(battleAttackMenu);
@@ -1771,6 +1883,9 @@ function executeAttack(stackIndex) {
   );
 }
 
+// Search for a given state value for a name of any current battle participant
+// name (str): name of the battle participant
+// stat (str): name of the stat to return a value for
 function findCharacterStat(name, stat) {
   const battlers = battleData.players.concat(battleData.enemies);
   for (let i = 0; i < battlers.length; i++) {
@@ -1781,12 +1896,12 @@ function findCharacterStat(name, stat) {
   return false;
 }
 
-// attackerType: string, battleData key, either players or enemies
-// attackerID: int, array index of battleData.{{attackerType}}
-// targetType: string, battleData key, either players or enemies
-// targetID: int, array index of battleData.{{targetType}}
-// stat: string, object key for atk stat
-
+// Calculate damage and apply to target HP
+// attackerType (str): battleData key, either players or enemies
+// attackerID (int): array index of battleData.{{attackerType}}
+// targetType (str): battleData key, either players or enemies
+// targetID (int): array index of battleData.{{targetType}}
+// stat (str): object key for atk stat
 function dealPhysicalDamage(
   attackerType,
   attackerID,
@@ -1806,6 +1921,7 @@ function dealPhysicalDamage(
       : battleData[targetType][targetID].currentHP - dmgFormula;
 }
 
+// Get the first player in battle that has HP and is not completed on the current turn stack
 function getCurrentPlayer() {
   for (
     let playerIndex = 0;
@@ -1821,15 +1937,21 @@ function getCurrentPlayer() {
   }
 }
 
+// End the battle state and apply the results to the overworld
+// win (bool): if all enemies were defeated
 function stopBattle(win) {
   if (win) {
+    // remove the stats data for the enemies references by the overworld ID
     delete stats[battleData.enemiesID];
+
+    //
     for (let i = 0; i < entities.length; ++i) {
       if (entities[i].type && entities[i].id == battleData.enemiesID) {
         entities[i] = { type: false, tile: entities[i].tile };
       }
     }
 
+    // apply XP earned in this battle to the player state and prep for a possible levelup
     const battleXP = xpEarned();
     for (let i = 0; i < battleData.players.length; ++i) {
       battleData.players[i].experience.points += battleXP;
@@ -1837,13 +1959,20 @@ function stopBattle(win) {
     checkXP = true;
   }
 
+  // apply all stats from the battle state to the stats state
   stats[0] = battleData.players;
+
+  // reset battle state
   battleData = {};
+
+  // redraw entity state to the overworld and apply their AI
   entityDataToMap();
 
+  // return to rendering the overworld
   overworldLoop();
 }
 
+// Calculate XP earned from this battle
 function xpEarned() {
   let battleXP = 0;
   for (let i = 0; i < battleData.enemies.length; ++i) {
@@ -1852,7 +1981,12 @@ function xpEarned() {
   return battleXP;
 }
 
-function centeredBoxAnimate (step, size, callback, callbackData) {
+// Expand animation for a centered box
+// step (int): height / width of the box for the current frame
+// size (int): final height / width of the box
+// callback (string): function name to execute once the animation is complete
+// callbackData (array): function params to apply to callback
+function centeredBoxAnimate(step, size, callback, callbackData) {
   step = step + 4;
 
   ctx.fillStyle = "#FFF";
@@ -1878,9 +2012,10 @@ function centeredBoxAnimate (step, size, callback, callbackData) {
       centeredBoxAnimate(step, size, callback, callbackData);
     });
   }
-};
+}
 
-function drawMenu () {
+// Main draw loop for a menu box in order from bottom to top layers
+function drawMenu() {
   ctx.clearRect(
     canvas.width / 2 - menuData.size,
     canvas.height / 2 - menuData.size,
@@ -1902,9 +2037,10 @@ function drawMenu () {
 
   drawOptions();
   drawMenuCursor();
-};
+}
 
-function drawOptions () {
+// Draw menu selection options to the screen from menuData state
+function drawOptions() {
   for (let i = 0; i < menuData.options.length; i++) {
     if (menuData.options[i].effects) {
       window[menuData.options[i].effects.func].apply(
@@ -1920,9 +2056,11 @@ function drawOptions () {
       menuData.options[i].text
     );
   }
-};
+}
 
-function centeredBox (size) {
+// Draw centered box as a backround for the menu
+// size (int): Width / Height of the box
+function centeredBox(size) {
   ctx.fillStyle = "#FFF";
   ctx.fillRect(
     canvas.width / 2 - size,
@@ -1937,18 +2075,22 @@ function centeredBox (size) {
     size * 2 - UISpacing.displayBorders * 2,
     size * 2 - UISpacing.displayBorders * 2
   );
-};
+}
 
-function drawMenuCursor () {
+// Draw the cursor for the menu options
+function drawMenuCursor() {
   ctx.fillStyle = "#F00";
 
   const thisX = menuData.options[menuData.currentSel].x - 2;
   const thisY = menuData.options[menuData.currentSel].y + fontSize / 2 + 1;
 
   ctx.fillRect(thisX, thisY, 2, 2);
-};
+}
 
-function statHighlight (color, optionID) {
+// Draw a colored rectangle behind a given menu option
+// color (str): hex code for the rectangle color
+// optionID (int): menuData ID for the option to highlight
+function statHighlight(color, optionID) {
   ctx.fillStyle = color;
 
   ctx.fillRect(
@@ -1957,8 +2099,9 @@ function statHighlight (color, optionID) {
     fontCharWidth * 3,
     fontSize
   );
-};
+}
 
+// Check all player party members in the stats table for their experience value greater than their levelup value and start a new menu if they levelup
 function xpCheck() {
   const playerParty = stats[0];
   for (let i = 0; i < playerParty.length; i++) {
@@ -1972,10 +2115,14 @@ function xpCheck() {
   }
 }
 
+// Reset the max HP value of a given player based on their current strength stat
+// statsID (int): ID of an individual player in the first entry of the stats table
 function recalcMaxHP(statsID) {
   stats[0][statsID].maxHP = stats[0][statsID].strength * 3;
 }
 
+// Menu callback that sets the menu state for a level up UI and starts the main draw loop
+// statsID (int): ID of an individual player in the first entry of the stats table
 function levelUpUI(statsID) {
   const statPointsOnLvl =
     Math.floor(stats[0][statsID].experience.level / 2) < 2
@@ -1984,6 +2131,7 @@ function levelUpUI(statsID) {
   const boxSize = 50;
   const pointBonuses = getBonusedStats(statsID);
 
+  // set the state for the menu box
   menuData = {
     playerID: statsID,
     size: boxSize,
@@ -2032,6 +2180,7 @@ function levelUpUI(statsID) {
     extra: pointBonuses,
   };
 
+  // Set the positioning for the menu options draw
   const boxX = canvas.width / 2 - boxSize;
   const boxY = canvas.height / 2 - boxSize;
   let optionsY =
@@ -2045,6 +2194,7 @@ function levelUpUI(statsID) {
     }
   }
 
+  // render the effects for each menu option
   for (let i = 0; i < menuData.options.length; i++) {
     const uiBonusedStat = menuData.options[i].text.split(":");
     const bonusedStat = abbrevs(uiBonusedStat[0]);
@@ -2073,6 +2223,8 @@ function levelUpUI(statsID) {
   menuLoop(keyState);
 }
 
+// Set the cursor state from key input
+// prevKeyState (obj): Keys pressed from the last animation frame. Comparison prevents state change every frame
 function menuSelect(prevKeyState) {
   if (screen == "menu") {
     // Cursor up
@@ -2119,12 +2271,19 @@ function menuSelect(prevKeyState) {
   }
 }
 
+// Sets up the Enter key functionality for a levelup UI. Adds 1 point to the selected stat from the pool of remaining points.
+// data (obj): placeholder for the menu state data key
 function xpMenuAdd(data) {
+  // points left to allocate
   const uiRemaining = menuData.body.split(": ");
   const remaining = parseInt(uiRemaining[1]);
 
+  // if there are points left to allocate
   if (remaining) {
+    // clone the previous menu state so it could be reapplied on a future deconfirm
     const prevMenuData = JSON.parse(JSON.stringify(menuData));
+
+    // allocate a point by removing one from remaining and adding to the option text
     const newRemaining = remaining - 1;
     const uiAdded = menuData.options[menuData.currentSel].text.split("+");
     const added = parseInt(uiAdded[1]);
@@ -2133,7 +2292,9 @@ function xpMenuAdd(data) {
     menuData.options[menuData.currentSel].text = uiAdded[0] + "+" + newAdded;
     menuData.body = uiRemaining[0] + ": " + newRemaining;
 
+    // Are there any points left after allocating?
     if (!newRemaining) {
+      // Set up a new menu for confirmation
       let selections = "";
       const selectedPoints = [];
       for (let i = 0; i < menuData.options.length; i++) {
@@ -2191,6 +2352,8 @@ function xpMenuAdd(data) {
   }
 }
 
+// Sets up the Shift key functionality for a levelup UI. Subtracts 1 point from the selected stat and returns it to the remaining pool.
+// data (obj): placeholder for the menu state data key
 function xpMenuSubtract(data) {
   const uiAdded = menuData.options[menuData.currentSel].text.split("+");
   const added = parseInt(uiAdded[1]);
@@ -2206,6 +2369,8 @@ function xpMenuSubtract(data) {
   }
 }
 
+// Sets up the Enter key functionality for a levelup confirmation UI. Applies point allocations to the stats table
+// points (array): objects that have the name of a stat and its new value
 function xpMenuClose(points) {
   for (let i = 0; i < points.length; i++) {
     stats[0][menuData.playerID][points[i].stat] = points[i].points;
@@ -2213,6 +2378,7 @@ function xpMenuClose(points) {
 
   recalcMaxHP(menuData.playerID);
 
+  // reset the player experience points and accumulated bonuses
   stats[0][menuData.playerID].experience.level =
     stats[0][menuData.playerID].experience.level + 1;
   stats[0][menuData.playerID].experience.bonuses.strength = 0;
@@ -2220,16 +2386,22 @@ function xpMenuClose(points) {
   stats[0][menuData.playerID].experience.bonuses.focus = 0;
   stats[0][menuData.playerID].experience.bonuses.intuition = 0;
 
+  // Reset the main draw loop to the overworld
   screen = menuData.returnScreen;
   menuData = {};
   overworldLoop();
 }
 
+// Sets up the Shift key functionality for a levelup confirmation UI. Returns the menu to the levelup UI
+// prevData (obj): the state of the levelup UI just before the last point was allocated
 function xpMenuReturn(prevData) {
   menuData = prevData;
 }
 
-function animateMove (id, up, down, left, right) {
+// Move an entity across tiles according to their movement and speed properties
+// id (int): array id reference for an overworld entity
+// up, down, left, right (bool): directions that the entity should move
+function animateMove(id, up, down, left, right) {
   const prevTile = entities[id].tile;
 
   if (up) {
@@ -2291,10 +2463,13 @@ function animateMove (id, up, down, left, right) {
     map[prevTile].render.object = false;
     map[prevTile].state = { passable: true };
   }
-};
+}
 
-// Unused function
-function spriteLoop (id, frames, rate) {
+// Entity callback to redraw sprite frames at a given rate
+// id (int): array id reference for an overworld entity
+// frames (array): sprite draw data
+// rate (int): number of milliseconds between redraws
+function spriteLoop(id, frames, rate) {
   let i = 0;
   const thisAnim = setInterval(() => {
     entities[id].frame = i;
@@ -2303,82 +2478,130 @@ function spriteLoop (id, frames, rate) {
       i = 0;
     }
   }, rate);
-};
+}
 
-function setPath (id, path, originPoint, originTime, step) {
-  if (path[step] != "wait" && path[step] != "stop") {
-    const destX = Math.abs(entities[id].xy.x - originPoint.x);
-    const destY = Math.abs(entities[id].xy.y - originPoint.y);
+// Entity callback to set its move state
+// id (int): array id reference for an overworld entity
+// path (array): strings that determine ordered directions to take (up, down, left, right, wait, or stop)
+// originPoint (obj): x/y coordinates of where the current step should start
+// originTime (int): tracks the time spent for wait or stop commands
+// step (int): index of the current path array command
+function setPath(id, path, originPoint, originTime, step) {
+  console.log("setPath entities[id].currentAction", entities[id].currentAction);
+  console.log(
+    'setPath entities[id].currentAction !== "chase"',
+    entities[id].currentAction !== "chase"
+  );
+  if (
+    entities[id].currentAction !== "chase" ||
+    entities[id].currentAction !== "flee"
+  ) {
+    if (path[step] != "wait" && path[step] != "stop") {
+      const destX = Math.abs(entities[id].xy.x - originPoint.x);
+      const destY = Math.abs(entities[id].xy.y - originPoint.y);
 
-    if (destX >= tileSize || destY >= tileSize) {
-      step = step + 1;
-      if (step >= path.length) {
-        step = 0;
+      if (destX >= tileSize || destY >= tileSize) {
+        step = step + 1;
+        if (step >= path.length) {
+          step = 0;
+        }
+
+        originPoint = JSON.parse(JSON.stringify(entities[id].xy));
+        clearInterval(entities[id].interval);
+        entities[id].interval = 0;
       }
-
-      originPoint = JSON.parse(JSON.stringify(entities[id].xy));
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
+    } else {
+      originTime = originTime + 1;
+      if (originTime == 60) {
+        originTime = 0;
+        step = step + 1;
+        if (step >= path.length) {
+          step = 0;
+        }
+        clearInterval(entities[id].interval);
+        entities[id].interval = 0;
+      }
     }
+
+    switch (path[step]) {
+      case "up":
+        entities[id].dir.up = true;
+        entities[id].dir.down = false;
+        entities[id].dir.left = false;
+        entities[id].dir.right = false;
+        break;
+
+      case "down":
+        entities[id].dir.up = false;
+        entities[id].dir.down = true;
+        entities[id].dir.left = false;
+        entities[id].dir.right = false;
+        break;
+
+      case "left":
+        entities[id].dir.up = false;
+        entities[id].dir.down = false;
+        entities[id].dir.left = true;
+        entities[id].dir.right = false;
+        break;
+
+      case "right":
+        entities[id].dir.up = false;
+        entities[id].dir.down = false;
+        entities[id].dir.left = false;
+        entities[id].dir.right = true;
+        break;
+
+      case "wait":
+        entities[id].dir.up = false;
+        entities[id].dir.down = false;
+        entities[id].dir.left = false;
+        entities[id].dir.right = false;
+        break;
+
+      case "stop":
+        return;
+    }
+
+    if (entities[id].ai.canChase || entities[id].ai.canFlee) {
+      checkAI(id, path[step]);
+    }
+
+    window.requestAnimationFrame(() => {
+      setPath(id, path, originPoint, originTime, step);
+    });
   } else {
-    originTime = originTime + 1;
-    if (originTime == 60) {
-      originTime = 0;
-      step = step + 1;
-      if (step >= path.length) {
-        step = 0;
-      }
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
-    }
+    window.requestAnimationFrame(() => {
+      chasePath(id);
+    });
   }
+}
 
-  switch (path[step]) {
-    case "up":
-      entities[id].dir.up = true;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
+// Set entity pathing toward the player when its currentAction is chase
+// id (int): array id reference for an overworld entity
+// originPoint (obj): x/y coordinates of where the current step should start
+function chasePath(id) {
+  console.log("chasePath entities[id].dir.right", entities[id].dir.right);
+  if (entities[id].currentAction === "chase") {
+    entities[id].dir.up = entities[0].xy.y <= entities[id].xy.y;
+    entities[id].dir.down = entities[0].xy.y > entities[id].xy.y;
+    entities[id].dir.left = entities[0].xy.x <= entities[id].xy.x;
+    entities[id].dir.right = entities[0].xy.x > entities[id].xy.x;
 
-    case "down":
-      entities[id].dir.up = false;
-      entities[id].dir.down = true;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case "left":
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = true;
-      entities[id].dir.right = false;
-      break;
-
-    case "right":
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = true;
-      break;
-
-    case "wait":
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case "stop":
-      return;
+    window.requestAnimationFrame(() => {
+      chasePath(id);
+    });
+  } else {
+    window.requestAnimationFrame(() => {
+      returnEntityPath(id);
+    });
   }
+}
 
-  window.requestAnimationFrame(() => {
-    setPath(id, path, originPoint, originTime, step);
-  });
-};
-
-function walkLoop (id, frames) {
+// Set a given entity's animation loop interval and loop through its frames for redraw
+// id (int): array id reference for an overworld entity
+// frames (array): ints that determine the sprite frames to loop over
+function walkLoop(id, frames) {
   let i = 1;
 
   if (entities[id].interval == 0) {
@@ -2391,9 +2614,10 @@ function walkLoop (id, frames) {
       }
     }, 200);
   }
-};
+}
 
-function drawGame (map) {
+// Main draw loop for the overworld in order from bottom to top layers
+function drawGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const tileObjData = [];
@@ -2455,9 +2679,13 @@ function drawGame (map) {
       );
     }
   }
-};
+}
 
-function drawSprite (posX, posY, sizeX, sizeY, thisSprite) {
+// Draw a given sprite on the screen at a given position
+// posX, posY (int): x/y screen coordinates
+// sizeX, sizeY (int): width/height of the sprite
+// thisSprite (array): sequence of pixels to fill in that draws the full sprite
+function drawSprite(posX, posY, sizeX, sizeY, thisSprite) {
   let k = 0;
 
   for (let y = posY; y < posY + sizeY; ++y) {
@@ -2469,9 +2697,14 @@ function drawSprite (posX, posY, sizeX, sizeY, thisSprite) {
       k++;
     }
   }
-};
+}
 
-function drawEntity (id, posX, posY, sizeX, sizeY, thisSprite) {
+// Draw a given dynamic sprite on the screen at a given position
+// id (int): array id reference for an overworld entity
+// posX, posY (int): x/y screen coordinates
+// sizeX, sizeY (int): width/height of the sprite
+// thisSprite (array): sequence of pixels to fill in that draws the full sprite
+function drawEntity(id, posX, posY, sizeX, sizeY, thisSprite) {
   const offX = posX + entities[id].speedX;
   const offY = posY + entities[id].speedY;
 
@@ -2479,16 +2712,14 @@ function drawEntity (id, posX, posY, sizeX, sizeY, thisSprite) {
 
   entities[id].xy.x = offX;
   entities[id].xy.y = offY;
-};
+}
 
 // Check collision between two entities
-// id: int value of entities table id
-// cornerA: obj of x and y values from entities table, calculated to a current moving bounding corner
-// cornerB: obj of x and y values from entities table, calculated to a current moving bounding corner
-// xPolarity: int that determines how the entity is moving horizontally (0, 1, -1)
-// yPolarity: int that determines how the entity is moving vertically (0, 1, -1)
-// axis: string that corresponds to an obj key from the entity to set it's vertical or horizontal speed ('speedX', or 'speedY')
-// loop: array of ints that determine the sprite frames to pass to walkLoop() for animation
+// id (int): array id reference for an overworld entity
+// cornerA, cornerB (obj): x/y coordinates of a forward moving corner taken from the entity's position
+// xPolarity, yPolarity (int): determines how the entity is moving horizontally or vertically (0, 1, -1)
+// axis (str): speedX or speedY corresponds to an entity obj key to set its vertical or horizontal speed
+// loop (array): ints that determine the sprite frames to loop over
 function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop) {
   const tileA = map[coordsToTile(cornerA.x + xPolarity, cornerA.y + yPolarity)];
   const tileB = map[coordsToTile(cornerB.x + xPolarity, cornerB.y + yPolarity)];
@@ -2533,6 +2764,8 @@ function checkBounding(id, cornerA, cornerB, xPolarity, yPolarity, axis, loop) {
   }
 }
 
+// convert a tile ID to screen coordinates
+// tile (int): ID of an overworld tile
 function tileToCoords(tile) {
   const yIndex = Math.floor(tile / mapW);
   const xIndex = tile - yIndex * mapW;
@@ -2542,11 +2775,15 @@ function tileToCoords(tile) {
   return { x, y };
 }
 
+// convert screen coordinates to a tile ID
+// x, y (int): horizontal and vertical lines of pixels that define a single pixel on the screen
 function coordsToTile(x, y) {
   const tile = Math.floor(y / tileSize) * mapW + Math.floor(x / tileSize);
   return tile;
 }
 
+// Get an object of all cardinal and diagonal tiles adjacent to a given tile
+// tile (int): ID of an overworld tile
 function adjacentTiles(tile) {
   const obj = { far: {}, close: {}, all: {} };
 
@@ -2578,6 +2815,7 @@ function adjacentTiles(tile) {
   return obj;
 }
 
+// Generate a map object for a simple room to debug in
 function testMap() {
   for (let i = 0; i < mapH * mapW; ++i) {
     // Edges
@@ -2617,6 +2855,49 @@ function testMap() {
           passable: true,
         },
       });
+    }
+  }
+}
+
+// Check entity AI view and make any needed changes its currentAction
+// id (int): array id reference for an overworld entity
+// dir (str): direction the entity is facing (up, down, left, right)
+function checkAI(id, dir) {
+  const adjacent = adjacentTiles(entities[id].tile).close;
+  let originViewTile = 0;
+  switch (dir) {
+    case "up":
+      originViewTile = adjacentTiles(adjacent.n).close.n;
+      break;
+
+    case "down":
+      originViewTile = adjacentTiles(adjacent.s).close.s;
+      break;
+
+    case "left":
+      originViewTile = adjacentTiles(adjacent.w).close.w;
+      break;
+
+    case "right":
+      originViewTile = adjacentTiles(adjacent.e).close.e;
+      break;
+
+    default:
+      return;
+  }
+  const fieldOfViewObj = adjacentTiles(originViewTile).all;
+  const fieldOfViewArr = Object.values(fieldOfViewObj);
+  fieldOfViewArr.push(originViewTile);
+  console.log("checkAI fieldOfViewArr", fieldOfViewArr);
+  console.log(
+    "checkAI fieldOfViewArr.includes(entities[0].tile)",
+    fieldOfViewArr.includes(entities[0].tile)
+  );
+  if (fieldOfViewArr.includes(entities[0].tile)) {
+    if (entities[id].ai.canChase) {
+      entities[id].currentAction = "chase";
+    } else if (entities[id].ai.canFlee) {
+      entities[id].currentAction = "flee";
     }
   }
 }
