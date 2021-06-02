@@ -1,5 +1,7 @@
-function getBonusedStats(playerID) {
-  const playerBonuses = stats[0][playerID].experience.bonuses;
+// Get the two highest experience allocation bonus multipliers for a given player from the stats table
+// statsID (int): ID of an individual player in the first entry of the stats table
+function getBonusedStats(statsID) {
+  const playerBonuses = stats[0][statsID].experience.bonuses;
   const statsSorted = Object.keys(playerBonuses).sort((a, b) => {
     return playerBonuses[a] - playerBonuses[b];
   });
@@ -11,6 +13,8 @@ function getBonusedStats(playerID) {
   return result;
 }
 
+// Map state names to abbreviations and abbreviations to stat names
+// text (str): comparison text
 function abbrevs(text) {
   switch (text) {
     case "Str":
@@ -47,6 +51,9 @@ function abbrevs(text) {
   }
 }
 
+// Write some given text to the screen at a given position
+// posX, posY (int): screen x/y coordinates for where to start writing
+// text (str): the text to write
 function canvasWrite(posX, posY, text) {
   ctx.font = fontSize + "px Courier";
   ctx.fillStyle = "white";
@@ -57,7 +64,9 @@ function canvasWrite(posX, posY, text) {
   }
 }
 
-// textData: [{text, disabled, id}, {text, disabled, id}, ...]
+// Write some given text with dynamic state to the screen at a given position
+// posX, posY (int): screen x/y coordinates for where to start writing
+// textData (obj): [{text, disabled, id}, {text, disabled, id}, ...]
 function canvasWriteData(posX, posY, textData) {
   ctx.font = fontSize + "px Courier";
   for (let i = 0; i < textData.length; i++) {
@@ -66,18 +75,45 @@ function canvasWriteData(posX, posY, textData) {
   }
 }
 
-function toColor(colorObj) {
-  return (
-    "rgb(" +
-    colorValLimit(colorObj.r) +
-    "," +
-    colorValLimit(colorObj.g) +
-    "," +
-    colorValLimit(colorObj.b) +
-    ")"
-  );
+// Return a given color in an object alongside a cooler and warmer version
+// color (obj): rbg values for a base color
+function createColorSet(color) {
+  const colorCool = {
+    r: colorValLimit(color.r - 90),
+    g: colorValLimit(color.g - 20),
+    b: colorValLimit(color.b - 10),
+  };
+
+  const colorWarm = {
+    r: colorValLimit(color.r - 10),
+    g: colorValLimit(color.g - 20),
+    b: colorValLimit(color.b - 90),
+  };
+
+  const base = {
+    r: colorValLimit(color.r),
+    g: colorValLimit(color.g),
+    b: colorValLimit(color.b),
+  };
+
+  return {
+    base: {
+      obj: base,
+      str: `rgb(${base.r}, ${base.g}, ${base.b})`,
+    },
+    cool: {
+      obj: colorCool,
+      str: `rgb(${colorCool.r}, ${colorCool.g}, ${colorCool.b})`,
+    },
+    warm: {
+      obj: colorWarm,
+      str: `rgb(${colorWarm.r}, ${colorWarm.g}, ${colorWarm.b})`,
+    },
+  };
 }
 
+// Limit a given int to a range 0-255
+// color (int): relates to a r, b, or g color value
 function colorValLimit(color) {
   if (color >= 255) {
     color = 255;
@@ -88,26 +124,4 @@ function colorValLimit(color) {
   }
 
   return Math.round(color);
-}
-
-function colorSet(color) {
-  const colorCool = {
-    r: color.r - 90,
-    g: color.g - 20,
-    b: color.b - 10,
-  };
-
-  const colorWarm = {
-    r: color.r - 10,
-    g: color.g - 20,
-    b: color.b - 90,
-  };
-
-  const colorObj = {
-    base: color,
-    cool: colorCool,
-    warm: colorWarm,
-  };
-
-  return colorObj;
 }
