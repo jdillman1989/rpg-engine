@@ -2,8 +2,6 @@
 
 # Phase 1 Basic Game Loop
 
-- Document functions
-
 - Collision interactions
 -- Other options for enemy AI
 --- Run and Chase

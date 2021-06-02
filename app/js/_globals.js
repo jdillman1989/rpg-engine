@@ -50,6 +50,11 @@ let entities = [
       data: false,
       state: { passable: true, player: true },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: false,
   },
   {
@@ -67,6 +72,11 @@ let entities = [
       data: [1, tree.render, 1000],
       state: { passable: false },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: false,
   },
   {
@@ -107,6 +117,11 @@ let entities = [
       ],
       state: { passable: true, battle: true },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: { up: false, down: false, left: false, right: false },
   },
   {
@@ -124,6 +139,11 @@ let entities = [
       data: [3, tree.render, 1500],
       state: { passable: false },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: false,
   },
   {
@@ -141,6 +161,11 @@ let entities = [
       data: [4, ["left", "wait", "right", "wait"], tileToCoords(28), 0, 0],
       state: { passable: true, battle: true },
     },
+    ai: {
+      canChase: false,
+      canFlee: false,
+    },
+    currentAction: "default",
     dir: { up: false, down: false, left: false, right: false },
   },
 ];

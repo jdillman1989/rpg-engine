@@ -83,7 +83,7 @@ function spriteLoop(id, frames, rate) {
 // Entity callback to set its move state
 // id (int): array id reference for an overworld entity
 // path (array): strings that determine ordered directions to take (up, down, left, right, wait, or stop)
-// originPoint (obj): x/y coordinates of where the path should start
+// originPoint (obj): x/y coordinates of where the current step should start
 // originTime (int): tracks the time spent for wait or stop commands
 // step (int): index of the current path array command
 function setPath(id, path, originPoint, originTime, step) {
