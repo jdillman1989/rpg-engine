@@ -162,7 +162,7 @@ let entities = [
       state: { passable: true, battle: true },
     },
     ai: {
-      canChase: false,
+      canChase: true,
       canFlee: false,
     },
     currentAction: "default",

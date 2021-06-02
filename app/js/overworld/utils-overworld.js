@@ -142,3 +142,41 @@ function testMap() {
     }
   }
 }
+
+// Check entity AI view and make any needed changes its currentAction
+// id (int): array id reference for an overworld entity
+// dir (str): direction the entity is facing (up, down, left, right)
+function checkAI(id, dir) {
+  const adjacent = adjacentTiles(entities[id].tile).close;
+  let originViewTile = 0;
+  switch (dir) {
+    case "up":
+      originViewTile = adjacentTiles(adjacent.n).close.n;
+      break;
+
+    case "down":
+      originViewTile = adjacentTiles(adjacent.s).close.s;
+      break;
+
+    case "left":
+      originViewTile = adjacentTiles(adjacent.w).close.w;
+      break;
+
+    case "right":
+      originViewTile = adjacentTiles(adjacent.e).close.e;
+      break;
+
+    default:
+      return;
+  }
+  const fieldOfViewObj = adjacentTiles(originViewTile).all;
+  const fieldOfViewArr = Object.values(fieldOfViewObj);
+  fieldOfViewArr.push(originViewTile);
+  if (fieldOfViewArr.includes(entities[0].tile)) {
+    if (entities[id].ai.canChase) {
+      entities[id].currentAction = "chase";
+    } else if (entities[id].ai.canFlee) {
+      entities[id].currentAction = "flee";
+    }
+  }
+}

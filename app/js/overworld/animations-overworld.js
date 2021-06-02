@@ -87,76 +87,109 @@ function spriteLoop(id, frames, rate) {
 // originTime (int): tracks the time spent for wait or stop commands
 // step (int): index of the current path array command
 function setPath(id, path, originPoint, originTime, step) {
-  if (path[step] != "wait" && path[step] != "stop") {
-    const destX = Math.abs(entities[id].xy.x - originPoint.x);
-    const destY = Math.abs(entities[id].xy.y - originPoint.y);
+  if (
+    entities[id].currentAction !== "chase" ||
+    entities[id].currentAction !== "flee"
+  ) {
+    if (path[step] != "wait" && path[step] != "stop") {
+      const destX = Math.abs(entities[id].xy.x - originPoint.x);
+      const destY = Math.abs(entities[id].xy.y - originPoint.y);
 
-    if (destX >= tileSize || destY >= tileSize) {
-      step = step + 1;
-      if (step >= path.length) {
-        step = 0;
+      if (destX >= tileSize || destY >= tileSize) {
+        step = step + 1;
+        if (step >= path.length) {
+          step = 0;
+        }
+
+        originPoint = JSON.parse(JSON.stringify(entities[id].xy));
+        clearInterval(entities[id].interval);
+        entities[id].interval = 0;
       }
-
-      originPoint = JSON.parse(JSON.stringify(entities[id].xy));
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
+    } else {
+      originTime = originTime + 1;
+      if (originTime == 60) {
+        originTime = 0;
+        step = step + 1;
+        if (step >= path.length) {
+          step = 0;
+        }
+        clearInterval(entities[id].interval);
+        entities[id].interval = 0;
+      }
     }
+
+    switch (path[step]) {
+      case "up":
+        entities[id].dir.up = true;
+        entities[id].dir.down = false;
+        entities[id].dir.left = false;
+        entities[id].dir.right = false;
+        break;
+
+      case "down":
+        entities[id].dir.up = false;
+        entities[id].dir.down = true;
+        entities[id].dir.left = false;
+        entities[id].dir.right = false;
+        break;
+
+      case "left":
+        entities[id].dir.up = false;
+        entities[id].dir.down = false;
+        entities[id].dir.left = true;
+        entities[id].dir.right = false;
+        break;
+
+      case "right":
+        entities[id].dir.up = false;
+        entities[id].dir.down = false;
+        entities[id].dir.left = false;
+        entities[id].dir.right = true;
+        break;
+
+      case "wait":
+        entities[id].dir.up = false;
+        entities[id].dir.down = false;
+        entities[id].dir.left = false;
+        entities[id].dir.right = false;
+        break;
+
+      case "stop":
+        return;
+    }
+
+    if (entities[id].ai.canChase || entities[id].ai.canFlee) {
+      checkAI(id, path[step]);
+    }
+
+    window.requestAnimationFrame(() => {
+      setPath(id, path, originPoint, originTime, step);
+    });
   } else {
-    originTime = originTime + 1;
-    if (originTime == 60) {
-      originTime = 0;
-      step = step + 1;
-      if (step >= path.length) {
-        step = 0;
-      }
-      clearInterval(entities[id].interval);
-      entities[id].interval = 0;
-    }
+    window.requestAnimationFrame(() => {
+      chasePath(id);
+    });
   }
+}
 
-  switch (path[step]) {
-    case "up":
-      entities[id].dir.up = true;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
+// Set entity pathing toward the player when its currentAction is chase
+// id (int): array id reference for an overworld entity
+// originPoint (obj): x/y coordinates of where the current step should start
+function chasePath(id) {
+  if (entities[id].currentAction === "chase") {
+    entities[id].dir.up = entities[0].xy.y <= entities[id].xy.y;
+    entities[id].dir.down = entities[0].xy.y > entities[id].xy.y;
+    entities[id].dir.left = entities[0].xy.x <= entities[id].xy.x;
+    entities[id].dir.right = entities[0].xy.x > entities[id].xy.x;
 
-    case "down":
-      entities[id].dir.up = false;
-      entities[id].dir.down = true;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case "left":
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = true;
-      entities[id].dir.right = false;
-      break;
-
-    case "right":
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = true;
-      break;
-
-    case "wait":
-      entities[id].dir.up = false;
-      entities[id].dir.down = false;
-      entities[id].dir.left = false;
-      entities[id].dir.right = false;
-      break;
-
-    case "stop":
-      return;
+    window.requestAnimationFrame(() => {
+      chasePath(id);
+    });
+  } else {
+    window.requestAnimationFrame(() => {
+      returnEntityPath(id);
+    });
   }
-
-  window.requestAnimationFrame(() => {
-    setPath(id, path, originPoint, originTime, step);
-  });
 }
 
 // Set a given entity's animation loop interval and loop through its frames for redraw
