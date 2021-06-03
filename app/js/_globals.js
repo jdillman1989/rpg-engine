@@ -119,7 +119,7 @@ let entities = [
     },
     ai: {
       canChase: false,
-      canFlee: false,
+      canFlee: true,
     },
     currentAction: "default",
     dir: { up: false, down: false, left: false, right: false },

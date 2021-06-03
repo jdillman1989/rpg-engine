@@ -87,18 +87,8 @@ function spriteLoop(id, frames, rate) {
 // originTime (int): tracks the time spent for wait or stop commands
 // step (int): index of the current path array command
 function setPath(id, path, originPoint, originTime, step) {
-  if (entities[id].ai.canChase) {
-    console.log(
-      "setPath entities[id].currentAction",
-      entities[id].currentAction
-    );
-    console.log(
-      'setPath entities[id].currentAction !== "chase"',
-      entities[id].currentAction !== "chase"
-    );
-  }
   if (
-    entities[id].currentAction !== "chase" ||
+    entities[id].currentAction !== "chase" &&
     entities[id].currentAction !== "flee"
   ) {
     if (path[step] != "wait" && path[step] != "stop") {
@@ -186,12 +176,20 @@ function setPath(id, path, originPoint, originTime, step) {
 // id (int): array id reference for an overworld entity
 // originPoint (obj): x/y coordinates of where the current step should start
 function chasePath(id) {
-  console.log("chasePath entities[id].dir.right", entities[id].dir.right);
   if (entities[id].currentAction === "chase") {
     entities[id].dir.up = entities[0].xy.y <= entities[id].xy.y;
     entities[id].dir.down = entities[0].xy.y > entities[id].xy.y;
     entities[id].dir.left = entities[0].xy.x <= entities[id].xy.x;
     entities[id].dir.right = entities[0].xy.x > entities[id].xy.x;
+
+    window.requestAnimationFrame(() => {
+      chasePath(id);
+    });
+  } else if (entities[id].currentAction === "flee") {
+    entities[id].dir.up = entities[0].xy.y > entities[id].xy.y;
+    entities[id].dir.down = entities[0].xy.y <= entities[id].xy.y;
+    entities[id].dir.left = entities[0].xy.x > entities[id].xy.x;
+    entities[id].dir.right = entities[0].xy.x <= entities[id].xy.x;
 
     window.requestAnimationFrame(() => {
       chasePath(id);

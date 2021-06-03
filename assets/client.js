@@ -691,7 +691,7 @@ let entities = [
     },
     ai: {
       canChase: false,
-      canFlee: false,
+      canFlee: true,
     },
     currentAction: "default",
     dir: { up: false, down: false, left: false, right: false },
@@ -2487,13 +2487,8 @@ function spriteLoop(id, frames, rate) {
 // originTime (int): tracks the time spent for wait or stop commands
 // step (int): index of the current path array command
 function setPath(id, path, originPoint, originTime, step) {
-  console.log("setPath entities[id].currentAction", entities[id].currentAction);
-  console.log(
-    'setPath entities[id].currentAction !== "chase"',
-    entities[id].currentAction !== "chase"
-  );
   if (
-    entities[id].currentAction !== "chase" ||
+    entities[id].currentAction !== "chase" &&
     entities[id].currentAction !== "flee"
   ) {
     if (path[step] != "wait" && path[step] != "stop") {
@@ -2581,12 +2576,20 @@ function setPath(id, path, originPoint, originTime, step) {
 // id (int): array id reference for an overworld entity
 // originPoint (obj): x/y coordinates of where the current step should start
 function chasePath(id) {
-  console.log("chasePath entities[id].dir.right", entities[id].dir.right);
   if (entities[id].currentAction === "chase") {
     entities[id].dir.up = entities[0].xy.y <= entities[id].xy.y;
     entities[id].dir.down = entities[0].xy.y > entities[id].xy.y;
     entities[id].dir.left = entities[0].xy.x <= entities[id].xy.x;
     entities[id].dir.right = entities[0].xy.x > entities[id].xy.x;
+
+    window.requestAnimationFrame(() => {
+      chasePath(id);
+    });
+  } else if (entities[id].currentAction === "flee") {
+    entities[id].dir.up = entities[0].xy.y > entities[id].xy.y;
+    entities[id].dir.down = entities[0].xy.y <= entities[id].xy.y;
+    entities[id].dir.left = entities[0].xy.x > entities[id].xy.x;
+    entities[id].dir.right = entities[0].xy.x <= entities[id].xy.x;
 
     window.requestAnimationFrame(() => {
       chasePath(id);
@@ -2888,11 +2891,6 @@ function checkAI(id, dir) {
   const fieldOfViewObj = adjacentTiles(originViewTile).all;
   const fieldOfViewArr = Object.values(fieldOfViewObj);
   fieldOfViewArr.push(originViewTile);
-  console.log("checkAI fieldOfViewArr", fieldOfViewArr);
-  console.log(
-    "checkAI fieldOfViewArr.includes(entities[0].tile)",
-    fieldOfViewArr.includes(entities[0].tile)
-  );
   if (fieldOfViewArr.includes(entities[0].tile)) {
     if (entities[id].ai.canChase) {
       entities[id].currentAction = "chase";
